@@ -1,12 +1,11 @@
 <script setup>
+import { useRoute } from 'vue-router';
+
+
 </script>
 
 <template>
-  <main>
-    <ul>
-      <li>33</li>
-      <li>33</li>
-      <li>55</li>
-    </ul>
-  </main>
+  <div>
+    主页
+  </div>
 </template>

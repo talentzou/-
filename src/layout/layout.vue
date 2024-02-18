@@ -1,5 +1,7 @@
 <script setup>
+import navbar from "./components/navbar/navbar.vue"
 import sidebar from "./components/sidebar/sidebar.vue"
+import appMain from "./components/main/main.vue"
 </script>
 <template>
   <div class="layout_app_container">
@@ -9,12 +11,8 @@ import sidebar from "./components/sidebar/sidebar.vue"
     </div>
     <!-- 内容区 -->
     <div class="main_container">
-      666
-      <!-- <el-icon :size="20">
-        <ep-CaretBottom />
-      </el-icon> -->
-      <ep-Edit />
-     <svg-icon name="home" height="60" width="90"></svg-icon>
+      <navbar></navbar>
+      <app-main></app-main>
     </div>
   </div>
 </template>
@@ -31,12 +29,12 @@ import sidebar from "./components/sidebar/sidebar.vue"
   height: 100%;
 }
 .main_container {
+ 
   flex-grow: 1;
   height: 100%;
-  /* background-color: rgb(203, 163, 43); */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 3px 1px rgb(205, 203, 203) inset;
 }
-.hh{
-  fill: currentColor;
-  background-color: aqua;
-}
+
 </style>

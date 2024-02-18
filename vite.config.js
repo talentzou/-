@@ -17,6 +17,7 @@ export default defineConfig(({ command, mode }) => {
   // eslint-disable-next-line no-undef, no-unused-vars
   const env = loadEnv(mode, process.cwd(), "")
   const plugins = createPlugins()
+  console.log(env.DORM_BASE_URL_API);
   return {
     plugins,
     // plugins: [
@@ -58,12 +59,14 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       proxy: {
-        "/api": {
+        '/api': {
+          target: 'http://localhost:5173',
           changeOrigin: true,
-          target: "http://localhost:5173",
-          rewrite: (path) => path.replace(/^\/api/, "")
-        }
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
       }
-    }
+    },
+    envPrefix:"DORM_",
+  
   }
 })

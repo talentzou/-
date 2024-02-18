@@ -2,112 +2,190 @@ export const routes = [
   //主页
   {
     path: "/",
-    name: "home",
+    name: "layout",
     component: () => import("@/layout/layout.vue"),
-    meta:{
-        title:'首页',
-        icon:''
-    }
-    
-  },
-  //宿舍管理
-  {
-    path: "/DM",
-    name: "dormitory-management",
-    component: () => import("@/layout/layout.vue"),
-    meta:{
-        title:'宿舍管理',
-        icon:''
+    hidden: false,
+    redirect: "/home",
+    meta: {
+      title: "首页",
+      icon: ""
     },
     children: [
       {
-        path: "floorsInfo",
-        name: "floors",
-        component: () => import(""),
-        meta:{
-            title:'楼层信息',
-            icon:''
-        }
-      },
-      {
-        path: "dorm-Info",
-        name: "dorm",
-        component: () => import(""),
-        meta:{
-            title:'宿舍信息',
-            icon:''
-        }
-      },
-      {
-        path: "dorm-Rating",
-        name: "rate",
-        component: () => import(""),
-        meta:{
-            title:'宿舍评分',
-            icon:''
-        }
-      },
-      {
-        path:'application-stay',
-        name:'stay',
-        component:()=>import(""),
-        meta:{
-            title:'留宿申请',
-            icon:''
+        path: "home",
+        name: "home",
+        component: () => import("@/views/Home/Home.vue"),
+        meta: {
+          title: "首页",
+          icon: "home"
         }
       }
     ]
   },
- //维修
+
+  //宿舍管理
   {
-    path:'/Maintenance',
-    name:'Maintenance',
+    path: "/DM",
+    name: "dormitory-management",
+    hidden: false,
     component: () => import("@/layout/layout.vue"),
-    meta:{
-        title:'维修管理',
-        icon:''
+    meta: {
+      title: "宿舍管理",
+      icon: "dorm_m"
     },
-    children:[
-        {
-            path:'network-repair',
-            name:'network',
-            component:()=>import(""),
-            meta:{
-                title:'网络维修',
-                icon:''
-            }
-        },
-        {
-            path:'equipment-repair',
-            name:'repair',
-            component:()=>import(""),
-            meta:{
-                title:'设备维修',
-                icon:''
-            }
+    children: [
+      //楼层信息
+      {
+        path: "floorsInfo",
+        name: "floors",
+        hidden: false,
+        component: () => import("@/views/Dormitory-Management/floors.vue"),
+        meta: {
+          title: "楼层信息",
+          icon: "floors"
         }
+      },
+      //宿舍信息
+      {
+        path: "dorm-Info",
+        name: "dorm",
+        hidden: false,
+        component: () => import("@/views/Dormitory-Management/dorm.vue"),
+        meta: {
+          title: "宿舍信息",
+          icon: "dorm"
+        }
+      },
+      //舍评分
+      {
+        path: "dorm-Rating",
+        name: "rate",
+        hidden: false,
+        component: () => import("@/views/Dormitory-Management/rate.vue"),
+        meta: {
+          title: "宿舍评分",
+          icon: "rate"
+        }
+      },
+      //留宿申请
+      {
+        path: "application-stay",
+        name: "stay",
+        hidden: false,
+        component: () => import("@/views/Dormitory-Management/stay.vue"),
+        meta: {
+          title: "留宿申请",
+          icon: "application"
+        }
+      },
+      {
+        path: "dorm-bed/:name/:type",
+        // path: "dorm-bed",
+        name: "bed",
+        hidden: true,
+        component: () => import("@/views/Dormitory-Management/bed.vue"),
+        meta: {
+          title: "床位",
+          icon: ""
+        }
+      }
+    ]
+  },
+  //维修
+  {
+    path: "/Maintenance",
+    name: "Maintenance",
+    hidden: false,
+    component: () => import("@/layout/layout.vue"),
+    meta: {
+      title: "维修管理",
+      icon: "repair"
+    },
+    children: [
+      //维修列表
+      // {
+      //   path: "network-repair",
+      //   name: "network",
+      //   hidden: false,
+      //   component: () => import("@/views/Maintenance/network.vue"),
+      //   meta: {
+      //     title: "网络维修",
+      //     icon: "network"
+      //   }
+      // },
+      //设备维修
+      {
+        path: "equipment-repair",
+        name: "equipment",
+        component: () => import("@/views/Maintenance/equipment.vue"),
+        hidden: false,
+        meta: {
+          title: "维修列表",
+          icon: "equipment"
+        }
+      }
+    ]
+  },
+  //费用管理
+  {
+    path: "/EM",
+    name: "ExpenseManagement",
+    hidden: false,
+    component: () => import("@/layout/layout.vue"),
+    meta: {
+      title: "费用管理",
+      icon: "ExpenseManagement"
+    },
+    children: [
+      //学生信息
+      {
+        path: "expense",
+        name: "expense",
+        hidden: false,
+        component: () => import("@/views/Expense/expense.vue"),
+        meta: {
+          title: "水电费信息",
+          icon: "expense"
+        }
+      }
     ]
   },
   //学生信息管理
   {
-    path:'SI',
-    name:'studentInfo',
-    component:()=>import(''),
-    meta:{
-        title:'学生管理',
-        icon:''
+    path: "/SI",
+    name: "studentInfo",
+    hidden: false,
+    component: () => import("@/layout/layout.vue"),
+    meta: {
+      title: "学生管理",
+      icon: "student_m"
     },
-    children:[
-        {
-            path:'student-crud',
-            name:'student',
-            component:()=>import(""),
-            meta:{
-                title:'学生信息',
-                icon:''
-            }
+    children: [
+      //学生信息
+      {
+        path: "student-crud",
+        name: "student",
+        hidden: false,
+        component: () => import("@/views/Student-Information/student.vue"),
+        meta: {
+          title: "学生信息",
+          icon: "studentInfo"
         }
+      }
     ]
+  },
+  //登录
+  {
+    path: "/login",
+    name: "login",
+    hidden: true,
+    component: () => import("@/views/login/login.vue")
+  },
+  //404
+  {
+    path: "/:pathMatch(.*)*",
+    name: "login",
+    hidden: true,
+    component: () => import("@/views/404/notFound.vue")
   }
- 
 ]
