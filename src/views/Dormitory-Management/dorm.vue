@@ -1,7 +1,9 @@
 <script setup>
-import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
 import OperateButton from "@/components/OperateButton/operate.vue"
 import Pagination from "@/components/Pagination/pagination.vue"
+import FormDialog from "@/components/FormDialog/dialog.vue"
+import TableButton from "@/components/TableButton/tableButton.vue"
+import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
 let dormSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
@@ -31,19 +33,7 @@ function selectCheckBox(selection) {
 }
 function handleAvatarSuccess() {}
 function beforeAvatarUpload() {}
-function editRowTable(row) {
-  addDormParams = Object.assign(addDormParams, row)
-  dormVisible.value = true
-}
-function clearDormParamsData() {
-  addDormParams = Object.assign(addDormParams, {
-    floorsName: "",
-    dormNumber: "",
-    img: "",
-    dormType: "",
-    dormStatus: ""
-  })
-}
+
 function stateTag(text) {
   switch (text) {
     case "空闲":
@@ -199,32 +189,10 @@ onMounted(() => {
       label="操作"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-button
-          type="primary"
-          @click="editRowTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="edit"
-              color="white"></svg-icon> </template
-          >编辑
-        </el-button>
-        <el-popconfirm
-          width="220"
-          confirm-button-text="OK"
-          cancel-button-text="No, Thanks"
-          icon-color="#626AEF"
-          title="你确定要删除吗?"
-          @confirm="deleteTableList(row)">
-          <template #reference>
-            <el-button type="danger">
-              <template #icon>
-                <svg-icon
-                  name="delete"
-                  color="white"></svg-icon> </template
-              >删除
-            </el-button>
-          </template>
-        </el-popconfirm>
+        <TableButton
+          :row="row"
+          @merge="dormVisible = true"
+          v-model="addDormParams" />
       </template>
     </el-table-column>
   </el-table>
@@ -234,18 +202,10 @@ onMounted(() => {
     @getCurrentPage="55"
     @getPageSizes="55" />
   <!-- 对话框 -->
-  <el-dialog
-    width="40%"
+  <FormDialog
     v-model="dormVisible"
-    @close="clearDormParamsData"
-    :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4
-        :id="titleId"
-        :class="titleClass">
-        {{ addDormParams.img ? "编辑宿舍信息" : "  添加宿舍信息" }}
-      </h4>
-    </template>
+    v-model:params="addDormParams"
+    title="修改床位">
     <el-form
       :model="addDormParams"
       inline
@@ -319,21 +279,10 @@ onMounted(() => {
               </p>
             </div>
           </template>
-          <!-- <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon> -->
         </el-upload>
       </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="visible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="addDormParams.id ? updateDormData() : increaseDormData()">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+    </el-form></FormDialog
+  >
 </template>
 <style>
 .dorm_img {

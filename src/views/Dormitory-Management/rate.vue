@@ -1,5 +1,7 @@
 <script setup>
 import OperateButton from "@/components/OperateButton/operate.vue"
+import FormDialog from "@/components/FormDialog/dialog.vue"
+import TableButton from "@/components/TableButton/tableButton.vue"
 import { getRateInfoRequest } from "@/server/MG/rate/rate"
 let rateSearchParams = reactive({
   rateDate: "",
@@ -10,7 +12,7 @@ let rateSearchParams = reactive({
 })
 let isOperate = ref(true)
 let rateEditParams = reactive({
-  id:"",
+  id: "",
   rateDate: "",
   floorsName: "",
   dormNumber: "",
@@ -38,29 +40,7 @@ function stateTag(state) {
     return "danger"
   }
 }
-function editRateRowTable(row) {
-  console.log(Date.parse(row.rateDate))
-  rateEditParams = Object.assign(rateEditParams, row)
-  rateEditParams.rateDate = Date.parse(row.rateDate)
-  rateVisible.value = true
-}
-function clearRateParamsData() {
-  rateEditParams = Object.assign(rateEditParams, {
-    id:"",
-    rateDate: "",
-    floorsName: "",
-    dormNumber: "",
-    bedRate: "",
-    groundRate: "",
-    lavatory: "",
-    goods: "",
-    totalScore: "",
-    Rater: "",
-    evaluation: "",
-    remark: ""
-  })
-}
-let selectRateTableData=ref([])
+let selectRateTableData = ref([])
 function selectRateCheckBox(selection) {
   isOperate.value = false
   if (selection.length === 0) {
@@ -194,32 +174,10 @@ onMounted(() => {
       label="操作"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-button
-          type="primary"
-          @click="editRateRowTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="edit"
-              color="white"></svg-icon> </template
-          >编辑
-        </el-button>
-        <el-popconfirm
-          width="220"
-          confirm-button-text="OK"
-          cancel-button-text="No, Thanks"
-          icon-color="#626AEF"
-          title="你确定要删除吗?"
-          @confirm="deleteTableList(row)">
-          <template #reference>
-            <el-button type="danger">
-              <template #icon>
-                <svg-icon
-                  name="delete"
-                  color="white"></svg-icon> </template
-              >删除
-            </el-button>
-          </template>
-        </el-popconfirm>
+        <TableButton
+          :row="row"
+          @merge=" rateVisible= true"
+          v-model="rateEditParams" />
       </template>
     </el-table-column>
   </el-table>
@@ -229,18 +187,10 @@ onMounted(() => {
     @getCurrentPage="getRateData"
     @getPageSizes="getRateData" />
   <!-- 对话框 -->
-  <el-dialog
-    width="38%"
+  <FormDialog
     v-model="rateVisible"
-    @close="clearRateParamsData"
-    :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4
-        :id="titleId"
-        :class="titleClass">
-        {{ rateEditParams.id?"修改宿舍评分":"添加宿舍评分" }}
-      </h4>
-    </template>
+    v-model:params="rateEditParams"
+    title="评分">
     <el-form
       inline
       :model="rateEditParams"
@@ -337,15 +287,5 @@ onMounted(() => {
           type="textarea" />
       </el-form-item>
     </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="visible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="rateEditParams.id ? updateRateData() : increaseRateData()">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+  </FormDialog>
 </template>

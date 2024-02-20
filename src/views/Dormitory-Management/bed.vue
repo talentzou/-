@@ -1,12 +1,14 @@
 <script setup>
 import OperateButton from "@/components/OperateButton/operate.vue"
+import TableButton from "@/components/TableButton/tableButton.vue"
 import { getBedInfoRequest } from "@/server/MG/bed/bed"
+import FormDialog from "@/components/FormDialog/dialog.vue"
 
 let $route = useRoute()
-console.log($route)
+// console.log($route)
 let bedSearchParams = reactive({
   bedStatus: "",
-  dormType:"",
+  dormType: "",
   dormNumber: "",
   bedNumber: "",
   bedPerson: ""
@@ -32,27 +34,11 @@ function selectCheckBox(selection) {
   }
   selectBedData.value = selection
 }
-function editRowTable($row) {
-  bedVisible.value = true
-  console.log($row)
-  editParams = Object.assign(editParams, $row)
-}
-function deleteTableList() {}
-function clearBedParamsData() {
-  editParams = Object.assign(editParams, {
-    bedStatus: "有人",
-    dormNumber: "",
-    bedNumber: "",
-    message: "",
-    bedPerson: ""
-  })
-}
 
 /* 接口 */
 let bedTableData = ref([])
 async function getBedData() {
   const { code, data } = await getBedInfoRequest()
-  console.log(data)
   bedTableData.value = data
 }
 async function deleteBedData() {}
@@ -181,48 +167,18 @@ onMounted(() => {
       label="操作"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-button
-          type="primary"
-          @click="editRowTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="edit"
-              color="white"></svg-icon> </template
-          >编辑
-        </el-button>
-        <el-popconfirm
-          width="220"
-          confirm-button-text="OK"
-          cancel-button-text="No, Thanks"
-          icon-color="#626AEF"
-          title="你确定要删除吗?"
-          @confirm="deleteTableList(row)">
-          <template #reference>
-            <el-button type="danger">
-              <template #icon>
-                <svg-icon
-                  name="delete"
-                  color="white"></svg-icon> </template
-              >删除
-            </el-button>
-          </template>
-        </el-popconfirm>
+        <TableButton
+          :row="row"
+          @merge="bedVisible = true"
+          v-model="editParams" />
       </template>
     </el-table-column>
   </el-table>
   <!-- 对话框 -->
-  <el-dialog
-    width="40%"
+  <FormDialog
     v-model="bedVisible"
-    @close="clearBedParamsData"
-    :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4
-        :id="titleId"
-        :class="titleClass">
-        {{ "修改床位" }}
-      </h4>
-    </template>
+    v-model:params="editParams"
+    title="修改床位">
     <el-form
       :model="editParams"
       label-width="auto">
@@ -260,15 +216,5 @@ onMounted(() => {
           type="textarea" />
       </el-form-item>
     </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="visible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="floorsParams.id ? updateTableList() : increaseData()">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+  </FormDialog>
 </template>

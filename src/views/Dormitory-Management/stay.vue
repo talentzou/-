@@ -1,6 +1,8 @@
 <script setup>
 import OperateButton from "@/components/OperateButton/operate.vue"
 import Pagination from "@/components/Pagination/pagination.vue"
+import FormDialog from "@/components/FormDialog/dialog.vue"
+import TableButton from "@/components/TableButton/tableButton.vue"
 import { getStayInfoRequest } from "@/server/MG/stay/stay"
 let staySearchParams = reactive({
   date: ""
@@ -19,7 +21,7 @@ function selectDatePicker() {
 }
 let isOperate = ref(true)
 let stayTableData = ref([])
-let selectStayTableData=ref([])
+let selectStayTableData = ref([])
 function selectStayCheckBox(selection) {
   isOperate.value = false
   if (selection.length === 0) {
@@ -146,7 +148,7 @@ onMounted(() => {
       align="center">
       <template #default="{ row, column, $index }">
         <el-text truncated>
-          {{ row.stayDate[0]}}~{{ row.stayDate[1] }}
+          {{ row.stayDate[0] }}~{{ row.stayDate[1] }}
         </el-text>
       </template>
     </el-table-column>
@@ -206,32 +208,10 @@ onMounted(() => {
       label="操作"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-button
-          type="primary"
-          @click="editStayRowTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="edit"
-              color="white"></svg-icon> </template
-          >编辑
-        </el-button>
-        <el-popconfirm
-          width="220"
-          confirm-button-text="OK"
-          cancel-button-text="No, Thanks"
-          icon-color="#626AEF"
-          title="你确定要删除吗?"
-          @confirm="deleteTableList(row)">
-          <template #reference>
-            <el-button type="danger">
-              <template #icon>
-                <svg-icon
-                  name="delete"
-                  color="white"></svg-icon> </template
-              >删除
-            </el-button>
-          </template>
-        </el-popconfirm>
+        <TableButton
+          :row="row"
+          @merge="stayVisible = true"
+          v-model="stayEditParams" />
       </template>
     </el-table-column>
   </el-table>
@@ -240,18 +220,10 @@ onMounted(() => {
     @getCurrentPage="getStayPage"
     @getPageSizes="getStayPageSize" />
   <!-- 对话框 -->
-  <el-dialog
-    width="25%"
+  <FormDialog
     v-model="stayVisible"
-    @close="clearSTayParamsData"
-    :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4
-        :id="titleId"
-        :class="titleClass">
-        {{ "添加留宿申请" }}
-      </h4>
-    </template>
+    v-model:params="stayEditParams"
+    title="留宿申请">
     <el-form
       :model="stayEditParams"
       label-width="auto">
@@ -296,18 +268,7 @@ onMounted(() => {
         <el-input
           v-model="stayEditParams.instructor"
           placeholder="请输入辅导员" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="stayVisible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="floorsParams.id ? updateTableList() : increaseData()">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+      </el-form-item> </el-form
+  ></FormDialog>
 </template>
 @/server/MG/stay/stay

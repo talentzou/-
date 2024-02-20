@@ -1,5 +1,7 @@
 <script setup>
 import OperateButton from "@/components/OperateButton/operate.vue"
+import FormDialog from "@/components/FormDialog/dialog.vue"
+import TableButton from "@/components/TableButton/tableButton.vue"
 import { getRepairInfoRequest } from "@/server/REPAIR/repair"
 import { onMounted, ref } from "vue"
 let maintenanceSearchParams = reactive({
@@ -20,38 +22,23 @@ let maintenanceEditParams = reactive({
   repairer: "",
   remark: ""
 })
-let selectMaintenanceTableData=ref([])
+let selectMaintenanceTableData = ref([])
 function selectRepairCheckBox(selection) {
-    isOperate.value = false
+  isOperate.value = false
   if (selection.length === 0) {
     isOperate.value = true
   }
   selectMaintenanceTableData.value = selection
 }
-function clearMaintenanceParamsData() {
-  maintenanceEditParams = Object.assign(maintenanceEditParams, {
-    floorsName: "",
-    dormNumber: "",
-    problems: "",
-    submitDate: "",
-    repairStatus: "",
-    reportMan: "",
-    phone: "",
-    repairer: "",
-    remark: ""
-  })
-}
-function editRowMaintenanceTable(row) {
-  row.submitDate = Date.parse(row.submitDate)
-  maintenanceEditParams = Object.assign(maintenanceEditParams, row)
-  repairVisible.value = true
+function selectDatePicker(){
+
 }
 /* 接口 */
 let repairTableData = ref([])
 async function getRepairData() {
   const { code, data } = await getRepairInfoRequest()
   repairTableData.value = data
-  console.log(data);
+  console.log(data)
 }
 async function deleteRepairData() {}
 async function increaseRepairData() {}
@@ -176,57 +163,18 @@ onMounted(() => {
       label="操作"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-button
-          type="warning"
-          @click="editRowTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="solve"
-              color="white"></svg-icon> </template
-          >处理
-        </el-button>
-        <el-button
-          type="primary"
-          @click="editRowMaintenanceTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="edit"
-              color="white"></svg-icon> </template
-          >编辑
-        </el-button>
-        <el-popconfirm
-          width="220"
-          confirm-button-text="OK"
-          cancel-button-text="No, Thanks"
-          icon-color="#626AEF"
-          title="你确定要删除吗?"
-          @confirm="deleteTableList(row)">
-          <template #reference>
-            <el-button type="danger">
-              <template #icon>
-                <svg-icon
-                  name="delete"
-                  color="white"></svg-icon> </template
-              >删除
-            </el-button>
-          </template>
-        </el-popconfirm>
+        <TableButton
+          :row="row"
+          @merge="repairVisible = true"
+          v-model="maintenanceEditParams" />
       </template>
     </el-table-column>
   </el-table>
   <!-- 对话框 -->
-  <el-dialog
-    width="30%"
+  <FormDialog
     v-model="repairVisible"
-    @close="clearMaintenanceParamsData"
-    :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4
-        :id="titleId"
-        :class="titleClass">
-        {{ "编辑维修订单" }}
-      </h4>
-    </template>
+    v-model:params="maintenanceEditParams"
+    title="维修信息">
     <el-form
       :model="maintenanceEditParams"
       label-width="auto">
@@ -299,19 +247,8 @@ onMounted(() => {
           v-model="maintenanceEditParams.remark"
           placeholder="请输入备注"
           type="textarea" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="stayVisible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="floorsParams.id ? updateTableList() : increaseData()">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+      </el-form-item> </el-form
+  ></FormDialog>
 </template>
 
 <style lang="scss" scoped></style>

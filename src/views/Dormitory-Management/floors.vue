@@ -1,12 +1,14 @@
 <script setup>
+import OperateButton from "@/components/OperateButton/operate.vue"
+import Pagination from "@/components/Pagination/pagination.vue"
+import TableButton from "@/components/TableButton/tableButton.vue"
+import FormDialog from "@/components/FormDialog/dialog.vue"
 import {
   getFloorsInfoRequest,
   deleteFloorsInfoRequest,
   updateFloorsInfoRequest,
   addFloorsInfoRequest
 } from "@/server/MG/floors/floors"
-import Pagination from "@/components/Pagination/pagination.vue"
-import { nextTick, reactive } from "vue"
 //初始页数数量
 let pageAndSizeParams = reactive({
   pageSizes: 10,
@@ -45,7 +47,7 @@ function searchFloors() {
   // getFloorsInfo(temp)
 }
 //对话框
-const visible = ref(false)
+const floorsVisible = ref(false)
 //宿舍楼参数
 let floorsParams = reactive({
   floorsName: "",
@@ -69,18 +71,10 @@ function selectCheckBox(selection) {
   // console.log("selection", selection)
   deleteData.value = selection
 }
-// 添加按钮
-function addFloorBtn() {
-  floorsParams = Object.assign(floorsParams, {
-    floorsName: "",
-    floors: "",
-    floorsType: "",
-    amount: "",
-    id: ""
-  })
-  visible.value = true
+function tagState(row) {
+  let type = row.floorsType === "男生宿舍" ? "success" : "danger"
+  return type
 }
-
 /* 接口api */
 //获取楼层信息
 async function getFloorsInfo(pageOrSize) {
@@ -91,11 +85,6 @@ async function getFloorsInfo(pageOrSize) {
   const { code, data } = await getFloorsInfoRequest(pageAndSizeParams)
   tableData.value = data
   // console.log(tableData.value.length)
-}
-//添加楼层
-async function increaseData() {
-  console.log("我是增加")
-  visible.value = false
 }
 //删除
 let deleteData = ref([])
@@ -152,47 +141,9 @@ onMounted(() => {
     </el-form-item>
   </el-form>
   <!-- 操作 -->
-  <el-row
-    style="margin: 5px 0"
-    :gutter="10">
-    <el-col :span="1.5"
-      ><el-button
-        size="small"
-        type="success"
-        @click="addFloorBtn">
-        <template #icon>
-          <svg-icon
-            name="plus"
-            color="white"></svg-icon> </template
-        >添加
-      </el-button></el-col
-    >
-    <el-col :span="1.5">
-      <el-button
-        type="danger"
-        @click="deleteTableList(deleteData)"
-        :disabled="operateIsTrue"
-        size="small">
-        <template #icon>
-          <svg-icon
-            name="delete"
-            color="white"></svg-icon> </template
-        >删除
-      </el-button>
-    </el-col>
-    <el-col :span="1.5">
-      <el-button
-        type="warning"
-        :disabled="operateIsTrue"
-        size="small">
-        <template #icon>
-          <svg-icon
-            name="export"
-            color="white"></svg-icon> </template
-        >导出
-      </el-button>
-    </el-col>
-  </el-row>
+  <OperateButton
+    :isOperate="isOperate"
+    v-model="floorsVisible" />
   <!-- 表格数据 -->
   <el-table
     :data="tableData"
@@ -224,9 +175,7 @@ onMounted(() => {
       width="180"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-tag :type="row.floorsType === `男生宿舍` ? `primary` : `danger`">{{
-          row.floorsType
-        }}</el-tag>
+        <el-tag :type="tagState(row)">{{ row.floorsType }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
@@ -239,47 +188,22 @@ onMounted(() => {
       label="操作"
       align="center">
       <template #default="{ row, column, $index }">
-        <el-button
-          type="primary"
-          @click="editRowTable(row, column, $index)">
-          <template #icon>
-            <svg-icon
-              name="edit"
-              color="white"></svg-icon> </template
-          >编辑
-        </el-button>
-        <el-popconfirm
-          width="220"
-          confirm-button-text="OK"
-          cancel-button-text="No, Thanks"
-          icon-color="#626AEF"
-          title="你确定要删除吗?"
-          @confirm="deleteTableList(row)">
-          <template #reference>
-            <el-button type="danger">
-              <template #icon>
-                <svg-icon
-                  name="delete"
-                  color="white"></svg-icon> </template
-              >删除
-            </el-button>
-          </template>
-        </el-popconfirm>
+        <TableButton
+          :row="row"
+          @merge="floorsVisible = true"
+          v-model="floorsParams" />
       </template>
     </el-table-column>
   </el-table>
+  <Pagination
+    :total="tableData.length"
+    @getCurrentPage="getFloorsInfo"
+    @getPageSizes="getFloorsInfo" />
   <!-- 对话框 -->
-  <el-dialog
-    width="30%"
-    v-model="visible"
-    :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4
-        :id="titleId"
-        :class="titleClass">
-        {{ floorsParams.id ? "编辑宿舍楼" : "添加宿舍楼" }}
-      </h4>
-    </template>
+  <FormDialog
+    v-model="floorsVisible"
+    v-model:params="floorsParams"
+    title="宿舍信息">
     <el-form
       :model="floorsParams"
       label-width="auto">
@@ -306,20 +230,6 @@ onMounted(() => {
         <el-input v-model="floorsParams.amount" />
       </el-form-item>
     </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="visible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="floorsParams.id ? updateTableList() : increaseData()">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
-  <Pagination
-    :total="tableData.length"
-    @getCurrentPage="getFloorsInfo"
-    @getPageSizes="getFloorsInfo" />
+  </FormDialog>
 </template>
 @/server/MG/stay/floors/floors
