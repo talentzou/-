@@ -1,8 +1,4 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import Pagination from "@/components/Pagination/pagination.vue"
-import FormDialog from "@/components/FormDialog/dialog.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
 import { getStayInfoRequest } from "@/server/MG/stay/stay"
 let staySearchParams = reactive({
   date: ""

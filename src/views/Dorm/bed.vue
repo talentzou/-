@@ -1,9 +1,5 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
 import { getBedInfoRequest } from "@/server/MG/bed/bed"
-import FormDialog from "@/components/FormDialog/dialog.vue"
-
 let $route = useRoute()
 // console.log($route)
 let bedSearchParams = reactive({

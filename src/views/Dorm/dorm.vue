@@ -1,8 +1,5 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import Pagination from "@/components/Pagination/pagination.vue"
-import FormDialog from "@/components/FormDialog/dialog.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
+
 import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
 let dormSearchParams = reactive({
   floorsName: "",

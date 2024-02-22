@@ -1,4 +1,5 @@
 <script setup>
+
 const props = defineProps({
   isOperate: {
     require: true,
@@ -6,14 +7,16 @@ const props = defineProps({
     default: true
   }
 })
-
+const emits=defineEmits(['excel'])
 let visible = defineModel()
 const operateIsTrue = ref(true)
 function addBtn() {
   visible.value = true
 }
 function deleteBtn() {}
-function exportBtn() {}
+function exportBtn() {
+  emits('excel')
+}
 </script>
 <template>
   <!-- 操作 -->

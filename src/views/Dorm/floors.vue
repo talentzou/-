@@ -1,14 +1,20 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import Pagination from "@/components/Pagination/pagination.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
-import FormDialog from "@/components/FormDialog/dialog.vue"
 import {
   getFloorsInfoRequest,
   deleteFloorsInfoRequest,
   updateFloorsInfoRequest,
   addFloorsInfoRequest
 } from "@/server/MG/floors/floors"
+import { exportExcel } from "@/utils/excel"
+const refTable = ref(null)
+const exp = ref(null)
+function exportTable({ filename, allSelect }) {
+  const data= allSelect? refTable.value.data:refTable.value.getSelectionRows()
+  console.log(data);
+  exportExcel(data,filename)
+}
+const expDialog = ref(false)
+const isOperate = ref(false)
 //初始页数数量
 let pageAndSizeParams = reactive({
   pageSizes: 10,
@@ -56,21 +62,20 @@ let floorsParams = reactive({
   amount: "",
   id: ""
 })
-//编辑对话
-function editRowTable(row, column, index) {
-  floorsParams = Object.assign(floorsParams, row)
-  visible.value = true
-  // console.log("edit", floorsParams)
-}
-//选中项
-function selectCheckBox(selection) {
-  operateIsTrue.value = false
-  if (selection.length === 0) {
-    operateIsTrue.value = true
-  }
-  // console.log("selection", selection)
-  deleteData.value = selection
-}
+
+// //选中项
+// const selectList=ref([])
+// function selectCheckBox(selection) {
+//   operateIsTrue.value = false
+//   if (selection.length === 0) {
+//     operateIsTrue.value = true
+//   }
+//   // console.log("selection", selection)
+//   selectList.value = selection
+//   console.log("selection",selectList.value );
+// @select="selectCheckBox"
+//     @select-all="selectCheckBox"
+// }
 function tagState(row) {
   let type = row.floorsType === "男生宿舍" ? "success" : "danger"
   return type
@@ -87,15 +92,15 @@ async function getFloorsInfo(pageOrSize) {
   // console.log(tableData.value.length)
 }
 //删除
-let deleteData = ref([])
-async function deleteTableList(selectData) {
-  console.log(selectData)
-}
-//更新
-async function updateTableList() {
-  console.log("我是更新")
-  visible.value = false
-}
+// let deleteData = ref([])
+// async function deleteTableList(selectData) {
+//   console.log(selectData)
+// }
+// //更新
+// async function updateTableList() {
+//   console.log("我是更新")
+//   visible.value = false
+// }
 onMounted(() => {
   getFloorsInfo()
 })
@@ -143,18 +148,21 @@ onMounted(() => {
   <!-- 操作 -->
   <OperateButton
     :isOperate="isOperate"
+    @excel="expDialog = true"
     v-model="floorsVisible" />
   <!-- 表格数据 -->
   <el-table
+    id="table"
     :data="tableData"
-    @select="selectCheckBox"
-    @select-all="selectCheckBox"
     border
-    :max-height="525">
+    ref="refTable"
+    :max-height="525"
+    :row-key="(row) => row.id">
     <el-table-column
       type="selection"
       fixed
-      width="55" />
+      width="55"
+      reserve-selection />
     <el-table-column
       width="55"
       type="index"
@@ -231,5 +239,9 @@ onMounted(() => {
       </el-form-item>
     </el-form>
   </FormDialog>
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable"
+    ref="exp" />
 </template>
 @/server/MG/stay/floors/floors

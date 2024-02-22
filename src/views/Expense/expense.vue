@@ -1,9 +1,9 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import Pagination from "@/components/Pagination/pagination.vue"
-import FormDialog from "@/components/FormDialog/dialog.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
 import { getExpenseInfoRequest } from "@/server/EXPENSE/expense"
+import { read, utils, writeFile } from 'xlsx'
+function exportExcel(){
+
+}
 let expenseSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
@@ -11,7 +11,16 @@ let expenseSearchParams = reactive({
   accounter: ""
 })
 let expenseEditParams = reactive({
-  kk: ""
+  dormNumber: "",
+  paymentTime: "",
+  waterConsumption: "",
+  waterCharge: "",
+  electricityConsumption: "",
+  electricityCharge: "",
+  totalCost: "",
+  accountant: "",
+  phone: "",
+  remark: ""
 })
 function selectDatePicker(params) {}
 function selectCheckBox(params) {}
@@ -152,7 +161,72 @@ onMounted(() => {
   <FormDialog
     v-model="expenseVisible"
     v-model:params="expenseEditParams"
-    title="费用信息"></FormDialog>
+    title="费用信息">
+    <el-form
+      :model="expenseEditParams"
+      label-width="auto">
+      <el-form-item label="宿舍编号">
+        <el-select
+          style="width: 160px"
+          placeholder="请选择宿舍"
+          v-model="expenseEditParams.dormNumber">
+          <el-option
+            label="jj"
+            value="kk" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="缴费时间时间">
+        <el-date-picker
+          @change="selectDatePicker"
+          v-model="expenseEditParams.paymentTime"
+          type="date"
+          format="YYYY-MM-DD"
+          placeholder="Start date"
+          value-format="x" />
+      </el-form-item>
+      <el-form-item label="用水量">
+        <el-input
+          v-model="expenseEditParams.waterConsumption"
+          placeholder="请输入数字" />
+      </el-form-item>
+      <el-form-item label="水费">
+        <el-input
+          v-model="expenseEditParams.waterCharge"
+          placeholder="请输入数字" />
+      </el-form-item>
+      <el-form-item label="用电量">
+        <el-input
+          v-model="expenseEditParams.electricityConsumption"
+          placeholder="请输入数字" />
+      </el-form-item>
+      <el-form-item label="电费">
+        <el-input
+          v-model="expenseEditParams.electricityCharge"
+          placeholder="请输入数字" />
+      </el-form-item>
+      <el-form-item label="总费用">
+        <el-input
+          v-model="expenseEditParams.totalCost"
+          placeholder="请输入数字" />
+      </el-form-item>
+      <el-form-item label="结算人员">
+        <el-input
+          v-model="expenseEditParams.accountant"
+          placeholder="请输入结算人员" />
+      </el-form-item>
+      <el-form-item label="联系方式">
+        <el-input
+          v-model="expenseEditParams.phone"
+          placeholder="请输入手机号码" />
+      </el-form-item>
+      <el-form-item label="备注">
+        <el-input
+          v-model="expenseEditParams.remark"
+          placeholder="请输入备注"
+          type="textarea" />
+      </el-form-item>
+    </el-form>
+  </FormDialog>
 </template>
 
 <style lang="scss" scoped></style>

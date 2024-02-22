@@ -1,9 +1,5 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import FormDialog from "@/components/FormDialog/dialog.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
 import { getRepairInfoRequest } from "@/server/REPAIR/repair"
-import { onMounted, ref } from "vue"
 let maintenanceSearchParams = reactive({
   searchMessage: "",
   floorsName: "",
@@ -30,19 +26,17 @@ function selectRepairCheckBox(selection) {
   }
   selectMaintenanceTableData.value = selection
 }
-function selectDatePicker(){
-
-}
+function selectDatePicker() {}
 /* 接口 */
 let repairTableData = ref([])
 async function getRepairData() {
   const { code, data } = await getRepairInfoRequest()
   repairTableData.value = data
-  console.log(data)
+  // console.log(data)
 }
-async function deleteRepairData() {}
-async function increaseRepairData() {}
-async function updateRepairData() {}
+// async function deleteRepairData() {}
+// async function increaseRepairData() {}
+// async function updateRepairData() {}
 onMounted(() => {
   getRepairData()
 })

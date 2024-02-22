@@ -39,7 +39,7 @@ export const routes = [
         path: "floorsInfo",
         name: "floors",
         hidden: false,
-        component: () => import("@/views/Dormitory-Management/floors.vue"),
+        component: () => import("@/views/Dorm/floors.vue"),
         meta: {
           title: "楼层信息",
           icon: "floors"
@@ -50,7 +50,7 @@ export const routes = [
         path: "dorm-Info",
         name: "dorm",
         hidden: false,
-        component: () => import("@/views/Dormitory-Management/dorm.vue"),
+        component: () => import("@/views/Dorm/dorm.vue"),
         meta: {
           title: "宿舍信息",
           icon: "dorm"
@@ -61,7 +61,7 @@ export const routes = [
         path: "dorm-Rating",
         name: "rate",
         hidden: false,
-        component: () => import("@/views/Dormitory-Management/rate.vue"),
+        component: () => import("@/views/Dorm/rate.vue"),
         meta: {
           title: "宿舍评分",
           icon: "rate"
@@ -72,7 +72,7 @@ export const routes = [
         path: "application-stay",
         name: "stay",
         hidden: false,
-        component: () => import("@/views/Dormitory-Management/stay.vue"),
+        component: () => import("@/views/Dorm/stay.vue"),
         meta: {
           title: "留宿申请",
           icon: "application"
@@ -83,7 +83,7 @@ export const routes = [
         // path: "dorm-bed",
         name: "bed",
         hidden: true,
-        component: () => import("@/views/Dormitory-Management/bed.vue"),
+        component: () => import("@/views/Dorm/bed.vue"),
         meta: {
           title: "床位",
           icon: ""
@@ -166,7 +166,7 @@ export const routes = [
         path: "student-crud",
         name: "student",
         hidden: false,
-        component: () => import("@/views/Student-Information/student.vue"),
+        component: () => import("@/views/Student/student.vue"),
         meta: {
           title: "学生信息",
           icon: "studentInfo"

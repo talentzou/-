@@ -1,7 +1,4 @@
 <script setup>
-import OperateButton from "@/components/OperateButton/operate.vue"
-import FormDialog from "@/components/FormDialog/dialog.vue"
-import TableButton from "@/components/TableButton/tableButton.vue"
 import { getRateInfoRequest } from "@/server/MG/rate/rate"
 let rateSearchParams = reactive({
   rateDate: "",
