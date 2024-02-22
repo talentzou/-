@@ -1,9 +1,7 @@
 <script setup>
 import { getExpenseInfoRequest } from "@/server/EXPENSE/expense"
-import { read, utils, writeFile } from 'xlsx'
-function exportExcel(){
-
-}
+import { exportExcel } from "@/utils/excel"
+const refTable = ref(null)
 let expenseSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
@@ -22,9 +20,20 @@ let expenseEditParams = reactive({
   phone: "",
   remark: ""
 })
-function selectDatePicker(params) {}
-function selectCheckBox(params) {}
+
+let isOperate = ref(true)
+//导出对话框
+const expDialog = ref(false)
+
 let expenseVisible = ref(false)
+//导出表格
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
+}
+function selectDatePicker(params) {}
 /* 接口 */
 let expenseTableData = ref([])
 async function getExpenseFData() {
@@ -82,11 +91,16 @@ onMounted(() => {
       <el-button>重置</el-button>
     </el-form-item>
   </el-form>
-  <OperateButton v-model="expenseVisible" />
+  <OperateButton
+    v-model="expenseVisible"
+    :isOperate="isOperate"
+    @excel="expDialog = true" />
   <el-table
     :data="expenseTableData"
-    @select="selectCheckBox"
-    @select-all="selectCheckBox"
+    ref="refTable"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
     border
     :max-height="525">
     <el-table-column
@@ -227,6 +241,9 @@ onMounted(() => {
       </el-form-item>
     </el-form>
   </FormDialog>
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable" />
 </template>
 
 <style lang="scss" scoped></style>

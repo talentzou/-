@@ -1,5 +1,8 @@
 <script setup>
 import { getRateInfoRequest } from "@/server/MG/rate/rate"
+import { exportExcel } from "@/utils/excel"
+const refTable=ref(null)
+const expDialog = ref(false)
 let rateSearchParams = reactive({
   rateDate: "",
   floorsName: "",
@@ -23,7 +26,7 @@ let rateEditParams = reactive({
   remark: ""
 })
 let rateVisible = ref(false)
-let rateTableData = ref([])
+//标签颜色
 function stateTag(state) {
   if (state > 90) {
     return "success"
@@ -38,14 +41,15 @@ function stateTag(state) {
   }
 }
 let selectRateTableData = ref([])
-function selectRateCheckBox(selection) {
-  isOperate.value = false
-  if (selection.length === 0) {
-    isOperate.value = true
-  }
-  selectRateTableData.value = selection
+//导出表格
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
 }
 /* 接口 */
+let rateTableData = ref([])
 async function getRateData() {
   const { data, code } = await getRateInfoRequest()
   rateTableData.value = data
@@ -101,13 +105,16 @@ onMounted(() => {
   <!-- 操作 -->
   <OperateButton
     :isOperate="isOperate"
-    v-model="rateVisible" />
+    v-model="rateVisible" 
+    @excel="expDialog = true"/>
   <!-- 表格数据 -->
   <el-table
     :data="rateTableData"
-    @select="selectRateCheckBox"
-    @select-all="selectRateCheckBox"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
     border
+    ref="refTable"
     :max-height="525">
     <el-table-column
       type="selection"
@@ -173,7 +180,7 @@ onMounted(() => {
       <template #default="{ row, column, $index }">
         <TableButton
           :row="row"
-          @merge=" rateVisible= true"
+          @merge="rateVisible = true"
           v-model="rateEditParams" />
       </template>
     </el-table-column>
@@ -285,4 +292,7 @@ onMounted(() => {
       </el-form-item>
     </el-form>
   </FormDialog>
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable" />
 </template>

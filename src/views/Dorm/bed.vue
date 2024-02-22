@@ -1,7 +1,9 @@
 <script setup>
 import { getBedInfoRequest } from "@/server/MG/bed/bed"
+import { exportExcel } from "@/utils/excel"
 let $route = useRoute()
-// console.log($route)
+const refTable = ref(null)
+const expDialog = ref(false)
 let bedSearchParams = reactive({
   bedStatus: "",
   dormType: "",
@@ -17,20 +19,16 @@ let editParams = reactive({
   bedPerson: ""
 })
 let isOperate = ref(true)
-//对话框
 let bedVisible = ref(false)
-//选中表格数据
-let selectBedData = ref([])
 bedSearchParams.dormNumber = $route.params.name
 bedSearchParams.dormType = $route.params.type
-function selectCheckBox(selection) {
-  isOperate.value = false
-  if (selection.length === 0) {
-    isOperate.value = true
-  }
-  selectBedData.value = selection
+//导出数据
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
 }
-
 /* 接口 */
 let bedTableData = ref([])
 async function getBedData() {
@@ -103,12 +101,15 @@ onMounted(() => {
   <!-- 操作 -->
   <OperateButton
     :isOperate="isOperate"
+    @excel="expDialog = true"
     v-model="bedVisible" />
   <!-- 表格数据 -->
   <el-table
     :data="bedTableData"
-    @select="selectCheckBox"
-    @select-all="selectCheckBox"
+    ref="refTable"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
     border
     :max-height="525">
     <el-table-column
@@ -213,4 +214,7 @@ onMounted(() => {
       </el-form-item>
     </el-form>
   </FormDialog>
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable" />
 </template>

@@ -1,6 +1,8 @@
 <script setup>
-
 import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
+import { exportExcel } from "@/utils/excel"
+const refTable = ref(null)
+const expDialog = ref(false)
 let dormSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
@@ -16,21 +18,16 @@ let addDormParams = reactive({
 })
 let dormVisible = ref(false)
 let isOperate = ref(true)
-//表格数据
-const dormTableData = ref([])
-//选中表格数据
-let selectDormData = ref([])
-
-function selectCheckBox(selection) {
-  isOperate.value = false
-  if (selection.length === 0) {
-    isOperate.value = true
-  }
-  selectDormData.value = selection
+//导出数据
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
 }
+
 function handleAvatarSuccess() {}
 function beforeAvatarUpload() {}
-
 function stateTag(text) {
   switch (text) {
     case "空闲":
@@ -43,8 +40,11 @@ function stateTag(text) {
       return "info"
   }
 }
+
 /* 接口 */
 //获取信息
+//表格数据
+const dormTableData = ref([])
 async function getDormData() {
   const { code, data } = await getDormInfoRequest()
   dormTableData.value = data
@@ -120,12 +120,15 @@ onMounted(() => {
   <!-- 操作 -->
   <OperateButton
     :isOperate="isOperate"
+    @excel="expDialog = true"
     v-model="dormVisible" />
   <!-- 表格数据 -->
   <el-table
     :data="dormTableData"
-    @select="selectCheckBox"
-    @select-all="selectCheckBox"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
+    ref="refTable"
     border
     :max-height="525">
     <el-table-column
@@ -280,6 +283,9 @@ onMounted(() => {
       </el-form-item>
     </el-form></FormDialog
   >
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable" />
 </template>
 <style>
 .dorm_img {

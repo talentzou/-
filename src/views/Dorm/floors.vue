@@ -6,15 +6,9 @@ import {
   addFloorsInfoRequest
 } from "@/server/MG/floors/floors"
 import { exportExcel } from "@/utils/excel"
-const refTable = ref(null)
-const exp = ref(null)
-function exportTable({ filename, allSelect }) {
-  const data= allSelect? refTable.value.data:refTable.value.getSelectionRows()
-  console.log(data);
-  exportExcel(data,filename)
-}
 const expDialog = ref(false)
-const isOperate = ref(false)
+const refTable = ref(null)
+const isOperate = ref(true)
 //初始页数数量
 let pageAndSizeParams = reactive({
   pageSizes: 10,
@@ -25,14 +19,27 @@ const floorsSearchForm = reactive({
   floorName: "",
   type: ""
 })
-//操作按钮是否禁用
-const operateIsTrue = ref(true)
-//表格数据
-const tableData = ref([])
-//
+//对话框
+const floorsVisible = ref(false)
+//宿舍楼参数
+let floorsParams = reactive({
+  floorsName: "",
+  floors: "",
+  floorsType: "",
+  amount: "",
+  id: ""
+})
+
 const selectShow = computed(() => {
   return floorsSearchForm.floorName ? false : true
 })
+//导出数据
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
+}
 //重置
 function reset() {
   pageAndSizeParams = Object.assign(pageAndSizeParams, {
@@ -52,36 +59,16 @@ function searchFloors() {
   console.log(temp)
   // getFloorsInfo(temp)
 }
-//对话框
-const floorsVisible = ref(false)
-//宿舍楼参数
-let floorsParams = reactive({
-  floorsName: "",
-  floors: "",
-  floorsType: "",
-  amount: "",
-  id: ""
-})
 
-// //选中项
-// const selectList=ref([])
-// function selectCheckBox(selection) {
-//   operateIsTrue.value = false
-//   if (selection.length === 0) {
-//     operateIsTrue.value = true
-//   }
-//   // console.log("selection", selection)
-//   selectList.value = selection
-//   console.log("selection",selectList.value );
-// @select="selectCheckBox"
-//     @select-all="selectCheckBox"
-// }
+
 function tagState(row) {
   let type = row.floorsType === "男生宿舍" ? "success" : "danger"
   return type
 }
 /* 接口api */
 //获取楼层信息
+//表格数据
+const tableData = ref([])
 async function getFloorsInfo(pageOrSize) {
   // console.log("pageOrSize", pageOrSize)
   if (pageOrSize !== undefined) {
@@ -91,19 +78,13 @@ async function getFloorsInfo(pageOrSize) {
   tableData.value = data
   // console.log(tableData.value.length)
 }
-//删除
-// let deleteData = ref([])
-// async function deleteTableList(selectData) {
-//   console.log(selectData)
-// }
-// //更新
-// async function updateTableList() {
-//   console.log("我是更新")
-//   visible.value = false
-// }
+
 onMounted(() => {
   getFloorsInfo()
 })
+function test(ee) {
+  console.log(ee)
+}
 </script>
 <template>
   <!-- 搜索 -->
@@ -157,6 +138,9 @@ onMounted(() => {
     border
     ref="refTable"
     :max-height="525"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
     :row-key="(row) => row.id">
     <el-table-column
       type="selection"
@@ -241,7 +225,6 @@ onMounted(() => {
   </FormDialog>
   <ExportDialog
     v-model="expDialog"
-    @select="exportTable"
-    ref="exp" />
+    @select="exportTable" />
 </template>
 @/server/MG/stay/floors/floors

@@ -1,8 +1,15 @@
 <script setup>
 import { getStayInfoRequest } from "@/server/MG/stay/stay"
+import { exportExcel } from "@/utils/excel"
+//表格实例
+const refTable = ref(null)
+//导出对话框
+const expDialog = ref(false)
+//搜索参数
 let staySearchParams = reactive({
   date: ""
 })
+//编辑参数
 let stayEditParams = reactive({
   stayDate: "",
   student: "",
@@ -11,20 +18,20 @@ let stayEditParams = reactive({
   stayCause: "",
   instructor: ""
 })
+let isOperate = ref(true)
+//参数编辑对话框
 let stayVisible = ref(false)
 function selectDatePicker() {
   console.log(staySearchParams.date)
 }
-let isOperate = ref(true)
-let stayTableData = ref([])
-let selectStayTableData = ref([])
-function selectStayCheckBox(selection) {
-  isOperate.value = false
-  if (selection.length === 0) {
-    isOperate.value = true
-  }
-  selectStayTableData.value = selection
+//导出表格
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
 }
+//标签颜色
 function stateTag(text) {
   switch (text) {
     case "同意":
@@ -37,20 +44,6 @@ function stateTag(text) {
       return "warning"
   }
 }
-function editStayRowTable(row) {
-  stayEditParams = Object.assign(stayEditParams, row)
-  stayVisible.value = true
-}
-function clearSTayParamsData() {
-  stayEditParams = Object.assign(stayEditParams, {
-    stayDate: "",
-    student: "",
-    floorsName: "",
-    dormNumber: "",
-    stayCause: "",
-    instructor: ""
-  })
-}
 function getStayPageSize(pageSize) {
   getStayData()
 }
@@ -58,6 +51,7 @@ function getStayPage(pages) {
   getStayData()
 }
 /* 接口 */
+let stayTableData = ref([])
 async function getStayData() {
   const { code, data } = await getStayInfoRequest()
   stayTableData.value = data
@@ -121,12 +115,15 @@ onMounted(() => {
   <!-- 操作 -->
   <OperateButton
     :isOperate="isOperate"
-    v-model="stayVisible" />
+    v-model="stayVisible"
+    @excel="expDialog = true" />
   <!-- 表格数据 -->
   <el-table
+    ref="refTable"
     :data="stayTableData"
-    @select="selectStayCheckBox"
-    @select-all="selectStayCheckBox"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
     border
     :max-height="525">
     <el-table-column
@@ -266,5 +263,8 @@ onMounted(() => {
           placeholder="请输入辅导员" />
       </el-form-item> </el-form
   ></FormDialog>
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable" />
 </template>
 @/server/MG/stay/stay

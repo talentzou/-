@@ -1,10 +1,14 @@
 <script setup>
 import { getRepairInfoRequest } from "@/server/REPAIR/repair"
+import { exportExcel } from "@/utils/excel"
+const refTable = ref(null)
 let maintenanceSearchParams = reactive({
   searchMessage: "",
   floorsName: "",
   repairStatus: ""
 })
+//导出对话框
+const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
 let maintenanceEditParams = reactive({
@@ -18,13 +22,12 @@ let maintenanceEditParams = reactive({
   repairer: "",
   remark: ""
 })
-let selectMaintenanceTableData = ref([])
-function selectRepairCheckBox(selection) {
-  isOperate.value = false
-  if (selection.length === 0) {
-    isOperate.value = true
-  }
-  selectMaintenanceTableData.value = selection
+//导出表格
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  exportExcel(data, filename)
 }
 function selectDatePicker() {}
 /* 接口 */
@@ -32,11 +35,8 @@ let repairTableData = ref([])
 async function getRepairData() {
   const { code, data } = await getRepairInfoRequest()
   repairTableData.value = data
-  // console.log(data)
 }
-// async function deleteRepairData() {}
-// async function increaseRepairData() {}
-// async function updateRepairData() {}
+
 onMounted(() => {
   getRepairData()
 })
@@ -88,12 +88,15 @@ onMounted(() => {
   </el-form>
   <OperateButton
     :isOperate="isOperate"
-    v-model="repairVisible" />
+    v-model="repairVisible" 
+    @excel="expDialog = true"/>
   <!-- 表格数据 -->
   <el-table
+  ref="refTable"
     :data="repairTableData"
-    @select="selectRepairCheckBox"
-    @select-all="selectRepairCheckBox"
+    @selection-change="
+      (list) => (list.length ? (isOperate = false) : (isOperate = true))
+    "
     border
     :max-height="525">
     <el-table-column
@@ -164,6 +167,11 @@ onMounted(() => {
       </template>
     </el-table-column>
   </el-table>
+  <!-- 分页 -->
+  <Pagination
+    :total="100"
+    @getCurrentPage="55"
+    @getPageSizes="55" />
   <!-- 对话框 -->
   <FormDialog
     v-model="repairVisible"
@@ -243,6 +251,9 @@ onMounted(() => {
           type="textarea" />
       </el-form-item> </el-form
   ></FormDialog>
+  <ExportDialog
+    v-model="expDialog"
+    @select="exportTable" />
 </template>
 
 <style lang="scss" scoped></style>
