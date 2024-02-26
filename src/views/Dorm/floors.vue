@@ -31,9 +31,7 @@ let floorsParams = reactive({
   id: ""
 })
 
-const selectShow = computed(() => {
-  return floorsSearchForm.floorName ? false : true
-})
+
 //导出数据
 function exportTable({ filename, allSelect }) {
   const data = allSelect
@@ -90,7 +88,6 @@ const paramsRules = useRules(floorsParams)
       <el-form-item prop="floorsType">
         <el-select
           style="width: 180px"
-          :disabled="selectShow"
           v-model="floorsSearchForm.floorsType"
           placeholder="请选择宿舍类型">
           <el-option
@@ -183,7 +180,7 @@ const paramsRules = useRules(floorsParams)
       @close="Form.resetFields()"
       title="宿舍信息">
       <el-form
-        ref="Form"
+         ref="Form"
         :rules="paramsRules"
         :model="floorsParams"
         label-width="auto">
@@ -217,7 +214,7 @@ const paramsRules = useRules(floorsParams)
         </el-form-item>
         <el-form-item
           label="宿舍总数量"
-          prop="amount">
+          prop="amount" >
           <el-input
             v-model="floorsParams.amount"
             placeholder="请输入宿舍总数" />

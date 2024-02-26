@@ -1,8 +1,10 @@
 <script setup>
 import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
 import { exportExcel } from "@/utils/excel"
+import { resetForm, submitForm, useRules } from "@/utils/dormRules"
 const refTable = ref(null)
 const expDialog = ref(false)
+
 let dormSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
@@ -16,6 +18,10 @@ let addDormParams = reactive({
   dormType: "",
   dormStatus: ""
 })
+const searchRef = ref(null)
+const Form = ref(null)
+const searchRules = useRules(dormSearchParams)
+const formParamsRules = useRules(addDormParams)
 let dormVisible = ref(false)
 let isOperate = ref(true)
 //导出数据
@@ -27,7 +33,33 @@ function exportTable({ filename, allSelect }) {
 }
 
 function handleAvatarSuccess() {}
-function beforeAvatarUpload() {}
+//照片上传前钩子
+function beforeAvatarUpload(file) {
+  const imgType = ["image/png", "image/jpeg", "image/webp"]
+  const size = file.size / 1024 / 1024
+  return new Promise((resolve, reject) => {
+    if (imgType.includes(file.type)) {
+      if (size < 5) {
+        resolve()
+      } else {
+        reject(
+          ElMessage({
+            type: "error",
+            message: "上传文件务必小于3M"
+          })
+        )
+      }
+    } else {
+      reject(
+        ElMessage({
+          type: "error",
+          message: "上传文件务必PNG|JPG|WEBP"
+        })
+      )
+    }
+  })
+}
+//标签状态
 function stateTag(text) {
   switch (text) {
     case "空闲":
@@ -37,7 +69,7 @@ function stateTag(text) {
     case "有剩余床位":
       return "info"
     default:
-      return "info"
+      return "info" // 默认情况下返回 "info"
   }
 }
 
@@ -62,10 +94,11 @@ onMounted(() => {
 <template>
   <div>
     <el-form
+      ref="searchRef"
       :model="dormSearchParams"
-      style="height: 35px; padding: 5px 0"
+      :rules="searchRules"
+      style="line-height: 50px"
       inline>
-     
       <el-form-item
         style="width: 160px"
         prop="floorsName">
@@ -121,8 +154,12 @@ onMounted(() => {
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">搜索</el-button>
-        <el-button>重置</el-button>
+        <el-button
+          type="primary"
+          @click="submitForm(searchRef)"
+          >搜索</el-button
+        >
+        <el-button @click="resetForm(searchRef)">重置</el-button>
       </el-form-item>
     </el-form>
     <!-- 操作 -->
@@ -212,23 +249,32 @@ onMounted(() => {
     <!-- 对话框 -->
     <FormDialog
       v-model="dormVisible"
+      @close="Form.resetFields()" 
       v-model:params="addDormParams"
       title="修改床位">
       <el-form
+        ref="Form"
+        :rules="formParamsRules"
         :model="addDormParams"
         inline
         label-width="auto">
-        <el-form-item label="楼层">
+        <el-form-item
+          label="宿舍楼"
+          prop="floorsName">
           <el-input
             v-model="addDormParams.floorsName"
             placeholder="请选择宿舍楼" />
         </el-form-item>
-        <el-form-item label="编号">
+        <el-form-item
+          label="编号"
+          prop="dormNumber">
           <el-input
             v-model="addDormParams.dormNumber"
             placeholder="请选择宿舍号" />
         </el-form-item>
-        <el-form-item label="类型">
+        <el-form-item
+          label="类型"
+          prop="dormType">
           <el-select
             style="width: 196px"
             v-model="addDormParams.dormType"
@@ -244,7 +290,9 @@ onMounted(() => {
               value="二人间" />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item
+          label="状态"
+          prop="dormStatus">
           <el-select
             style="width: 196px"
             v-model="addDormParams.dormStatus"
@@ -260,7 +308,9 @@ onMounted(() => {
               value="surplus" />
           </el-select>
         </el-form-item>
-        <el-form-item label="图片">
+        <el-form-item
+          label="图片"
+          prop="img">
           <el-upload
             class="avatar-uploader"
             action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
@@ -282,12 +332,24 @@ onMounted(() => {
               <div class="el-upload__tip">
                 <p>
                   请上传大小不超过<span style="color: red">5MB</span>格式为
-                  <span style="color: red">{{ "jpg/png/jpeg" }}</span
+                  <span style="color: red">{{ "jpg/png/webp" }}</span
                   >的文件
                 </p>
               </div>
             </template>
           </el-upload>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            @click="submitForm(Form)"
+            type="success"
+            >创建</el-button
+          >
+          <el-button
+            @click="resetForm(Form)"
+            type="primary"
+            >重置</el-button
+          >
         </el-form-item>
       </el-form></FormDialog
     >

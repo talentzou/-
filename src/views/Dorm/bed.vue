@@ -12,7 +12,7 @@ let bedSearchParams = reactive({
   bedPerson: ""
 })
 let editParams = reactive({
-  bedStatus: "有人",
+  bedStatus: "",
   dormNumber: "",
   bedNumber: "",
   message: "",
