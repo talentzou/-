@@ -7,7 +7,7 @@ const props = defineProps({
   baseIndex: {
     type: String,
     require: true,
-    default: "",
+    default: ""
   }
 })
 const hasOneChild = ref({})
@@ -35,17 +35,19 @@ function completePath(children = []) {
   // console.log("children", children)
   // console.log(props.baseIndex)
   // console.log(props.baseIndex+'/'+children.path);
-  return props.baseIndex+'/'+children.path
+  return props.baseIndex + "/" + children.path
 }
 </script>
 <template>
-  <div v-if="!item.hidden">
+  <template  v-if="!item.hidden">
+ 
     <!-- 有两个以上路由 -->
     <template v-if="hasChildren(item.children, item)">
       <el-sub-menu :index="item.path">
+        
         <template #title>
-          <svg-icon :name="item.meta.icon"></svg-icon>
-          <span>{{ item.meta.title }}</span>
+          <svg-icon :name="item.meta.icon"/>
+          <span class="menu-title">{{ item.meta.title }}</span>
         </template>
         <sidebar-item
           v-for="(child, index) in item.children"
@@ -61,21 +63,22 @@ function completePath(children = []) {
       <el-menu-item
         :index="item.path"
         v-if="WhetherHome(item.children)">
+        <svg-icon :name="hasOneChild.meta.icon"></svg-icon>
         <template #title>
-          <svg-icon :name="hasOneChild.meta.icon"></svg-icon>
-          <span>{{ hasOneChild.meta.title }}</span></template
+          <span class="menu-title">{{ hasOneChild.meta.title }}</span></template
         >
       </el-menu-item>
       <!-- 不是主页 -->
       <el-menu-item
         :index="completePath(item)"
         v-else>
+        <svg-icon :name="item.meta.icon"/>
         <template #title>
-          <svg-icon :name="item.meta.icon"></svg-icon>
-          <span>{{ item.meta.title }}</span></template
+          <span class="menu-title">{{ item.meta.title }}</span></template
         >
       </el-menu-item>
     </template>
-  </div>
+
 </template>
-<style></style>
+</template>
+<style scoped></style>

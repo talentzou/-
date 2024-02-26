@@ -62,6 +62,7 @@ onMounted(() => {
 })
 </script>
 <template>
+  <div>
   <el-form
     :model="rateSearchParams"
     inline>
@@ -295,4 +296,5 @@ onMounted(() => {
   <ExportDialog
     v-model="expDialog"
     @select="exportTable" />
+  </div>
 </template>

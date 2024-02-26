@@ -60,170 +60,38 @@ onMounted(() => {
 })
 </script>
 <template>
-  <el-form
-    :model="dormSearchParams"
-    style="height: 35px; padding: 5px 0"
-    inline>
-    <el-form-item prop="floorsName">
-      <el-input
-        v-model="dormSearchParams.floorsName"
-        placeholder="请选择宿舍楼"
-        clearable
-        style="width: 160px" />
-    </el-form-item>
-    <el-form-item prop="dormNumber">
-      <el-input
-        v-model="dormSearchParams.dormNumber"
-        placeholder="请选择宿舍编号"
-        clearable
-        style="width: 160px" />
-    </el-form-item>
-    <el-form-item prop="dormType">
-      <el-select
-        style="width: 160px"
-        v-model="dormSearchParams.dormType"
-        placeholder="请选择宿舍类型">
-        <el-option
-          label="六人间"
-          value="六人间" />
-        <el-option
-          label="四人间"
-          value="四人间" />
-        <el-option
-          label="二人间"
-          value="二人间" />
-      </el-select>
-    </el-form-item>
-    <el-form-item prop="dormStatus">
-      <el-select
-        style="width: 160px"
-        v-model="dormSearchParams.dormStatus"
-        placeholder="宿舍状态">
-        <el-option
-          label="空闲"
-          value="leisure" />
-        <el-option
-          label="满人"
-          value="full" />
-        <el-option
-          label="有剩余床位"
-          value="surplus" />
-      </el-select>
-    </el-form-item>
-    <el-form-item>
-      <el-row :gutter="20">
-        <el-col :span="12"><el-button type="primary">搜索</el-button></el-col>
-        <el-col :span="12"><el-button>重置</el-button></el-col>
-      </el-row>
-    </el-form-item>
-  </el-form>
-  <!-- 操作 -->
-  <OperateButton
-    :isOperate="isOperate"
-    @excel="expDialog = true"
-    v-model="dormVisible" />
-  <!-- 表格数据 -->
-  <el-table
-    :data="dormTableData"
-    @selection-change="
-      (list) => (list.length ? (isOperate = false) : (isOperate = true))
-    "
-    ref="refTable"
-    border
-    :max-height="525">
-    <el-table-column
-      type="selection"
-      fixed
-      width="55" />
-    <el-table-column
-      width="55"
-      type="index"
-      label="序号" />
-    <el-table-column
-      prop="floorsName"
-      label="宿舍楼名"
-      width="180"
-      align="center" />
-    <el-table-column
-      label="宿舍编号"
-      width="180"
-      align="center">
-      <template #default="{ row, column, $index }">
-        <router-link
-          :to="{
-            name: 'bed',
-            params: { name: row.dormNumber, type: row.dormType }
-          }"
-          style="color: #409eff"
-          >{{ row.dormNumber }}</router-link
-        >
-      </template>
-    </el-table-column>
-    <el-table-column
-      prop="img"
-      label="宿舍照片"
-      width="180"
-      align="center">
-      <template #default="{ row, column, $index }">
-        <img
-          :src="row.img"
-          alt=""
-          class="dorm_img" />
-      </template>
-    </el-table-column>
-    <el-table-column
-      prop="dormType"
-      label="类型"
-      width="180"
-      align="center" />
-    <el-table-column
-      label="宿舍状态"
-      width="180"
-      align="center">
-      <template #default="{ row, column, $index }">
-        <el-tag :type="stateTag(row.dormStatus)">{{ row.dormStatus }}</el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column
-      prop="操作"
-      label="操作"
-      align="center">
-      <template #default="{ row, column, $index }">
-        <TableButton
-          :row="row"
-          @merge="dormVisible = true"
-          v-model="addDormParams" />
-      </template>
-    </el-table-column>
-  </el-table>
-  <!-- 分页 -->
-  <Pagination
-    :total="100"
-    @getCurrentPage="55"
-    @getPageSizes="55" />
-  <!-- 对话框 -->
-  <FormDialog
-    v-model="dormVisible"
-    v-model:params="addDormParams"
-    title="修改床位">
+  <div>
     <el-form
-      :model="addDormParams"
-      inline
-      label-width="auto">
-      <el-form-item label="楼层">
-        <el-input
-          v-model="addDormParams.floorsName"
-          placeholder="请选择宿舍楼" />
-      </el-form-item>
-      <el-form-item label="编号">
-        <el-input
-          v-model="addDormParams.dormNumber"
-          placeholder="请选择宿舍号" />
-      </el-form-item>
-      <el-form-item label="类型">
+      :model="dormSearchParams"
+      style="height: 35px; padding: 5px 0"
+      inline>
+     
+      <el-form-item
+        style="width: 160px"
+        prop="floorsName">
         <el-select
-          style="width: 196px"
-          v-model="addDormParams.dormType"
+          placeholder="请选择宿舍楼"
+          v-model="dormSearchParams.floorsName">
+          <el-option
+            value="11"
+            label="A1" />
+        </el-select>
+      </el-form-item>
+      <el-form-item
+        style="width: 160px"
+        prop="dormNumber">
+        <el-select
+          placeholder="请选择宿舍"
+          v-model="dormSearchParams.dormNumber">
+          <el-option
+            value="11"
+            label="A1-108" />
+        </el-select>
+      </el-form-item>
+      <el-form-item prop="dormType">
+        <el-select
+          style="width: 160px"
+          v-model="dormSearchParams.dormType"
           placeholder="请选择宿舍类型">
           <el-option
             label="六人间"
@@ -236,11 +104,11 @@ onMounted(() => {
             value="二人间" />
         </el-select>
       </el-form-item>
-      <el-form-item label="状态">
+      <el-form-item prop="dormStatus">
         <el-select
-          style="width: 196px"
-          v-model="addDormParams.dormStatus"
-          placeholder="请选择宿舍状态">
+          style="width: 160px"
+          v-model="dormSearchParams.dormStatus"
+          placeholder="宿舍状态">
           <el-option
             label="空闲"
             value="leisure" />
@@ -252,40 +120,181 @@ onMounted(() => {
             value="surplus" />
         </el-select>
       </el-form-item>
-      <el-form-item label="图片">
-        <el-upload
-          class="avatar-uploader"
-          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload">
-          <img
-            v-if="addDormParams.img"
-            :src="addDormParams.img"
-            class="avatar" />
-          <div
-            class="avatar-uploader-icon"
-            v-else>
-            <svg-icon
-              name="plus"
-              color="#b6b8be"></svg-icon>
-          </div>
-          <template #tip>
-            <div class="el-upload__tip">
-              <p>
-                请上传大小不超过<span style="color: red">5MB</span>格式为
-                <span style="color: red">{{ "jpg/png/jpeg" }}</span
-                >的文件
-              </p>
-            </div>
-          </template>
-        </el-upload>
+      <el-form-item>
+        <el-button type="primary">搜索</el-button>
+        <el-button>重置</el-button>
       </el-form-item>
-    </el-form></FormDialog
-  >
-  <ExportDialog
-    v-model="expDialog"
-    @select="exportTable" />
+    </el-form>
+    <!-- 操作 -->
+    <OperateButton
+      :isOperate="isOperate"
+      @excel="expDialog = true"
+      v-model="dormVisible" />
+    <!-- 表格数据 -->
+    <el-table
+      :data="dormTableData"
+      @selection-change="
+        (list) => (list.length ? (isOperate = false) : (isOperate = true))
+      "
+      ref="refTable"
+      border
+      :max-height="525">
+      <el-table-column
+        type="selection"
+        fixed
+        width="55" />
+      <el-table-column
+        width="55"
+        type="index"
+        label="序号" />
+      <el-table-column
+        prop="floorsName"
+        label="宿舍楼名"
+        width="180"
+        align="center" />
+      <el-table-column
+        label="宿舍编号"
+        width="180"
+        align="center">
+        <template #default="{ row, column, $index }">
+          <router-link
+            :to="{
+              name: 'bed',
+              params: { name: row.dormNumber, type: row.dormType }
+            }"
+            style="color: #409eff"
+            >{{ row.dormNumber }}</router-link
+          >
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="img"
+        label="宿舍照片"
+        width="180"
+        align="center">
+        <template #default="{ row, column, $index }">
+          <img
+            :src="row.img"
+            alt=""
+            class="dorm_img" />
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="dormType"
+        label="类型"
+        width="180"
+        align="center" />
+      <el-table-column
+        label="宿舍状态"
+        width="180"
+        align="center">
+        <template #default="{ row, column, $index }">
+          <el-tag :type="stateTag(row.dormStatus)">{{ row.dormStatus }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="操作"
+        label="操作"
+        align="center">
+        <template #default="{ row, column, $index }">
+          <TableButton
+            :row="row"
+            @merge="dormVisible = true"
+            v-model="addDormParams" />
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页 -->
+    <Pagination
+      :total="100"
+      @getCurrentPage="55"
+      @getPageSizes="55" />
+    <!-- 对话框 -->
+    <FormDialog
+      v-model="dormVisible"
+      v-model:params="addDormParams"
+      title="修改床位">
+      <el-form
+        :model="addDormParams"
+        inline
+        label-width="auto">
+        <el-form-item label="楼层">
+          <el-input
+            v-model="addDormParams.floorsName"
+            placeholder="请选择宿舍楼" />
+        </el-form-item>
+        <el-form-item label="编号">
+          <el-input
+            v-model="addDormParams.dormNumber"
+            placeholder="请选择宿舍号" />
+        </el-form-item>
+        <el-form-item label="类型">
+          <el-select
+            style="width: 196px"
+            v-model="addDormParams.dormType"
+            placeholder="请选择宿舍类型">
+            <el-option
+              label="六人间"
+              value="六人间" />
+            <el-option
+              label="四人间"
+              value="四人间" />
+            <el-option
+              label="二人间"
+              value="二人间" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select
+            style="width: 196px"
+            v-model="addDormParams.dormStatus"
+            placeholder="请选择宿舍状态">
+            <el-option
+              label="空闲"
+              value="leisure" />
+            <el-option
+              label="满人"
+              value="full" />
+            <el-option
+              label="有剩余床位"
+              value="surplus" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="图片">
+          <el-upload
+            class="avatar-uploader"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img
+              v-if="addDormParams.img"
+              :src="addDormParams.img"
+              class="avatar" />
+            <div
+              class="avatar-uploader-icon"
+              v-else>
+              <svg-icon
+                name="plus"
+                color="#b6b8be"></svg-icon>
+            </div>
+            <template #tip>
+              <div class="el-upload__tip">
+                <p>
+                  请上传大小不超过<span style="color: red">5MB</span>格式为
+                  <span style="color: red">{{ "jpg/png/jpeg" }}</span
+                  >的文件
+                </p>
+              </div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form></FormDialog
+    >
+    <ExportDialog
+      v-model="expDialog"
+      @select="exportTable" />
+  </div>
 </template>
 <style>
 .dorm_img {

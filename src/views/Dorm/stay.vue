@@ -64,6 +64,7 @@ onMounted(() => {
 })
 </script>
 <template>
+  <div>
   <el-form
     :model="staySearchParams"
     inline>
@@ -266,5 +267,6 @@ onMounted(() => {
   <ExportDialog
     v-model="expDialog"
     @select="exportTable" />
+  </div>
 </template>
 @/server/MG/stay/stay

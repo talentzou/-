@@ -1,7 +1,6 @@
 <template>
   <svg
-    :style="{ width: width + `px`, height: height + `px` }"
-    class="svg">
+    class="svg-icon">
     <use
       :xlink:href="prefix + name"
       :fill="color"></use>
@@ -20,21 +19,20 @@ defineProps({
     type: String,
     default: "white"
   },
-  width: {
-    type: String,
-    default: "25"
-  },
-  height: {
-    type: String,
-    default: "25"
-  }
+  // width: {
+  //   type: String,
+  //   default: "16"
+  // },
+  // height: {
+  //   type: String,
+  //   default: "16"
+  // }
 })
-</script>
+</script >
 
-<style>
-.svg {
-  color: rgb(227, 27, 27);
-  /* margin-right: 10px; */
-  /* padding-right: 10px; */
+<style scoped lang="scss">
+.svg-icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

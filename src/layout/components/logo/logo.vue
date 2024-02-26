@@ -20,21 +20,25 @@ const props = defineProps({})
   text-align: center;
 }
 .logo_sidebar_image {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 5px;
   vertical-align: middle;
-  margin-right: 10px;
+ 
 
 }
 .logo_sidebar_title {
   display: inline-block;
   line-height: 50px;
-  margin: 0;
+  margin-left: 10px;
   vertical-align: middle;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 16px;
   color: #fff;
   font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap !important;
 }
 </style>

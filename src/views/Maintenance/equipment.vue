@@ -43,6 +43,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div>
   <!-- 搜索 -->
   <el-form
     :model="maintenanceSearchParams"
@@ -254,6 +255,7 @@ onMounted(() => {
   <ExportDialog
     v-model="expDialog"
     @select="exportTable" />
+  </div>
 </template>
 
 <style lang="scss" scoped></style>

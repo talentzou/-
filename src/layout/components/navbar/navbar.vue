@@ -1,13 +1,15 @@
 <script setup>
 import scrollPane from "./scrollPane.vue"
 import topNavbar from "./topNavbar.vue"
+import { layoutStore } from "@/stores/layout"
 const $route = useRoute()
+console.log($route)
+const useLayoutStore = layoutStore()
+console.log(useLayoutStore.isFold)
 // console.log($route)
 let breadcrumbItem = ref([])
 function breadcrumb() {
   let matched = [{ path: "/", meta: { title: "首页" } }]
-  // console.log("jjj", matched)
-  // console.log($route.matched)
   if ($route.matched[0].path === matched[0].path) {
     return (breadcrumbItem.value = matched)
   } else {
@@ -15,7 +17,7 @@ function breadcrumb() {
       matched.push(el)
     })
     breadcrumbItem.value = matched
-    breadcrumbItem.value
+    // breadcrumbItem.value
   }
 }
 watchEffect(() => {
@@ -25,7 +27,9 @@ watchEffect(() => {
 <template>
   <div class="navbar-wrapper">
     <div class="navbar-content">
-      <div class="expand">
+      <div
+        class="expand"
+        @click="useLayoutStore.isFold = !useLayoutStore.isFold">
         <svg-icon
           name="expand"
           width="20"

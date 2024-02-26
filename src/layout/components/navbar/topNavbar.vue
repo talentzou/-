@@ -1,4 +1,6 @@
 <script setup>
+import { layoutStore } from "@/stores/layout"
+const useLayoutStore = layoutStore()
 const switchVal = ref(false)
 //主题颜色
 const color = ref("rgba(255, 69, 0, 0.68)")
@@ -36,10 +38,18 @@ function DarkMode() {
   //判断是否有类名
   html.classList.toggle("dark")
 }
+function refresh() {
+  useLayoutStore.isRefresh = !useLayoutStore.isRefresh
+  nextTick(() => {
+    useLayoutStore.isRefresh = !useLayoutStore.isRefresh
+  })
+}
 </script>
 <template>
   <div class="button-nav">
-    <el-button circle>
+    <el-button
+      circle
+      @click="refresh">
       <template #icon>
         <svg-icon
           name="refresh"
@@ -84,14 +94,15 @@ function DarkMode() {
         </el-button>
       </template>
     </el-popover>
-
     <el-dropdown trigger="click">
       <span class="avatar-wrapper">
         <img
           src="@/assets/imgs/avatar.jpg"
           alt=""
           class="avatar-img" />
-        <svg-icon name="arrow_down" color="black"></svg-icon>
+        <svg-icon
+          name="arrow_down"
+          color="black"></svg-icon>
       </span>
       <template #dropdown>
         <el-dropdown-menu>
@@ -100,7 +111,6 @@ function DarkMode() {
         </el-dropdown-menu>
       </template>
     </el-dropdown>
-    
   </div>
 </template>
 <style scoped>

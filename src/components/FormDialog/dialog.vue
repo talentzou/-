@@ -15,14 +15,14 @@ const props = defineProps({
   }
 })
 const formParams = defineModel("params")
-const emit = defineEmits(["update:modelValue"])
+const emits = defineEmits(["update:modelValue","close"])
 function clearBedParamsData() {
   let tempObj = {}
   for (let key of Object.keys(formParams.value)) {
     tempObj[key] = ""
   }
-  //   console.log(tempObj)
   formParams.value = { ...formParams.value, ...tempObj }
+  emits("close")
 }
 
 const visibleKey = computed({
@@ -30,7 +30,7 @@ const visibleKey = computed({
     return props.modelValue
   },
   set(val) {
-    emit("update:modelValue", val)
+    emits("update:modelValue", val)
   }
 })
 </script>
@@ -51,11 +51,6 @@ const visibleKey = computed({
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="visibleKey = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="floorsParams.id ? updateTableList() : increaseData()">
-          确定
-        </el-button>
       </span>
     </template>
   </el-dialog>

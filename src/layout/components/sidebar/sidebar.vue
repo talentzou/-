@@ -1,27 +1,31 @@
 <script setup>
+import { computed } from "vue";
 import logo from "../logo/logo.vue"
 import sidebarItem from "./sidebarItem.vue"
 import { userStore } from "@/stores/user"
 import { useRoute } from "vue-router"
+import { layoutStore } from "@/stores/layout"
+const useLayoutStore = layoutStore()
+
 const $userStore = userStore()
-const $route=useRoute()
+const $route = useRoute()
 const userMenu = computed(() => $userStore.userMenu)
 const handleClose = () => {}
 const handleOpen = () => {}
+const isCollapse = computed(()=>useLayoutStore.isFold )
 </script>
 <template>
-  <div class="sideBar_wrapper">
-    <logo></logo>
-    <el-scrollbar class="sidebar_scrollbar_wrapper">
+  <div>
+    <logo class="logo"></logo>
+    <el-scrollbar class="scrollbar_wrapper">
       <el-menu
         :default-active="$route.path"
         background-color="#152e54"
-        class="el-menu-vertical-demo"
         router
+        :collapse="isCollapse"
         text-color="#fff"
         @open="handleOpen"
         @close="handleClose">
-        <!-- 菜单栏 -->
         <sidebar-item
           v-for="(route, index) in userMenu"
           :key="route.path"
@@ -30,16 +34,18 @@ const handleOpen = () => {}
     </el-scrollbar>
   </div>
 </template>
-<style scoped>
-:deep(.el-menu) {
-  border-right: 0;
+<style lang="scss" >
+.logo {
+  vertical-align: middle;
 }
-.sideBar_wrapper {
+.scrollbar_wrapper {
   height: 100%;
-  background-color: #152e54;
-  color: #fff;
-}
-.sidebar_scrollbar_wrapper {
-  height: calc(100% - 50px);
+  .el-menu {
+    border: none;
+    height: 100%;
+  }
+  .svg-icon {
+    margin-right: 12px;
+  }
 }
 </style>

@@ -1,5 +1,6 @@
 //初始化样式
 import "reset-css"
+import 'animate.css';
 import { createApp } from "vue"
 import { createPinia } from "pinia"
 import App from "./App.vue"
