@@ -1,7 +1,8 @@
 <script setup>
 import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
 import { exportExcel } from "@/utils/excel"
-import { resetForm, submitForm, useRules } from "@/utils/dormRules"
+import { useRules } from "@/utils/dormRules"
+import { resetForm, submitForm } from "@/utils/rules"
 const refTable = ref(null)
 const expDialog = ref(false)
 
@@ -102,26 +103,18 @@ onMounted(() => {
       <el-form-item
         style="width: 160px"
         prop="floorsName">
-        <el-select
-          placeholder="请选择宿舍楼"
-          v-model="dormSearchParams.floorsName">
-          <el-option
-            value="11"
-            label="A1" />
-        </el-select>
+        <el-input
+          placeholder="请输入宿舍楼名称"
+          v-model="dormSearchParams.floorsName" />
       </el-form-item>
       <el-form-item
         style="width: 160px"
         prop="dormNumber">
-        <el-select
+        <el-input
           placeholder="请选择宿舍"
-          v-model="dormSearchParams.dormNumber">
-          <el-option
-            value="11"
-            label="A1-108" />
-        </el-select>
+          v-model="dormSearchParams.dormNumber" />
       </el-form-item>
-      <el-form-item prop="dormType">
+      <el-form-item>
         <el-select
           style="width: 160px"
           v-model="dormSearchParams.dormType"
@@ -137,7 +130,7 @@ onMounted(() => {
             value="二人间" />
         </el-select>
       </el-form-item>
-      <el-form-item prop="dormStatus">
+      <el-form-item>
         <el-select
           style="width: 160px"
           v-model="dormSearchParams.dormStatus"
@@ -248,8 +241,9 @@ onMounted(() => {
       @getPageSizes="55" />
     <!-- 对话框 -->
     <FormDialog
+    :width="45"
       v-model="dormVisible"
-      @close="Form.resetFields()" 
+      @close="Form.resetFields()"
       v-model:params="addDormParams"
       title="修改床位">
       <el-form
@@ -259,18 +253,49 @@ onMounted(() => {
         inline
         label-width="auto">
         <el-form-item
+          label="图片"
+          prop="img">
+          <el-upload
+            class="avatar-uploader"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img
+              v-if="addDormParams.img"
+              :src="addDormParams.img"
+              class="avatar" />
+            <div
+              class="avatar-uploader-icon"
+              v-else>
+              <svg-icon
+                name="plus"
+                color="#b6b8be"></svg-icon>
+            </div>
+            <template #tip>
+              <div class="el-upload__tip">
+                <p>
+                  请上传大小不超过<span style="color: red">5MB</span>格式为
+                  <span style="color: red">{{ "jpg/png/webp" }}</span
+                  >的文件
+                </p>
+              </div>
+            </template>
+          </el-upload>
+        </el-form-item>
+        <el-form-item
           label="宿舍楼"
           prop="floorsName">
           <el-input
             v-model="addDormParams.floorsName"
-            placeholder="请选择宿舍楼" />
+            placeholder="请输入宿舍楼名称" />
         </el-form-item>
         <el-form-item
           label="编号"
           prop="dormNumber">
           <el-input
             v-model="addDormParams.dormNumber"
-            placeholder="请选择宿舍号" />
+            placeholder="请输入宿舍名称" />
         </el-form-item>
         <el-form-item
           label="类型"
@@ -308,37 +333,7 @@ onMounted(() => {
               value="surplus" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="图片"
-          prop="img">
-          <el-upload
-            class="avatar-uploader"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img
-              v-if="addDormParams.img"
-              :src="addDormParams.img"
-              class="avatar" />
-            <div
-              class="avatar-uploader-icon"
-              v-else>
-              <svg-icon
-                name="plus"
-                color="#b6b8be"></svg-icon>
-            </div>
-            <template #tip>
-              <div class="el-upload__tip">
-                <p>
-                  请上传大小不超过<span style="color: red">5MB</span>格式为
-                  <span style="color: red">{{ "jpg/png/webp" }}</span
-                  >的文件
-                </p>
-              </div>
-            </template>
-          </el-upload>
-        </el-form-item>
+     
         <el-form-item>
           <el-button
             @click="submitForm(Form)"

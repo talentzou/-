@@ -1,9 +1,9 @@
+import { Rules } from "./rules"
 function dormNumber(rule, value, callback) {
-  let reg = /[A-Z]-\d{1,2}/
+  let reg = /[A-Z]\d-\d{1,2}/
   const isVal = reg.test(value)
-
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A-xx,x是数字"))
+    callback(new Error("请输入正确格式,如A1-xx,x是数字"))
   } else {
     callback()
   }
@@ -16,6 +16,12 @@ function floorsName(rule, value, callback) {
   } else {
     callback()
   }
+}
+function studentName(rule, value, callback) {
+  if (value.length < 2) {
+    callback(new Error("名字长度至少两位"))
+  }
+  callback()
 }
 
 const FormRules = {
@@ -86,80 +92,106 @@ const FormRules = {
     },
     { min: 2, max: 5, message: "人物名称至少两个字", trigger: "blur" }
   ],
-  evaluation: [ {
-    required: true,
-    message: "评价不能为空",
-    trigger: "blur"
-  },],
-  bedRate:[{
-    required: true,
-    message: "床铺评分不能为空",
-    trigger: "blur"
-  },{
-    type:"number",
-    message:"请输入数字",
-    trigger: ["blur", "change"]
-  }],
-  groundRate:[{
-    required: true,
-    message: "地面评分不能为空",
-    trigger: "blur"
-  },{
-    type:"number",
-    message:"请输入数字",
-    trigger: ["blur", "change"]
-  }],
-  lavatory:[{
-    required: true,
-    message: "厕所评分不能为空",
-    trigger: "blur"
-  },{
-    type:"number",
-    message:"请输入数字",
-    trigger: ["blur", "change"]
-  }],
-  goods:[{
-    required: true,
-    message: "物品摆放评分不能为空",
-    trigger: "blur"
-  },{
-    type:"number",
-    message:"请输入数字",
-    trigger: ["blur", "change"]
-  }],
-  totalScore:[{
-    required: true,
-    message: "总分评分不能为空",
-    trigger: "blur"
-  },{
-    type:"number",
-    message:"请输入数字",
-    trigger: ["blur", "change"]
-  }],
-
+  evaluation: [
+    {
+      required: true,
+      message: "评价不能为空",
+      trigger: "blur"
+    }
+  ],
+  bedRate: [
+    {
+      required: true,
+      message: "床铺评分不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
+    }
+  ],
+  groundRate: [
+    {
+      required: true,
+      message: "地面评分不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
+    }
+  ],
+  lavatory: [
+    {
+      required: true,
+      message: "厕所评分不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
+    }
+  ],
+  goods: [
+    {
+      required: true,
+      message: "物品摆放评分不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
+    }
+  ],
+  totalScore: [
+    {
+      required: true,
+      message: "总分评分不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
+    }
+  ],
+  studentName: [
+    {
+      required: true,
+      message: "名字不能为空",
+      trigger: "blur"
+    },
+    {
+      validator: studentName,
+      trigger: "blur"
+    }
+  ],
+  stayDate: [
+    {
+      required: true,
+      message: "日期不能为空",
+      trigger: "blur"
+    }
+  ],
+  stayCause: [
+    {
+      required: true,
+      message: "原因不能为空",
+      trigger: "blur"
+    }
+  ],
+  instructor: [
+    {
+      required: true,
+      message: "辅导员不能为空",
+      trigger: "blur"
+    }
+  ]
 }
 export function useRules(params) {
-  let rules = {}
-  Object.keys(FormRules).filter((key) => {
-    if (Reflect.has(params, key)) {
-      rules[key] = FormRules[key]
-    }
-  })
-  return rules
-}
-export async function submitForm(formEl) {
-  console.log(formEl)
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log(valid, "submit!")
-    } else {
-      console.log("error submit!", fields)
-    }
-  })
-}
-
-export function resetForm(formEl) {
-  if (!formEl) return
-  formEl.resetFields()
+  return Rules(FormRules, params)
 }

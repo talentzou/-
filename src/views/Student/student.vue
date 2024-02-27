@@ -33,24 +33,16 @@ let studentTableData = ref([])
       <el-form-item
         prop="floorsName"
         style="width: 160px">
-        <el-select
+        <el-input
           v-model="searchStudentParams.floorsName"
-          placeholder="请选择宿舍楼">
-          <el-option
-            label="六人间"
-            value="六人间" />
-        </el-select>
+          placeholder="请输入宿舍楼名称" />
       </el-form-item>
       <el-form-item
         prop="dormNumber"
         style="width: 160px">
-        <el-select
+        <el-input
           v-model="searchStudentParams.dormNumber"
-          placeholder="请选择宿舍">
-          <el-option
-            label="六人间"
-            value="六人间" />
-        </el-select>
+          placeholder="请输入宿舍名称" />
       </el-form-item>
       <el-form-item
         prop="studentNumber"

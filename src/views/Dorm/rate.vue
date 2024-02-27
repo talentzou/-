@@ -1,7 +1,8 @@
 <script setup>
 import { getRateInfoRequest } from "@/server/MG/rate/rate"
 import { exportExcel } from "@/utils/excel"
-import { resetForm, submitForm, useRules } from "@/utils/dormRules"
+import { useRules } from "@/utils/dormRules"
+import { resetForm, submitForm } from "@/utils/rules"
 const searchRef = ref(null)
 const Form = ref(null)
 const refTable = ref(null)
@@ -32,15 +33,15 @@ let rateEditParams = reactive({
 const searchRules = useRules(rateSearchParams)
 const formRules = useRules(rateEditParams)
 let rateVisible = ref(false)
-
+function selectDatePicker() {}
 function stateTag(state) {
-  if (state >= 90) {
+  if (state > 90) {
     return "success"
   } else if (state >= 80) {
     return "primary"
-  } else if (state >= 70) {
+  } else if (state > 70) {
     return "info"
-  } else if (state >= 60) {
+  } else if (state > 60) {
     return "warning"
   } else {
     return "danger"
@@ -49,9 +50,9 @@ function stateTag(state) {
 const totalScore = computed(() => {
   return (
     Number.parseInt(rateEditParams.bedRate) +
-    Number.parseInt(rateEditParams.groundRate) +
-    Number.parseInt(rateEditParams.lavatory) +
-    Number.parseInt(rateEditParams.goods)
+      Number.parseInt(rateEditParams.groundRate) +
+      Number.parseInt(rateEditParams.lavatory) +
+      Number.parseInt(rateEditParams.goods) || 0
   )
 })
 let selectRateTableData = ref([])
@@ -83,47 +84,21 @@ onMounted(() => {
       :model="rateSearchParams"
       inline>
       <el-form-item
-        style="width: 200px"
-        prop="rateDate">
-        <el-date-picker
-          v-model="rateSearchParams.rateDate"
-          type="date"
-          format="YYYY-MM-DD"
-          placeholder="Start date"
-          value-format="x" />
-      </el-form-item>
-      <el-form-item
         style="width: 180px"
         prop="floorsName">
-        <el-select
-          placeholder="请选择宿舍楼"
-          v-model="rateSearchParams.floorsName">
-          <el-option
-            value="11"
-            label="A1" />
-        </el-select>
+        <el-input
+          placeholder="请输入宿舍楼名称"
+          v-model="rateSearchParams.floorsName" />
       </el-form-item>
       <el-form-item
         style="width: 180px"
         prop="dormNumber">
-        <el-select
-          placeholder="请选择宿舍"
-          v-model="rateSearchParams.dormNumber">
-          <el-option
-            value="11"
-            label="A1-108" />
-        </el-select>
-      </el-form-item>
-      <el-form-item
-        style="width: 180px"
-        prop="Rater">
         <el-input
-          placeholder="请输入评分人"
-          v-model="rateSearchParams.Rater" />
+          placeholder="请输入宿舍名称"
+          v-model="rateSearchParams.dormNumber" />
       </el-form-item>
-      <el-form-item
-        style="width: 180px"
-        prop="evaluation">
+
+      <el-form-item style="width: 180px">
         <el-select
           placeholder="请选择综合评价"
           v-model="rateSearchParams.evaluation">
@@ -231,6 +206,7 @@ onMounted(() => {
       @getPageSizes="getRateData" />
     <!-- 对话框 -->
     <FormDialog
+      :width="45"
       @close="Form.resetFields()"
       v-model="rateVisible"
       v-model:params="rateEditParams"
@@ -244,41 +220,29 @@ onMounted(() => {
         <el-form-item
           label="宿舍楼"
           prop="floorsName">
-          <el-select
-            style="width: 150px"
+          <el-input
             v-model="rateEditParams.floorsName"
-            placeholder="请选择宿舍楼">
-            <el-option
-              label="A1"
-              value="男生宿舍" />
-          </el-select>
+            placeholder="请输入宿舍楼名称" />
         </el-form-item>
         <el-form-item
           label="宿舍"
           prop="dormNumber">
-          <el-select
-            style="width: 150px"
+          <el-input
             v-model="rateEditParams.dormNumber"
-            placeholder="请选择宿舍楼">
-            <el-option
-              label="108"
-              value="男生宿舍" />
-          </el-select>
+            placeholder="请输入宿舍名称" />
         </el-form-item>
         <el-form-item
           label="床铺评分"
           prop="bedRate">
           <el-input
             placeholder="满分25分"
-            v-model.number="rateEditParams.bedRate"
-            style="width: 150px"></el-input>
+            v-model.number="rateEditParams.bedRate"></el-input>
         </el-form-item>
         <el-form-item
           label="地面评分"
           prop="groundRate">
           <el-input
             v-model.number="rateEditParams.groundRate"
-            style="width: 150px"
             placeholder="满分25分" />
         </el-form-item>
         <el-form-item
@@ -286,7 +250,6 @@ onMounted(() => {
           prop="lavatory">
           <el-input
             v-model.number="rateEditParams.lavatory"
-            style="width: 150px"
             placeholder="满分25分" />
         </el-form-item>
         <el-form-item
@@ -294,33 +257,27 @@ onMounted(() => {
           prop="goods">
           <el-input
             v-model.number="rateEditParams.goods"
-            placeholder="满分25分"
-            style="width: 150px" />
+            placeholder="满分25分" />
         </el-form-item>
         <el-form-item label="总分">
-          <span v-if="rateEditParams.totalScore">{{
-            rateEditParams.totalScore
-          }}</span>
-          <span
-            v-else
-            class="totalSpan">
-            {{ totalScore }}</span
-          >
+          <el-input
+            disabled
+            @change="rateEditParams.totalScore = totalScore"
+            v-model="totalScore" />
         </el-form-item>
         <el-form-item
           label="评分人"
           prop="Rater">
           <el-input
             placeholder="请输入评分人"
-            v-model="rateEditParams.Rater"
-            style="width: 150px"></el-input>
+            v-model="rateEditParams.Rater"></el-input>
         </el-form-item>
         <el-form-item
           label="综合评价"
           prop="evaluation">
           <el-select
             v-model="rateEditParams.evaluation"
-            style="width: 150px"
+            style="width: 200px"
             placeholder="请选择评价">
             <el-option
               label="优秀"
@@ -343,7 +300,7 @@ onMounted(() => {
           label="评比时间"
           prop="rateDate">
           <el-date-picker
-            style="width: 150px"
+            style="width: 195px"
             @change="selectDatePicker"
             v-model="rateEditParams.rateDate"
             type="date"
@@ -380,11 +337,5 @@ onMounted(() => {
       @select="exportTable" />
   </div>
 </template>
-<style scoped>
-.totalSpan {
-  width: 150px;
-  padding: 2px;
-  border: 1px #dcdfe6 solid;
-  color: #8d8e91;
-}
-</style>
+<style scoped></style>
+selectDatePicker

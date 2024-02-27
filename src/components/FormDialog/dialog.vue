@@ -10,8 +10,8 @@ const props = defineProps({
     default: false
   },
   width:{
-    type:String,
-    default:30+"%"
+    type:Number,
+    default:30
   }
 })
 const formParams = defineModel("params")
@@ -36,7 +36,7 @@ const visibleKey = computed({
 </script>
 <template>
   <el-dialog
-    :width="props.width"
+    :width="props.width+`%`"
     v-model="visibleKey"
     @close="clearBedParamsData"
     :show-close="false">

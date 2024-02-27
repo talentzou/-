@@ -6,7 +6,8 @@ import {
   addFloorsInfoRequest
 } from "@/server/MG/floors/floors"
 import { exportExcel } from "@/utils/excel"
-import { resetForm, submitForm, useRules } from "@/utils/dormRules"
+import { useRules } from "@/utils/dormRules"
+import { resetForm, submitForm } from "@/utils/rules"
 const expDialog = ref(false)
 const refTable = ref(null)
 const isOperate = ref(true)
@@ -30,7 +31,6 @@ let floorsParams = reactive({
   amount: "",
   id: ""
 })
-
 
 //导出数据
 function exportTable({ filename, allSelect }) {
@@ -77,15 +77,11 @@ const paramsRules = useRules(floorsParams)
       <el-form-item
         style="width: 180px"
         prop="floorsName">
-        <el-select
-          placeholder="请选择宿舍楼"
-          v-model="floorsSearchForm.floorName">
-          <el-option
-            value="11"
-            label="A1" />
-        </el-select>
+        <el-input
+          placeholder="请输入宿舍楼名称"
+          v-model="floorsSearchForm.floorName" />
       </el-form-item>
-      <el-form-item prop="floorsType">
+      <el-form-item>
         <el-select
           style="width: 180px"
           v-model="floorsSearchForm.floorsType"
@@ -180,7 +176,7 @@ const paramsRules = useRules(floorsParams)
       @close="Form.resetFields()"
       title="宿舍信息">
       <el-form
-         ref="Form"
+        ref="Form"
         :rules="paramsRules"
         :model="floorsParams"
         label-width="auto">
@@ -214,7 +210,7 @@ const paramsRules = useRules(floorsParams)
         </el-form-item>
         <el-form-item
           label="宿舍总数量"
-          prop="amount" >
+          prop="amount">
           <el-input
             v-model="floorsParams.amount"
             placeholder="请输入宿舍总数" />
