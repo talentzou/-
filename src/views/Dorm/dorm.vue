@@ -1,7 +1,7 @@
 <script setup>
 import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
 import { exportExcel } from "@/utils/excel"
-import { useRules } from "@/utils/dormRules"
+import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const refTable = ref(null)
 const expDialog = ref(false)
@@ -190,7 +190,7 @@ onMounted(() => {
           <router-link
             :to="{
               name: 'bed',
-              params: { name: row.dormNumber, type: row.dormType }
+              params: {name: row.dormNumber, type: row.dormType }
             }"
             style="color: #409eff"
             >{{ row.dormNumber }}</router-link
@@ -241,11 +241,11 @@ onMounted(() => {
       @getPageSizes="55" />
     <!-- 对话框 -->
     <FormDialog
-    :width="45"
+      :width="45"
       v-model="dormVisible"
       @close="Form.resetFields()"
       v-model:params="addDormParams"
-      title="修改床位">
+      :title="addDormParams.id?`修改宿舍信息`:`添加宿舍信息`">
       <el-form
         ref="Form"
         :rules="formParamsRules"
@@ -333,7 +333,7 @@ onMounted(() => {
               value="surplus" />
           </el-select>
         </el-form-item>
-     
+
         <el-form-item>
           <el-button
             @click="submitForm(Form)"
@@ -385,3 +385,4 @@ onMounted(() => {
   line-height: 178px;
 }
 </style>
+@/rules/dormRules

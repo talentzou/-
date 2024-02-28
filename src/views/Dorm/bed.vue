@@ -1,23 +1,26 @@
 <script setup>
 import { getBedInfoRequest } from "@/server/MG/bed/bed"
 import { exportExcel } from "@/utils/excel"
+import { useRules } from "@/rules/dormRules"
+import { resetForm, submitForm } from "@/utils/rules"
 let $route = useRoute()
 const refTable = ref(null)
+const Form = ref(null)
+const searchRef = ref(null)
 const expDialog = ref(false)
 let bedSearchParams = reactive({
-  bedStatus: "",
   dormType: "",
-  dormNumber: "",
-  bedNumber: "",
-  bedPerson: ""
+  dormNumber: ""
 })
-let editParams = reactive({
+let editBedParams = reactive({
   bedStatus: "",
   dormNumber: "",
   bedNumber: "",
   message: "",
-  bedPerson: ""
+  studentName: ""
 })
+const searchRules=useRules(bedSearchParams)
+const formRules=useRules(editBedParams )
 let isOperate = ref(true)
 let bedVisible = ref(false)
 bedSearchParams.dormNumber = $route.params.name
@@ -46,10 +49,11 @@ onMounted(() => {
   <div>
     <!-- 搜索 -->
     <el-form
+     :rules="searchRules"
       :model="bedSearchParams"
-      style="height: 35px; padding: 5px 0"
+      ref="searchRef"
       inline>
-      <el-form-item prop=" dormNumber">
+      <el-form-item prop="dormNumber">
         <el-input
           v-model="bedSearchParams.dormNumber"
           placeholder="请输入宿舍编号"
@@ -67,34 +71,16 @@ onMounted(() => {
           <el-option
             label="四人间"
             value="四人间" />
-          <el-option
-            label="二人间"
-            value="二人间" />
         </el-select>
       </el-form-item>
-      <el-form-item prop="dormNumber">
-        <el-input
-          v-model="bedSearchParams.bedNumber"
-          placeholder="请选择床位编号"
-          clearable
-          style="width: 160px" />
-      </el-form-item>
-      <el-form-item prop="dormStatus">
-        <el-select
-          style="width: 160px"
-          v-model="bedSearchParams.bedStatus"
-          placeholder="床位状态">
-          <el-option
-            label="没人"
-            value="Not" />
-          <el-option
-            label="有人"
-            value="Have" />
-        </el-select>
-      </el-form-item>
+
       <el-form-item>
-        <el-button type="primary">搜索</el-button>
-        <el-button>重置</el-button>
+        <el-button
+          type="primary"
+          @click="submitForm(searchRef)"
+          >搜索</el-button
+        >
+        <el-button @click="resetForm(searchRef)">重置</el-button>
       </el-form-item>
     </el-form>
     <!-- 操作 -->
@@ -124,11 +110,10 @@ onMounted(() => {
         label="宿舍"
         width="180"
         align="center">
-        <!-- <template #default>
-        {{ $route.query.dormNumber }}
-      </template> -->
+        <template #default>
+        {{ $route.params.name }}
+      </template>
       </el-table-column>
-
       <el-table-column
         prop="bedNumber"
         label="床位编号"
@@ -154,7 +139,7 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column
-        prop="bedPerson"
+        prop="studentName"
         label="入住人"
         width="180"
         align="center" />
@@ -166,50 +151,64 @@ onMounted(() => {
           <TableButton
             :row="row"
             @merge="bedVisible = true"
-            v-model="editParams" />
+            v-model="editBedParams" />
         </template>
       </el-table-column>
     </el-table>
+    
     <!-- 对话框 -->
     <FormDialog
+      @close="Form.resetFields()"
       v-model="bedVisible"
-      v-model:params="editParams"
-      title="修改床位">
+      v-model:params="editBedParams"
+      :title="editBedParams.id?`修改床位信息`:`添加床位信息`">
       <el-form
-        :model="editParams"
+        ref="Form"
+        :rules="formRules"
+        :model="editBedParams"
         label-width="auto">
-        <el-form-item label="宿舍">
-          <el-select
-            style="width: 120px"
-            v-model="editParams.dormNumber"
-            placeholder="请选择宿舍类型">
-            <el-option
-              label="A1-08"
-              value="男生宿舍" />
-            <el-option
-              label="女生宿舍"
-              value="女生宿舍" />
-          </el-select>
+        <el-form-item
+          label="宿舍"
+          prop="dormNumber">
+          <el-input v-model="editBedParams.dormNumber" />
         </el-form-item>
-        <el-form-item label="床位编号">
-          <el-input v-model="editParams.bedNumber" />
+        <el-form-item
+          label="床位编号"
+          prop="bedNumber">
+          <el-input v-model.number="editBedParams.bedNumber" />
         </el-form-item>
-        <el-form-item label="床位状态">
-          <el-radio-group v-model="editParams.bedStatus">
+        <el-form-item
+          label="床位状态"
+          prop="bedStatus">
+          <el-radio-group v-model="editBedParams.bedStatus">
             <el-radio label="有人">有人</el-radio>
             <el-radio label="没人">没人</el-radio>
             <el-radio label="其他">其他</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="入住人">
-          <el-input v-model="editParams.bedPerson" />
+        <el-form-item
+          label="入住人"
+          prop="studentName">
+          <el-input v-model="editBedParams.studentName" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input
-            v-model="editParams.message"
+            v-model="editBedParams.message"
             placeholder="备注信息"
             :rows="3"
             type="textarea" />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            @click="submitForm(Form)"
+            type="success"
+            >创建</el-button
+          >
+          <el-button
+            @click="resetForm(Form)"
+            type="primary"
+            >重置</el-button
+          >
         </el-form-item>
       </el-form>
     </FormDialog>

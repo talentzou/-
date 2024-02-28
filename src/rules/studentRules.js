@@ -1,4 +1,5 @@
-import { Rules } from "./rules"
+import { Rules } from "../utils/rules"
+
 function dormNumber(rule, value, callback) {
   let reg = /[A-Z]\d-\d{1,2}/
   const isVal = reg.test(value)
@@ -17,18 +18,34 @@ function floorsName(rule, value, callback) {
     callback()
   }
 }
-
+function studentName(rule, value, callback) {
+  if (value.length < 2) {
+    callback(new Error("名字长度至少两位"))
+  }
+  callback()
+}
 function phone(rule, value, callback) {
   let reg = /^1[3-9]\d{9}$/
   const isTrue = reg.test(value)
-  console.log(isTrue, 111)
   if (!isTrue) {
     callback(new Error("请输入正确格式的手机号码"))
   } else {
     callback()
   }
 }
-const expenseRules = {
+
+function studentNumber(rule, value, callback) {
+  let reg = /^\d{10}$/
+  const isNumber = reg.test(value)
+  if (!isNumber) {
+    callback(new Error("请输入正确格式的10位数字学号"))
+  } else {
+    callback()
+  }
+}
+
+
+const studentRules = {
   floorsName: [
     { required: true, message: "宿舍楼不能为空", trigger: "blur" },
     {
@@ -47,66 +64,14 @@ const expenseRules = {
       trigger: "blur"
     }
   ],
-  paymentTime: [
+  studentNumber: [
     {
       required: true,
-      message: "缴费时间不能为空",
-      trigger: "blur"
-    }
-  ],
-  waterConsumption: [
-    {
-      required: true,
-      message: "水用量不能为空",
+      message: "学号不能为空",
       trigger: "blur"
     },
     {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ],
-  waterCharge: [
-    {
-      required: true,
-      message: "水费不能为空",
-      trigger: "blur"
-    },
-    {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ],
-  electricityConsumption: [
-    {
-      required: true,
-      message: "电用量不能为空",
-      trigger: "blur"
-    },
-    {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ],
-  electricityCharge: [
-    {
-      required: true,
-      message: "电费不能为空",
-      trigger: "blur"
-    },
-    {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ],
-
-  accountant: [
-    {
-      required: true,
-      message: "结算人不能为空",
+      validator: studentNumber,
       trigger: "blur"
     }
   ],
@@ -120,9 +85,34 @@ const expenseRules = {
       validator: phone,
       trigger: "blur"
     }
+  ],
+  major: [
+    {
+      required: true,
+      message: "专业不能为空",
+      trigger: "blur"
+    }
+  ],
+  sex: [
+    {
+      required: true,
+      message: "性别不能为空",
+      trigger: "blur"
+    }
+  ],
+  studentName: [
+    {
+      required: true,
+      message: "名字不能为空",
+      trigger: "blur"
+    },
+    {
+      validator: studentName,
+      trigger: "blur"
+    }
   ]
 }
 
 export function useRules(params) {
-  return Rules(expenseRules, params)
+  return Rules(studentRules, params)
 }

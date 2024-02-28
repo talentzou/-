@@ -1,6 +1,9 @@
 <script setup>
-import { ref } from "vue"
-
+import { useRules } from "@/rules/studentRules"
+import { resetForm, submitForm } from "@/utils/rules"
+import { getStudentInfoRequest } from "@/server/STUDENT/student"
+const searchRef = ref(null)
+const Form = ref(null)
 const searchStudentParams = reactive({
   studentName: "",
   studentNumber: "",
@@ -20,15 +23,27 @@ let studentEditParams = reactive({
   phone: "",
   dormNumber: ""
 })
+const searchRules = useRules(searchStudentParams)
+const formRules = useRules(studentEditParams)
+
+/* 接口 */
 let studentTableData = ref([])
+async function getStudentData() {
+  const { code, data } = await getStudentInfoRequest()
+  studentTableData.value = data
+}
+onMounted(() => {
+  getStudentData()
+})
 </script>
 
 <template>
   <div>
     <!-- 搜索 -->
     <el-form
+      ref="searchRef"
+      :rules="searchRules"
       :model="searchStudentParams"
-      style="height: 35px; padding: 5px 0"
       inline>
       <el-form-item
         prop="floorsName"
@@ -44,33 +59,31 @@ let studentTableData = ref([])
           v-model="searchStudentParams.dormNumber"
           placeholder="请输入宿舍名称" />
       </el-form-item>
-      <el-form-item
-        prop="studentNumber"
-        style="width: 160px">
+      <el-form-item style="width: 160px">
         <el-input
-          v-model="searchStudentParams.studentNumber"
+          v-model="searchStudentParams.studentName"
           placeholder="请输入学生姓名"
           clearable />
       </el-form-item>
-      <el-form-item
-        prop="name"
-        style="width: 160px">
+      <el-form-item style="width: 160px">
         <el-input
           v-model="searchStudentParams.studentNumber"
           placeholder="请输入学号"
           clearable />
       </el-form-item>
-      <el-form-item
-        prop="major"
-        style="width: 160px">
+      <el-form-item style="width: 160px">
         <el-input
           v-model="searchStudentParams.bedNumber"
           placeholder="请输入专业"
           clearable />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">搜索</el-button>
-        <el-button>重置</el-button>
+        <el-button
+          type="primary"
+          @click="submitForm(searchRef)"
+          >搜索</el-button
+        >
+        <el-button @click="resetForm(searchRef)">重置</el-button>
       </el-form-item>
     </el-form>
     <OperateButton
@@ -100,7 +113,7 @@ let studentTableData = ref([])
         width="120"
         align="center" />
       <el-table-column
-        prop="StudentName"
+        prop="studentName"
         label="姓名"
         width="120"
         align="center" />
@@ -145,9 +158,77 @@ let studentTableData = ref([])
       @getCurrentPage="55"
       @getPageSizes="55" />
     <FormDialog
+      ref="Form"
       v-model="studentVisible"
       v-model:params="studentEditParams"
-      title="学生信息">
+      :title="studentEditParams.id?`修改学生信息`:`添加学生信息`"
+      @close="Form.resetFields()">
+      <el-form
+        :model="studentEditParams"
+        :rules="formRules"
+        ref="Form">
+        <el-form-item
+          label="宿舍"
+          prop="dormNumber"
+          ><el-input
+            v-model="studentEditParams.dormNumber"
+            placeholder="请输入宿舍"
+        /></el-form-item>
+        <el-form-item
+          label="学号"
+          prop="studentNumber"
+          ><el-input
+            v-model="studentEditParams.studentNumber"
+            placeholder="请输入"
+        /></el-form-item>
+        <el-form-item
+          label="学生名字"
+          prop="studentName"
+          ><el-input
+            v-model="studentEditParams.studentName"
+            placeholder="请输入学生名字"
+        /></el-form-item>
+        <el-form-item
+          label="性别"
+          prop="sex">
+          <el-select
+            v-model="studentEditParams.sex"
+            placeholder="请选择性别">
+            <el-option
+              label="男"
+              value="男" />
+            <el-option
+              label="女"
+              value="女" />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="专业"
+          prop="major"
+          ><el-input
+            v-model="studentEditParams.major"
+            placeholder="请输入专业"
+        /></el-form-item>
+        <el-form-item
+          label="手机号"
+          prop="phone"
+          ><el-input
+            v-model="studentEditParams.phone"
+            placeholder="请输入手机号" />
+        </el-form-item>
+        <el-form-item style="display: block">
+          <el-button
+            @click="submitForm(Form)"
+            type="success"
+            >创建</el-button
+          >
+          <el-button
+            @click="resetForm(Form)"
+            type="primary"
+            >重置</el-button
+          >
+        </el-form-item>
+      </el-form>
     </FormDialog>
   </div>
 </template>

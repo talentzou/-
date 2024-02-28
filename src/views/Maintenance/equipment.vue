@@ -1,7 +1,7 @@
 <script setup>
 import { getRepairInfoRequest } from "@/server/REPAIR/repair"
 import { exportExcel } from "@/utils/excel"
-import { useRules } from "@/utils/maintenanceRules"
+import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const refTable = ref(null)
 const Form = ref(null)
@@ -184,7 +184,7 @@ onMounted(() => {
       :width="50"
       v-model="repairVisible"
       v-model:params="maintenanceEditParams"
-      title="维修信息">
+      :title="maintenanceEditParams.id?`修改维修信息`:`添加维修信息`">
       <el-form
         ref="Form"
         inline
@@ -291,3 +291,4 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped></style>
+@/rules/maintenanceRules

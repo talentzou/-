@@ -1,7 +1,7 @@
 <script setup>
 import { getRateInfoRequest } from "@/server/MG/rate/rate"
 import { exportExcel } from "@/utils/excel"
-import { useRules } from "@/utils/dormRules"
+import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const searchRef = ref(null)
 const Form = ref(null)
@@ -210,7 +210,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="rateVisible"
       v-model:params="rateEditParams"
-      title="评分">
+      :title="rateEditParams.id?`修改评分`:`添加评分`">
       <el-form
         ref="Form"
         inline
@@ -338,4 +338,4 @@ onMounted(() => {
   </div>
 </template>
 <style scoped></style>
-selectDatePicker
+selectDatePicker @/rules/dormRules

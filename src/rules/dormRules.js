@@ -1,4 +1,4 @@
-import { Rules } from "./rules"
+import { Rules } from "../utils/rules"
 function dormNumber(rule, value, callback) {
   let reg = /[A-Z]\d-\d{1,2}/
   const isVal = reg.test(value)
@@ -189,6 +189,25 @@ const FormRules = {
       required: true,
       message: "辅导员不能为空",
       trigger: "blur"
+    }
+  ],
+  bedStatus:[
+    {
+      required: true,
+      message: "床位状态不能为空",
+      trigger: "blur"
+    }
+  ],
+  bedNumber:[
+    {
+      required: true,
+      message: "床位编号不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
     }
   ]
 }

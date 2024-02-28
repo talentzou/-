@@ -2,7 +2,7 @@
 import { getExpenseInfoRequest } from "@/server/EXPENSE/expense"
 import { exportExcel } from "@/utils/excel"
 import { resetForm, submitForm } from "@/utils/rules"
-import { useRules } from "@/utils/expenseRules"
+import { useRules } from "@/rules/expenseRules"
 import { computed } from "vue"
 const refTable = ref(null)
 const searchRef = ref(null)
@@ -192,7 +192,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="expenseVisible"
       v-model:params="expenseEditParams"
-      title="费用信息">
+      :title="expenseEditParams.id?`修改费用信息`:`添加费用信息`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -272,7 +272,9 @@ onMounted(() => {
             v-model="expenseEditParams.phone"
             placeholder="请输入手机号码" />
         </el-form-item>
-        <el-form-item label="备注" style="width: 100%;">
+        <el-form-item
+          label="备注"
+          style="width: 100%">
           <el-input
             v-model="expenseEditParams.remark"
             placeholder="请输入备注"
@@ -299,3 +301,4 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped></style>
+@/rules/expenseRules

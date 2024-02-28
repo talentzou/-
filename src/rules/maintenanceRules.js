@@ -1,4 +1,4 @@
-import { Rules } from "./rules"
+import { Rules } from "../utils/rules"
 function dormNumber(rule, value, callback) {
   let reg = /[A-Z]\d-\d{1,2}/
   const isVal = reg.test(value)
@@ -20,7 +20,7 @@ function floorsName(rule, value, callback) {
 function phone(rule, value, callback) {
   let reg = /^1[3-9]\d{9}$/
   const isTrue = reg.test(value)
-  console.log(isTrue,111);
+  console.log(isTrue, 111)
   if (!isTrue) {
     callback(new Error("请输入正确格式的手机号码"))
   } else {

@@ -54,7 +54,7 @@ watchEffect(() => {
 <style scoped>
 .navbar-wrapper {
   height: 84px;
-  box-shadow: 0 3px 3px #eee;
+  box-shadow: 0 1px 1px #eee;
 }
 .navbar-content {
   display: flex;

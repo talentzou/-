@@ -1,7 +1,7 @@
 <script setup>
 import { getStayInfoRequest } from "@/server/MG/stay/stay"
 import { exportExcel } from "@/utils/excel"
-import { useRules } from "@/utils/dormRules"
+import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 //表格实例
 const refTable = ref(null)
@@ -214,7 +214,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="stayVisible"
       v-model:params="stayEditParams"
-      title="留宿申请">
+      :title="stayEditParams.id?`修改留宿申请`:`添加留宿申请`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -285,4 +285,4 @@ onMounted(() => {
       @select="exportTable" />
   </div>
 </template>
-@/server/MG/stay/stay
+@/server/MG/stay/stay @/rules/dormRules

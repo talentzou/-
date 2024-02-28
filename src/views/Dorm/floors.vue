@@ -6,7 +6,7 @@ import {
   addFloorsInfoRequest
 } from "@/server/MG/floors/floors"
 import { exportExcel } from "@/utils/excel"
-import { useRules } from "@/utils/dormRules"
+import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const expDialog = ref(false)
 const refTable = ref(null)
@@ -174,7 +174,7 @@ const paramsRules = useRules(floorsParams)
       v-model="floorsVisible"
       v-model:params="floorsParams"
       @close="Form.resetFields()"
-      title="宿舍信息">
+      :title="floorsParams.id?`编辑宿舍楼信息`:`添加宿舍楼信息`">
       <el-form
         ref="Form"
         :rules="paramsRules"
@@ -212,7 +212,7 @@ const paramsRules = useRules(floorsParams)
           label="宿舍总数量"
           prop="amount">
           <el-input
-            v-model="floorsParams.amount"
+            v-model.number="floorsParams.amount"
             placeholder="请输入宿舍总数" />
         </el-form-item>
         <el-form-item>
@@ -234,4 +234,4 @@ const paramsRules = useRules(floorsParams)
       @select="exportTable" />
   </div>
 </template>
-@/server/MG/stay/floors/floors
+@/server/MG/stay/floors/floors @/rules/dormRules
