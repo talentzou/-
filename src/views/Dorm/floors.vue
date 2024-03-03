@@ -5,7 +5,8 @@ import {
   updateFloorsInfoRequest,
   addFloorsInfoRequest
 } from "@/server/MG/floors/floors"
-import { exportExcel } from "@/utils/excel"
+
+import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const expDialog = ref(false)
@@ -33,11 +34,17 @@ let floorsParams = reactive({
 })
 
 //导出数据
+const fields = {
+  amount: "宿舍总数",
+  floors: "楼层数",
+  floorsName: "宿舍楼名",
+  floorsType: "宿舍楼类型"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
 
 function tagState(row) {
@@ -103,7 +110,7 @@ const paramsRules = useRules(floorsParams)
         <el-button @click="resetForm(floorsRef)">重置</el-button>
       </el-form-item>
     </el-form>
-
+    <!-- <button @click="exportExcel2">测试</button> -->
     <!-- 操作 -->
     <OperateButton
       :isOperate="isOperate"
@@ -115,6 +122,7 @@ const paramsRules = useRules(floorsParams)
       :data="tableData"
       border
       ref="refTable"
+      style="width: 100%"
       :max-height="525"
       @selection-change="
         (list) => (list.length ? (isOperate = false) : (isOperate = true))
@@ -156,7 +164,8 @@ const paramsRules = useRules(floorsParams)
       <el-table-column
         prop="操作"
         label="操作"
-        align="center">
+        align="center"
+        fixed="right">
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
@@ -174,7 +183,7 @@ const paramsRules = useRules(floorsParams)
       v-model="floorsVisible"
       v-model:params="floorsParams"
       @close="Form.resetFields()"
-      :title="floorsParams.id?`编辑宿舍楼信息`:`添加宿舍楼信息`">
+      :title="floorsParams.id ? `编辑宿舍楼信息` : `添加宿舍楼信息`">
       <el-form
         ref="Form"
         :rules="paramsRules"

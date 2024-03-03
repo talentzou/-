@@ -1,6 +1,7 @@
 <script setup>
 import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
-import { exportExcel } from "@/utils/excel"
+// import { exportExcel } from "@/utils/excel"
+import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const refTable = ref(null)
@@ -26,11 +27,18 @@ const formParamsRules = useRules(addDormParams)
 let dormVisible = ref(false)
 let isOperate = ref(true)
 //导出数据
+const fields = {
+  floorsName: "宿舍楼名",
+  dormNumber: "宿舍",
+  img: "宿舍照片",
+  dormType: "宿舍类型",
+  dormStatus: "宿舍状态"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
 
 function handleAvatarSuccess() {}
@@ -190,7 +198,7 @@ onMounted(() => {
           <router-link
             :to="{
               name: 'bed',
-              params: {name: row.dormNumber, type: row.dormType }
+              params: { name: row.dormNumber, type: row.dormType }
             }"
             style="color: #409eff"
             >{{ row.dormNumber }}</router-link
@@ -245,7 +253,7 @@ onMounted(() => {
       v-model="dormVisible"
       @close="Form.resetFields()"
       v-model:params="addDormParams"
-      :title="addDormParams.id?`修改宿舍信息`:`添加宿舍信息`">
+      :title="addDormParams.id ? `修改宿舍信息` : `添加宿舍信息`">
       <el-form
         ref="Form"
         :rules="formParamsRules"

@@ -1,6 +1,6 @@
 <script setup>
 import { getExpenseInfoRequest } from "@/server/EXPENSE/expense"
-import { exportExcel } from "@/utils/excel"
+import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules } from "@/rules/expenseRules"
 import { computed } from "vue"
@@ -33,11 +33,23 @@ const expDialog = ref(false)
 
 let expenseVisible = ref(false)
 //导出表格
+const fields = {
+  dormNumber: "宿舍",
+  paymentTime: "订单时间",
+  waterConsumption: "用水量",
+  waterCharge: "水费",
+  electricityConsumption: "用电量",
+  electricityCharge: "电费",
+  totalCost: "总费用",
+  accountant: "计算人",
+  phone: "联系电话",
+  remark: "备注"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
 function selectDatePicker(params) {}
 
@@ -192,7 +204,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="expenseVisible"
       v-model:params="expenseEditParams"
-      :title="expenseEditParams.id?`修改费用信息`:`添加费用信息`">
+      :title="expenseEditParams.id ? `修改费用信息` : `添加费用信息`">
       <el-form
         ref="Form"
         :rules="formRules"

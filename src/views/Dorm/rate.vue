@@ -1,6 +1,6 @@
 <script setup>
 import { getRateInfoRequest } from "@/server/MG/rate/rate"
-import { exportExcel } from "@/utils/excel"
+import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const searchRef = ref(null)
@@ -57,11 +57,23 @@ const totalScore = computed(() => {
 })
 let selectRateTableData = ref([])
 //导出表格
+const fields = {
+  rateDate: "评分时间",
+  dormNumber: "宿舍",
+  bedRate: "床铺评分",
+  groundRate: "地面评分",
+  lavatory: "厕所卫生评分",
+  goods: "物品摆放评分",
+  totalScore: "总分",
+  Rater: "评分人",
+  evaluation: "综合评价",
+  remark: "备注"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
 /* 接口 */
 let rateTableData = ref([])
@@ -210,7 +222,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="rateVisible"
       v-model:params="rateEditParams"
-      :title="rateEditParams.id?`修改评分`:`添加评分`">
+      :title="rateEditParams.id ? `修改评分` : `添加评分`">
       <el-form
         ref="Form"
         inline

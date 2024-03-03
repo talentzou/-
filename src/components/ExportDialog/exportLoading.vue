@@ -1,5 +1,4 @@
 <script setup>
-import { exportExcel } from "@/utils/excel"
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -16,24 +15,24 @@ const visibleKey = computed({
   }
 })
 let filename = ref("")
-function exportTable({ filename, isSelect }) {
+// function exportTable({ filename, isSelect }) {
  
-  // if (isSelect) {
-  //   exportExcel(refTable.value.data,filename)
-  // } else {
-  //   const part = refTable.value.getSelectionRows()
-  //   if (part.length === 0) {
-  //     return ElMessage({
-  //       message: "没有选中项导出！！！",
-  //       type: "error"
-  //     })
-  //   }
-  //   exportExcel(part,filename)
-  // }
-}
-defineExpose({
-  exportTable
-})
+//   // if (isSelect) {
+//   //   exportExcel(refTable.value.data,filename)
+//   // } else {
+//   //   const part = refTable.value.getSelectionRows()
+//   //   if (part.length === 0) {
+//   //     return ElMessage({
+//   //       message: "没有选中项导出！！！",
+//   //       type: "error"
+//   //     })
+//   //   }
+//   //   exportExcel(part,filename)
+//   // }
+// }
+// defineExpose({
+//   exportTable
+// })
 </script>
 <template>
   <el-dialog

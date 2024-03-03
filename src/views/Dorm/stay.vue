@@ -1,6 +1,6 @@
 <script setup>
 import { getStayInfoRequest } from "@/server/MG/stay/stay"
-import { exportExcel } from "@/utils/excel"
+import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 //表格实例
@@ -34,11 +34,20 @@ function selectDatePicker() {
   console.log(staySearchParams.date)
 }
 //导出表格
+const fields = {
+  stayDate: "留宿时间",
+  studentName: "学生姓名",
+  floorsName: "宿舍楼",
+  dormNumber: "宿舍",
+  stayCause: "留宿原因",
+  instructor: "辅导员",
+  auditProgress: "审核意见"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
 //标签颜色
 function stateTag(text) {
@@ -214,7 +223,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="stayVisible"
       v-model:params="stayEditParams"
-      :title="stayEditParams.id?`修改留宿申请`:`添加留宿申请`">
+      :title="stayEditParams.id ? `修改留宿申请` : `添加留宿申请`">
       <el-form
         ref="Form"
         :rules="formRules"

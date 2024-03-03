@@ -3,9 +3,9 @@ import scrollPane from "./scrollPane.vue"
 import topNavbar from "./topNavbar.vue"
 import { layoutStore } from "@/stores/layout"
 const $route = useRoute()
-console.log($route)
+// console.log($route)
 const useLayoutStore = layoutStore()
-console.log(useLayoutStore.isFold)
+// console.log(useLayoutStore.isFold)
 // console.log($route)
 let breadcrumbItem = ref([])
 function breadcrumb() {

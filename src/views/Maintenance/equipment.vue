@@ -1,6 +1,6 @@
 <script setup>
 import { getRepairInfoRequest } from "@/server/REPAIR/repair"
-import { exportExcel } from "@/utils/excel"
+import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
 const refTable = ref(null)
@@ -29,11 +29,22 @@ let maintenanceEditParams = reactive({
 const searchRules = useRules(maintenanceSearchParams)
 const formRules = useRules(maintenanceEditParams)
 //导出表格
+const fields = {
+  floorsName: "宿舍楼",
+  dormNumber: "宿舍",
+  problems: "故障问题",
+  submitDate: "提交日期",
+  repairStatus: "维修状态",
+  reportMan: "上报人",
+  phone: "联系电话",
+  repairer: "维修者",
+  remark: "备注"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
 function selectDatePicker() {}
 /* 接口 */
@@ -184,7 +195,7 @@ onMounted(() => {
       :width="50"
       v-model="repairVisible"
       v-model:params="maintenanceEditParams"
-      :title="maintenanceEditParams.id?`修改维修信息`:`添加维修信息`">
+      :title="maintenanceEditParams.id ? `修改维修信息` : `添加维修信息`">
       <el-form
         ref="Form"
         inline

@@ -1,5 +1,6 @@
 <script setup>
 import { useRules } from "@/rules/studentRules"
+import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { getStudentInfoRequest } from "@/server/STUDENT/student"
 const searchRef = ref(null)
@@ -25,7 +26,21 @@ let studentEditParams = reactive({
 })
 const searchRules = useRules(searchStudentParams)
 const formRules = useRules(studentEditParams)
-
+// 导出
+const fields = {
+  studentName: "学生姓名",
+  studentNumber: "学号",
+  sex: "性别",
+  major: "专业",
+  phone: "联系电话",
+  dormNumber: "宿舍"
+}
+function exportTable({ filename, allSelect }) {
+  const data = allSelect
+    ? refTable.value.data
+    : refTable.value.getSelectionRows()
+  useExportExcel(data, fields, filename)
+}
 /* 接口 */
 let studentTableData = ref([])
 async function getStudentData() {
@@ -132,7 +147,7 @@ onMounted(() => {
       <el-table-column
         prop="major"
         label="专业"
-        width="120"
+        width="180"
         align="center">
       </el-table-column>
       <el-table-column
@@ -161,7 +176,7 @@ onMounted(() => {
       ref="Form"
       v-model="studentVisible"
       v-model:params="studentEditParams"
-      :title="studentEditParams.id?`修改学生信息`:`添加学生信息`"
+      :title="studentEditParams.id ? `修改学生信息` : `添加学生信息`"
       @close="Form.resetFields()">
       <el-form
         :model="studentEditParams"
@@ -230,6 +245,9 @@ onMounted(() => {
         </el-form-item>
       </el-form>
     </FormDialog>
+    <ExportDialog
+      v-model="expDialog"
+      @select="exportTable" />
   </div>
 </template>
 
