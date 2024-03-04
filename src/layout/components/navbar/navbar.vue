@@ -51,7 +51,7 @@ watchEffect(() => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .navbar-wrapper {
   height: 84px;
   box-shadow: 0 1px 1px #eee;
@@ -60,6 +60,7 @@ watchEffect(() => {
   display: flex;
   height: 50px;
   line-height: 50px;
+  position: relative;
   .expand {
     height: 100%;
     padding: 5px 15px;
@@ -71,11 +72,9 @@ watchEffect(() => {
   .breadcrumb-span {
     font-size: 16px;
   }
-}
-.el-breadcrumb {
-  flex: 1;
-}
-.button-nav {
-  width: 200px;
+  .el-breadcrumb {
+    flex: 1;
+  }
+ 
 }
 </style>

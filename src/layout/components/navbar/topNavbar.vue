@@ -1,6 +1,8 @@
 <script setup>
 import { layoutStore } from "@/stores/layout"
+import { userStore } from "@/stores/user";
 const useLayoutStore = layoutStore()
+const useUserStore=userStore()
 const switchVal = ref(false)
 //主题颜色
 const color = ref("rgba(255, 69, 0, 0.68)")
@@ -97,9 +99,10 @@ function refresh() {
     <el-dropdown trigger="click">
       <span class="avatar-wrapper">
         <img
-          src="@/assets/imgs/avatar.jpg"
+          :src="useUserStore.userInfo.avatar"
           alt=""
           class="avatar-img" />
+        <span>{{ useUserStore.userInfo.nickname }}</span>
         <svg-icon
           name="arrow_down"
           color="black"></svg-icon>
@@ -115,10 +118,11 @@ function refresh() {
 </template>
 <style scoped>
 .button-nav {
-  width: 300px;
   height: 100%;
   display: flex;
   align-items: center;
+  position: absolute;
+  right: 5px;
 }
 
 .avatar-wrapper {
@@ -127,11 +131,16 @@ function refresh() {
   align-items: center;
   margin-left: 12px;
   .avatar-img {
-    height: 40px;
+    height: 30px;
     display: inline-block;
-    width: 40px;
+    width: 30px;
     border-radius: 5px;
     margin-right: 5px;
+  }
+  span {
+    padding: 0 5px;
+    min-width: 40px;
+    text-align: center;
   }
 }
 </style>

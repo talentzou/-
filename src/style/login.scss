@@ -1,0 +1,69 @@
+.login-view {
+    width: 100%; 
+    height: 100vh; 
+    display: flex; 
+    justify-content: space-between; 
+    box-sizing: border-box; 
+    background: url("@/assets/imgs/logo.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .login {
+    padding: 0 12px;
+    border-radius: 1rem;
+    display: flex;
+    width: 40%;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+  
+    .img-container {
+      display: flex;
+      width: 336px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      .appLogo {
+        width: 96px;
+      }
+    }
+    .title {
+      margin-bottom: 36px;
+      .system-name {
+        text-align: center;
+        font-size: 30px;
+        font-weight: bold;
+      }
+      .system-introduce {
+        text-align: center;
+        font-size: small;
+        font-style: normal;
+        margin-top: 10px;
+        color: #6b7280;
+      }
+    }
+    .captcha-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      .captcha-input {
+        flex: 1;
+        margin-right: 20px;
+      }
+    }
+    .login-button {
+      box-shadow: 0;
+      height: 40px;
+      width: 100%;
+    }
+    .login-form {
+      width: 336px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* 上方阴影 */
+      padding: 15px;
+      border-radius: 1rem;
+    }
+  }
+  

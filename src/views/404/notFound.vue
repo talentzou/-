@@ -1,4 +1,9 @@
-<script setup></script>
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router=useRouter()
+console.log("router",router);
+</script>
 
 <template>
   <div class="nothing">

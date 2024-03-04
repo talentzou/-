@@ -81,4 +81,3 @@ function completePath(children = []) {
 
 </template>
 </template>
-<style scoped></style>
