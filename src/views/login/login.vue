@@ -1,8 +1,9 @@
 <script setup>
-import { userStore } from '@/stores/user';
-const loginForm=ref(null)
-const title=ref( import.meta.env.DORM_SYSTEM_NAME)
-const introduce=ref( import.meta.env.DORM_SYSTEN_INTRODUCE)
+import { userStore } from "@/stores/user"
+import config from "@/core/config"
+const loginForm = ref(null)
+const title = ref(config.systemName)
+const introduce = ref(config.state)
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
     return callback(new Error("请输入正确的用户名"))
@@ -50,7 +51,7 @@ const loginVerify = () => {
   })
 }
 
-const login = async() => {
+const login = async () => {
   return await userStore.userLogin(loginFormData)
 }
 const submitForm = () => {
@@ -85,10 +86,10 @@ const submitForm = () => {
         </div>
         <div class="title">
           <p class="system-name">
-            {{ title}}
+            {{ title }}
           </p>
           <p class="system-introduce">
-           {{ introduce }}
+            {{ introduce }}
           </p>
         </div>
         <el-form
@@ -144,11 +145,10 @@ const submitForm = () => {
         </el-form>
       </div>
     </div>
-    <div class="login-text">
-    </div>
+    <div class="login-text"></div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-@import "@/style/login.scss"
+@import "@/style/login.scss";
 </style>
