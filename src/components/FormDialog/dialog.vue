@@ -16,6 +16,7 @@ const props = defineProps({
 })
 const formParams = defineModel("params")
 const emits = defineEmits(["update:modelValue","close"])
+
 function clearBedParamsData() {
   let tempObj = {}
   for (let key of Object.keys(formParams.value)) {

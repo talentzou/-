@@ -18,14 +18,13 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       proxy: {
-        '/api': {
-          target: 'http://localhost:5173',
+        [env.DORM_PROXY_PREFIX_API]: {
+          target: env.DORM_PROXY_BASE_URL,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
-        },
+          rewrite: (path) => path.replace(/^\/api/, "")
+        }
       }
     },
-    envPrefix:"DORM_",
-  
+    envPrefix: "DORM_"
   }
 })

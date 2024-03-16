@@ -1,55 +1,128 @@
 <script setup>
-import { getBedInfoRequest } from "@/server/MG/bed/bed"
-import { exportExcel } from "@/utils/excel"
+import {
+  getBedResponse,
+  updateBedResponse,
+  deleteBedResponse,
+  createBedResponse
+} from "@/api/DORM/bed"
+import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
+import { dormNumber } from "@/rules/dormRules"
+import { Notification } from "@/utils/notification"
 let $route = useRoute()
 const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
 const expDialog = ref(false)
 let bedSearchParams = reactive({
-  dormType: "",
   dormNumber: ""
 })
-let editBedParams = reactive({
+let editBedParams = ref({
+  id: "",
   bedStatus: "",
   dormNumber: "",
   bedNumber: "",
-  message: "",
+  remark: "",
   studentName: ""
 })
-const searchRules=useRules(bedSearchParams)
-const formRules=useRules(editBedParams )
+const searchRules = {
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
+const formRules = useRules(editBedParams.value)
 let isOperate = ref(true)
 let bedVisible = ref(false)
 bedSearchParams.dormNumber = $route.params.name
-bedSearchParams.dormType = $route.params.type
 //导出数据
+const fields = {
+  dormNumber: "宿舍",
+  bedNumber: "床位编号",
+  bedStatus: "床位状态",
+  studentName: "入住人",
+  remark: "备注"
+}
 function exportTable({ filename, allSelect }) {
   const data = allSelect
     ? refTable.value.data
     : refTable.value.getSelectionRows()
-  exportExcel(data, filename)
+  useExportExcel(data, fields, filename)
 }
+
 /* 接口 */
 let bedTableData = ref([])
-async function getBedData() {
-  const { code, data } = await getBedInfoRequest()
-  bedTableData.value = data
+// const total = ref(0)
+async function getBeds() {
+  const { code, data } = await getBedResponse(bedSearchParams)
+  if (code == 200) {
+    bedTableData.value = data.list
+    // total.value = data.total
+  }
 }
-async function deleteBedData() {}
-async function increaseBedData() {}
-async function updateBedData() {}
+// 更新
+async function updateBeds() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateBedResponse(editBedParams.value)
+    bedVisible.value = false
+    const status = Notification(code, msg)
+    status ? getBeds() : ""
+  }
+}
+// 删除
+async function deleteBeds(list) {
+  console.log("LIST", list)
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  const { code, msg } = await deleteBedResponse(list)
+  const status = Notification(code, msg)
+  status ? getBeds() : ""
+}
+// 添加
+async function createBeds() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await createBedResponse([editBedParams.value])
+    bedVisible.value = false
+    const status = Notification(code, msg)
+    status ? getBeds() : ""
+  }
+}
+//搜索栏
+async function SearchFloor() {
+  const query = bedSearchParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getBeds()
+  }
+}
 onMounted(() => {
-  getBedData()
+  getBeds()
 })
 </script>
 <template>
   <div>
     <!-- 搜索 -->
     <el-form
-     :rules="searchRules"
+      :rules="searchRules"
       :model="bedSearchParams"
       ref="searchRef"
       inline>
@@ -58,26 +131,12 @@ onMounted(() => {
           v-model="bedSearchParams.dormNumber"
           placeholder="请输入宿舍编号"
           clearable
-          style="width: 160px" />
+          style="width: 180px" />
       </el-form-item>
-      <el-form-item prop="dormType">
-        <el-select
-          style="width: 160px"
-          v-model="bedSearchParams.dormType"
-          placeholder="请选择宿舍类型">
-          <el-option
-            label="六人间"
-            value="六人间" />
-          <el-option
-            label="四人间"
-            value="四人间" />
-        </el-select>
-      </el-form-item>
-
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(searchRef)"
+          @click="SearchFloor"
           >搜索</el-button
         >
         <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -87,10 +146,12 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       @excel="expDialog = true"
+      @delete="deleteBeds"
       v-model="bedVisible" />
     <!-- 表格数据 -->
     <el-table
       :data="bedTableData"
+      :default-sort="{ prop: 'bedNumber', order: 'descending' }"
       ref="refTable"
       @selection-change="
         (list) => (list.length ? (isOperate = false) : (isOperate = true))
@@ -110,14 +171,12 @@ onMounted(() => {
         label="宿舍"
         width="180"
         align="center">
-        <template #default>
-        {{ $route.params.name }}
-      </template>
       </el-table-column>
       <el-table-column
         prop="bedNumber"
         label="床位编号"
         width="180"
+        sortable
         align="center" />
       <el-table-column
         prop="bedStatus"
@@ -126,16 +185,11 @@ onMounted(() => {
         align="center">
         <template #default="{ row, column, $index }">
           <el-tag
-            class="ml-2"
             type="info"
             v-if="row.bedStatus === '没人'"
             >{{ row.bedStatus }}</el-tag
           >
-          <el-tag
-            class="ml-2"
-            v-else
-            >{{ row.bedStatus }}</el-tag
-          >
+          <el-tag v-else>{{ row.bedStatus }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -151,17 +205,18 @@ onMounted(() => {
           <TableButton
             :row="row"
             @merge="bedVisible = true"
+            @delete="deleteBeds"
             v-model="editBedParams" />
         </template>
       </el-table-column>
     </el-table>
-    
+
     <!-- 对话框 -->
     <FormDialog
       @close="Form.resetFields()"
       v-model="bedVisible"
       v-model:params="editBedParams"
-      :title="editBedParams.id?`修改床位信息`:`添加床位信息`">
+      :title="editBedParams.id ? `修改床位信息` : `添加床位信息`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -193,16 +248,16 @@ onMounted(() => {
         </el-form-item>
         <el-form-item label="备注">
           <el-input
-            v-model="editBedParams.message"
+            v-model="editBedParams.remark"
             placeholder="备注信息"
             :rows="3"
             type="textarea" />
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="submitForm(Form)"
+            @click="editBedParams.id ? updateBeds() : createBeds()"
             type="success"
-            >创建</el-button
+            >{{ editBedParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

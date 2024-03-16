@@ -1,6 +1,6 @@
 import axios from "axios"
 const request = axios.create({
-  baseURL: import.meta.env.DORM_TEST_BASE_URL,
+  baseURL: import.meta.env.DORM_PROXY_PREFIX_API,
   timeout: 5000,
   headers: { "X-Custom-Header": "foobar" }
 })
@@ -21,7 +21,7 @@ request.interceptors.response.use(
   function (response) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
-    // console.log("response",response);
+    console.log("response",response);
     return response.data
   },
   function (error) {
@@ -31,3 +31,6 @@ request.interceptors.response.use(
   }
 )
 export default request
+
+export const filterParams = (query) =>
+  Object.fromEntries(Object.entries(query).filter(([key]) => query[key]))

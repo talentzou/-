@@ -5,18 +5,22 @@ const props = defineProps({
   }
 })
 const modelValue = defineModel()
-const emits = defineEmits(["merge"])
-function editRowTable() {
+const emits = defineEmits(["merge","delete"])
+function UpdateRow() {
   modelValue.value = { ...modelValue.value, ...props.row }
+  console.log("hsvfvf",modelValue.value);
   emits("merge")
 }
-function deleteTableList() {}
+function DeleteRow() {
+  console.log("ssssss",props.row.id );
+  emits("delete", [{id:props.row.id}])
+}
 </script>
 <template>
   <el-button
     type="primary"
     size="small"
-    @click="editRowTable">
+    @click="UpdateRow">
     <template #icon>
       <svg-icon
         name="edit"
@@ -29,7 +33,7 @@ function deleteTableList() {}
     cancel-button-text="No, Thanks"
     icon-color="#626AEF"
     title="你确定要删除吗?"
-    @confirm="deleteTableList">
+    @confirm="DeleteRow">
     <template #reference>
       <el-button
         type="danger"

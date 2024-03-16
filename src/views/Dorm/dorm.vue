@@ -1,29 +1,50 @@
 <script setup>
-import { getDormInfoRequest } from "@/server/MG/dorm/dorm"
-// import { exportExcel } from "@/utils/excel"
+import {
+  getDormResponse,
+  deleteDormResponse,
+  updateDormResponse,
+  createDormResponse
+} from "@/api/DORM/dorm"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
+import { floorsName, dormNumber } from "@/rules/dormRules"
+import { Notification } from "@/utils/notification"
 const refTable = ref(null)
 const expDialog = ref(false)
 
 let dormSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
-  dormType: "",
+  dormCapacity: "",
   dormStatus: ""
 })
-let addDormParams = reactive({
+let addDormParams = ref({
+  id: "",
   floorsName: "",
   dormNumber: "",
   img: "",
-  dormType: "",
+  dormCapacity: "",
   dormStatus: ""
 })
 const searchRef = ref(null)
 const Form = ref(null)
-const searchRules = useRules(dormSearchParams)
-const formParamsRules = useRules(addDormParams)
+
+const searchRules = {
+  floorsName: [
+    {
+      validator: floorsName,
+      trigger: "blur"
+    }
+  ],
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
+const formParamsRules = useRules(addDormParams.value)
 let dormVisible = ref(false)
 let isOperate = ref(true)
 //导出数据
@@ -31,7 +52,7 @@ const fields = {
   floorsName: "宿舍楼名",
   dormNumber: "宿舍",
   img: "宿舍照片",
-  dormType: "宿舍类型",
+  dormCapacity: "宿舍类型",
   dormStatus: "宿舍状态"
 }
 function exportTable({ filename, allSelect }) {
@@ -86,18 +107,77 @@ function stateTag(text) {
 //获取信息
 //表格数据
 const dormTableData = ref([])
-async function getDormData() {
-  const { code, data } = await getDormInfoRequest()
-  dormTableData.value = data
+const total = ref(0)
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+async function getDorms(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    Pages = PageAndSize
+  }
+  console.log("发起请求")
+  const { code, data } = await getDormResponse(dormSearchParams, Pages)
+  if (code == 200) {
+    dormTableData.value = data.list
+    total.value = data.total
+  }
 }
-//添加
-async function increaseDormData() {}
-//更新
-async function updateDormData() {}
-//删除
-async function deleteDormData() {}
+// 更新
+async function updateDorms() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateDormResponse(addDormParams.value)
+    dormVisible.value = false
+    const status = Notification(code, msg)
+    status ? getDorms() : ""
+  }
+}
+// 删除
+async function deleteDorms(list) {
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  console.log("LIST", list)
+  const { code, msg } = await deleteDormResponse(list)
+  const status = Notification(code, msg)
+  status ? getDorms() : ""
+}
+// 添加
+async function createDorms() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    console.log(addDormParams.value)
+    const { code, msg } = await createDormResponse([addDormParams.value])
+    dormVisible.value = false
+    const status = Notification(code, msg)
+    status ? getDorms() : ""
+  }
+}
+//搜索栏
+async function SearchDorms() {
+  const query = dormSearchParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getDorms()
+  }
+}
+
 onMounted(() => {
-  getDormData()
+  getDorms()
 })
 </script>
 <template>
@@ -124,40 +204,41 @@ onMounted(() => {
       </el-form-item>
       <el-form-item>
         <el-select
+          clearable
+          prop="dormCapacity"
           style="width: 160px"
-          v-model="dormSearchParams.dormType"
+          v-model="dormSearchParams.dormCapacity"
           placeholder="请选择宿舍类型">
           <el-option
             label="六人间"
-            value="六人间" />
+            :value="6" />
           <el-option
             label="四人间"
-            value="四人间" />
-          <el-option
-            label="二人间"
-            value="二人间" />
+            :value="4" />
         </el-select>
       </el-form-item>
       <el-form-item>
         <el-select
+          prop="dormStatus"
+          clearable
           style="width: 160px"
           v-model="dormSearchParams.dormStatus"
           placeholder="宿舍状态">
           <el-option
             label="空闲"
-            value="leisure" />
+            value="空闲" />
           <el-option
             label="满人"
-            value="full" />
+            value="满人" />
           <el-option
             label="有剩余床位"
-            value="surplus" />
+            value="有剩余床位" />
         </el-select>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(searchRef)"
+          @click="SearchDorms"
           >搜索</el-button
         >
         <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -166,11 +247,13 @@ onMounted(() => {
     <!-- 操作 -->
     <OperateButton
       :isOperate="isOperate"
+      @delete="deleteDorms"
       @excel="expDialog = true"
       v-model="dormVisible" />
     <!-- 表格数据 -->
     <el-table
       :data="dormTableData"
+      :default-sort="{ prop: 'floorsName', order: 'descending' }"
       @selection-change="
         (list) => (list.length ? (isOperate = false) : (isOperate = true))
       "
@@ -188,6 +271,7 @@ onMounted(() => {
       <el-table-column
         prop="floorsName"
         label="宿舍楼名"
+        sortable
         width="180"
         align="center" />
       <el-table-column
@@ -198,7 +282,7 @@ onMounted(() => {
           <router-link
             :to="{
               name: 'bed',
-              params: { name: row.dormNumber, type: row.dormType }
+              params: { name: row.dormNumber, type: row.dormCapacity }
             }"
             style="color: #409eff"
             >{{ row.dormNumber }}</router-link
@@ -218,8 +302,8 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column
-        prop="dormType"
-        label="类型"
+        prop="dormCapacity"
+        label="类型(几人间)"
         width="180"
         align="center" />
       <el-table-column
@@ -238,15 +322,16 @@ onMounted(() => {
           <TableButton
             :row="row"
             @merge="dormVisible = true"
+            @delete="deleteDorms"
             v-model="addDormParams" />
         </template>
       </el-table-column>
     </el-table>
     <!-- 分页 -->
     <Pagination
-      :total="100"
-      @getCurrentPage="55"
-      @getPageSizes="55" />
+      :total="total"
+      @getCurrentPage="getDorms"
+      @getPageSizes="getDorms" />
     <!-- 对话框 -->
     <FormDialog
       :width="45"
@@ -260,7 +345,7 @@ onMounted(() => {
         :model="addDormParams"
         inline
         label-width="auto">
-        <el-form-item
+        <!-- <el-form-item
           label="图片"
           prop="img">
           <el-upload
@@ -290,7 +375,7 @@ onMounted(() => {
               </div>
             </template>
           </el-upload>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item
           label="宿舍楼"
           prop="floorsName">
@@ -307,20 +392,18 @@ onMounted(() => {
         </el-form-item>
         <el-form-item
           label="类型"
-          prop="dormType">
+          prop="dormCapacity">
           <el-select
+            :disabled="addDormParams.id === `` ? false : true"
             style="width: 196px"
-            v-model="addDormParams.dormType"
+            v-model="addDormParams.dormCapacity"
             placeholder="请选择宿舍类型">
             <el-option
               label="六人间"
-              value="六人间" />
+              :value="6" />
             <el-option
               label="四人间"
-              value="四人间" />
-            <el-option
-              label="二人间"
-              value="二人间" />
+              :value="4" />
           </el-select>
         </el-form-item>
         <el-form-item
@@ -332,22 +415,22 @@ onMounted(() => {
             placeholder="请选择宿舍状态">
             <el-option
               label="空闲"
-              value="leisure" />
+              value="空闲" />
             <el-option
               label="满人"
-              value="full" />
+              value="满人" />
             <el-option
               label="有剩余床位"
-              value="surplus" />
+              value="有剩余床位" />
           </el-select>
         </el-form-item>
 
         <el-form-item>
           <el-button
-            @click="submitForm(Form)"
+            @click="addDormParams.id ? updateDorms() : createDorms()"
             type="success"
-            >创建</el-button
-          >
+            >{{ addDormParams.id ? "更新" : "添加" }}
+          </el-button>
           <el-button
             @click="resetForm(Form)"
             type="primary"

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * @param {*} rules 规则约束
  * @param {*} params 约束参数
  * @returns 返回参数规则
@@ -14,24 +14,25 @@ export function Rules(rules, params) {
   return formRules
 }
 /**
- * 
+ *
  * @param {*} formEl 表单组件实例
- * @returns 
+ * @returns
  */
 export async function submitForm(formEl) {
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  const isTrue = await formEl.validate((valid, fields) => {
     if (valid) {
       console.log(valid, "submit!")
     } else {
       console.log("error submit!", fields)
     }
   })
+  return isTrue
 }
 /**
- * 
+ *
  * @param {*} formEl 表单组件实例
- * @returns 
+ * @returns
  */
 export function resetForm(formEl) {
   if (!formEl) return

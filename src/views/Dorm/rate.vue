@@ -1,8 +1,15 @@
 <script setup>
-import { getRateInfoRequest } from "@/server/MG/rate/rate"
+import {
+  getRateResponse,
+  deleteRateResponse,
+  updateRateResponse,
+  createRateResponse
+} from "@/api/DORM/rate"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
+import { Notification } from "@/utils/notification"
+import { floorsName, dormNumber } from "@/rules/dormRules"
 const searchRef = ref(null)
 const Form = ref(null)
 const refTable = ref(null)
@@ -16,7 +23,7 @@ let rateSearchParams = reactive({
   evaluation: ""
 })
 let isOperate = ref(true)
-let rateEditParams = reactive({
+let rateEditParams = ref({
   id: "",
   rateDate: "",
   floorsName: "",
@@ -26,38 +33,65 @@ let rateEditParams = reactive({
   lavatory: "",
   goods: "",
   totalScore: "",
-  Rater: "",
+  rater: "",
   evaluation: "",
   remark: ""
 })
-const searchRules = useRules(rateSearchParams)
-const formRules = useRules(rateEditParams)
+const searchRules = {
+  floorsName: [
+    {
+      validator: floorsName,
+      trigger: "blur"
+    }
+  ],
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
+const formRules = useRules(rateEditParams.value)
 let rateVisible = ref(false)
 function selectDatePicker() {}
 function stateTag(state) {
-  if (state > 90) {
+  if (state >= 90) {
     return "success"
   } else if (state >= 80) {
     return "primary"
-  } else if (state > 70) {
+  } else if (state >= 70) {
     return "info"
-  } else if (state > 60) {
+  } else if (state >= 60) {
     return "warning"
-  } else {
-    return "danger"
   }
+  return "danger"
 }
 const totalScore = computed(() => {
   return (
-    Number.parseInt(rateEditParams.bedRate) +
-      Number.parseInt(rateEditParams.groundRate) +
-      Number.parseInt(rateEditParams.lavatory) +
-      Number.parseInt(rateEditParams.goods) || 0
+    Number.parseInt(rateEditParams.value.bedRate) +
+      Number.parseInt(rateEditParams.value.groundRate) +
+      Number.parseInt(rateEditParams.value.lavatory) +
+      Number.parseInt(rateEditParams.value.goods) || 0
   )
 })
-let selectRateTableData = ref([])
+watchEffect(() => {
+  if (totalScore.value >= 90) {
+    rateEditParams.value.evaluation = "優秀"
+  } else if (totalScore.value >= 80) {
+    rateEditParams.value.evaluation = "中"
+  } else if (totalScore.value >= 70) {
+    rateEditParams.value.evaluation = "中"
+    rateEditParams.value.evaluation = "良"
+  } else if (totalScore.value >= 60) {
+    rateEditParams.value.evaluation = "合格"
+  } else {
+    rateEditParams.value.evaluation = "不合格"
+  }
+})
+// let selectRateTableData = ref([])
 //导出表格
 const fields = {
+  floorsName: "宿舍楼",
   rateDate: "评分时间",
   dormNumber: "宿舍",
   bedRate: "床铺评分",
@@ -65,7 +99,7 @@ const fields = {
   lavatory: "厕所卫生评分",
   goods: "物品摆放评分",
   totalScore: "总分",
-  Rater: "评分人",
+  rater: "评分人",
   evaluation: "综合评价",
   remark: "备注"
 }
@@ -77,15 +111,80 @@ function exportTable({ filename, allSelect }) {
 }
 /* 接口 */
 let rateTableData = ref([])
-async function getRateData() {
-  const { data, code } = await getRateInfoRequest()
-  rateTableData.value = data
+const total = ref(0)
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+async function getRates(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    Pages = PageAndSize
+  }
+  console.log("发起请求")
+  const { code, data } = await getRateResponse(rateSearchParams, Pages)
+  if (code == 200) {
+    rateTableData.value = data.list
+    total.value = data.total
+  }
 }
-async function updateRateData() {}
-async function deleteRateData() {}
-async function increaseRateData() {}
+// 更新
+async function updateRates() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateRateResponse(rateEditParams.value)
+    rateVisible.value = false
+    const status = Notification(code, msg)
+    status ? getRates() : ""
+  }
+}
+// 删除
+async function deleteRates(list) {
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  console.log("LIST", list)
+  const { code, msg } = await deleteRateResponse(list)
+  const status = Notification(code, msg)
+  status ? getRates() : ""
+}
+// 添加
+async function createRates() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const list=toRaw(rateEditParams.value)
+    console.log("HSBB", list)
+    rateEditParams.value.totalScore=totalScore.value
+    console.log("数据为",typeof rateEditParams.value.totalScore);
+    const { code, msg } = await createRateResponse([list])
+    rateVisible.value = false
+    const status = Notification(code, msg)
+    status ? getRates() : ""
+  }
+}
+//搜索栏
+async function SearchRates() {
+  const query = rateSearchParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getRates()
+  }
+}
+
 onMounted(() => {
-  getRateData()
+  getRates()
 })
 </script>
 <template>
@@ -99,6 +198,7 @@ onMounted(() => {
         style="width: 180px"
         prop="floorsName">
         <el-input
+          clearable
           placeholder="请输入宿舍楼名称"
           v-model="rateSearchParams.floorsName" />
       </el-form-item>
@@ -106,23 +206,37 @@ onMounted(() => {
         style="width: 180px"
         prop="dormNumber">
         <el-input
+          clearable
           placeholder="请输入宿舍名称"
           v-model="rateSearchParams.dormNumber" />
       </el-form-item>
 
       <el-form-item style="width: 180px">
         <el-select
+          clearable
           placeholder="请选择综合评价"
           v-model="rateSearchParams.evaluation">
           <el-option
-            value="11"
-            label="A1-108" />
+            value="优秀"
+            label="优秀" />
+          <el-option
+            value="中"
+            label="中" />
+          <el-option
+            value="良"
+            label="良" />
+          <el-option
+            value="合格"
+            label="合格" />
+          <el-option
+            value="不合格"
+            label="不合格" />
         </el-select>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(searchRef)"
+          @click="SearchRates"
           >搜索</el-button
         >
         <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -132,10 +246,12 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       v-model="rateVisible"
+      @delete="deleteRates"
       @excel="expDialog = true" />
     <!-- 表格数据 -->
     <el-table
       :data="rateTableData"
+      :default-sort="{ prop: 'rateDate', order: 'descending' }"
       @selection-change="
         (list) => (list.length ? (isOperate = false) : (isOperate = true))
       "
@@ -151,10 +267,11 @@ onMounted(() => {
         type="index"
         label="序号" />
       <el-table-column
-        prop="rateDate"
-        label="评比时间"
-        width="200"
+        prop="floorsName"
+        label="宿舍楼"
+        width="90"
         align="center" />
+
       <el-table-column
         prop="dormNumber"
         label="宿舍"
@@ -186,7 +303,13 @@ onMounted(() => {
         align="center"
         width="90" />
       <el-table-column
-        prop="Rater"
+        prop="rateDate"
+        label="评比时间"
+        width="160"
+        align="center"
+        sortable />
+      <el-table-column
+        prop="rater"
         label="评分人"
         align="center"
         width="90" />
@@ -196,7 +319,7 @@ onMounted(() => {
         align="center"
         width="90">
         <template #default="{ row, column, $index }">
-          <el-tag :type="stateTag(row.totalScore)">{{ row.evaluation }}</el-tag>
+          <el-tag >{{ row.evaluation }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -207,15 +330,16 @@ onMounted(() => {
           <TableButton
             :row="row"
             @merge="rateVisible = true"
+            @delete="deleteRates"
             v-model="rateEditParams" />
         </template>
       </el-table-column>
     </el-table>
     <!--分页 -->
     <Pagination
-      :total="rateTableData.length"
-      @getCurrentPage="getRateData"
-      @getPageSizes="getRateData" />
+      :total="total"
+      @getCurrentPage="getRates"
+      @getPageSizes="getRates" />
     <!-- 对话框 -->
     <FormDialog
       :width="45"
@@ -233,6 +357,7 @@ onMounted(() => {
           label="宿舍楼"
           prop="floorsName">
           <el-input
+            :disabled="rateEditParams.id === `` ? false : true"
             v-model="rateEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -240,6 +365,7 @@ onMounted(() => {
           label="宿舍"
           prop="dormNumber">
           <el-input
+            :disabled="rateEditParams.id === `` ? false : true"
             v-model="rateEditParams.dormNumber"
             placeholder="请输入宿舍名称" />
         </el-form-item>
@@ -275,19 +401,20 @@ onMounted(() => {
           <el-input
             disabled
             @change="rateEditParams.totalScore = totalScore"
-            v-model="totalScore" />
+            v-model.number="totalScore" />
         </el-form-item>
         <el-form-item
           label="评分人"
-          prop="Rater">
+          prop="rater">
           <el-input
             placeholder="请输入评分人"
-            v-model="rateEditParams.Rater"></el-input>
+            v-model="rateEditParams.rater"></el-input>
         </el-form-item>
         <el-form-item
           label="综合评价"
           prop="evaluation">
           <el-select
+            disabled
             v-model="rateEditParams.evaluation"
             style="width: 200px"
             placeholder="请选择评价">
@@ -318,7 +445,7 @@ onMounted(() => {
             type="date"
             format="YYYY-MM-DD"
             placeholder="Start date"
-            value-format="x" />
+            value-format="YYYY-MM-DD" />
         </el-form-item>
         <el-form-item
           label="备注"
@@ -332,9 +459,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="submitForm(Form)"
+            @click="rateEditParams.id ? updateRates() : createRates()"
             type="success"
-            >创建</el-button
+            >{{ rateEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

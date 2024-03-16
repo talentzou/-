@@ -7,25 +7,25 @@ const $props = defineProps({
 })
 const $emit = defineEmits(["getCurrentPage", "getPageSizes"])
 const pageAndSize = reactive({
-  pageSizes: 10,
-  currentPages: 4
+  PageSize: 10,
+  Page: 1
 })
 function handleSizeChange(event) {
 //   console.log("PageSizes", event)
-  pageAndSize.pageSize = event
+  pageAndSize.PageSize = event
   $emit("getPageSizes", pageAndSize)
 }
 function handleCurrentChange(event) {
 //   console.log("Page", event)
-  pageAndSize.currentPages = event
+  pageAndSize.Page = event
   $emit("getCurrentPage", pageAndSize)
 }
 </script>
 <template>
   <div class="demo-pagination">
     <el-pagination
-      v-model:current-page="pageAndSize.currentPages"
-      v-model:page-size="pageAndSize.pageSizes"
+      v-model:current-page="pageAndSize.Page"
+      v-model:page-size="pageAndSize.PageSize"
       :page-sizes="[10, 20, 40, 60]"
       background
       layout="total, sizes, prev, pager, next, jumper"

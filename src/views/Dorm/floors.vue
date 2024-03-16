@@ -4,18 +4,19 @@ import {
   deleteFloorsInfoRequest,
   updateFloorsInfoRequest,
   addFloorsInfoRequest
-} from "@/server/MG/floors/floors"
+} from "@/api/DORM/floors"
 
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
+import { Notification } from "@/utils/notification"
 const expDialog = ref(false)
 const refTable = ref(null)
 const isOperate = ref(true)
 //初始页数数量
 let pageAndSizeParams = reactive({
-  pageSizes: 10,
-  currentPages: 1
+  PageSize: 10,
+  Page: 1
 })
 //搜索表单
 const floorsSearchForm = reactive({
@@ -25,12 +26,12 @@ const floorsSearchForm = reactive({
 //对话框
 const floorsVisible = ref(false)
 //宿舍楼参数
-let floorsParams = reactive({
+let floorsParams = ref({
+  id: "",
   floorsName: "",
   floors: "",
   floorsType: "",
-  amount: "",
-  id: ""
+  dormAmount: ""
 })
 
 //导出数据
@@ -55,22 +56,91 @@ function tagState(row) {
 //获取楼层信息
 //表格数据
 const tableData = ref([])
-async function getFloorsInfo(pageOrSize) {
-  if (pageOrSize !== undefined) {
-    pageAndSizeParams = pageOrSize
+const total = ref(0)
+async function getFloors(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    pageAndSizeParams = PageAndSize
   }
-  const { code, data } = await getFloorsInfoRequest(pageAndSizeParams)
-  tableData.value = data
+  const { code, data } = await getFloorsInfoRequest(
+    floorsSearchForm,
+    pageAndSizeParams
+  )
+  if (code == 200) {
+    tableData.value = data.list
+    total.value = data.total
+  }
 }
-function createForm() {}
+// 更新
+async function updateFloors() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateFloorsInfoRequest(floorsParams.value)
+    floorsVisible.value = false
+    const status = Notification(code, msg)
+    status ? getFloors() : ""
+  }
+}
+// 删除
+async function deleteFloors(list) {
+  console.log("LIST",list);
+  const { code, msg } = await deleteFloorsInfoRequest(list)
+  const status = Notification(code, msg)
+  status ? getFloors() : ""
+}
+// 添加
+async function createFloors() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await addFloorsInfoRequest([floorsParams.value])
+    floorsVisible.value = false
+    const status = Notification(code, msg)
+    status ? getFloors() : ""
+  }
+}
+//搜索栏
+async function SearchFloor() {
+  const query = floorsSearchForm
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(floorsRef.value)
+  if (valid) {
+    getFloors()
+  }
+}
 onMounted(() => {
-  getFloorsInfo()
+  getFloors()
 })
 
 const floorsRef = ref(null)
 const Form = ref(null)
-const searchRules = useRules(floorsSearchForm)
-const paramsRules = useRules(floorsParams)
+function floorsName(rule, value, callback) {
+  let reg = /^[A-Z]\d$/
+  const isVal = reg.test(value)
+  if (!isVal && value !== "") {
+    callback(new Error("请输入正确格式,如Ax,x是数字"))
+  } else {
+    callback()
+  }
+}
+const searchRules = {
+  floorsName: [
+    {
+      validator: floorsName,
+      trigger: "blur"
+    }
+  ]
+}
+const paramsRules = useRules(floorsParams.value)
 </script>
 <template>
   <div>
@@ -86,11 +156,12 @@ const paramsRules = useRules(floorsParams)
         prop="floorsName">
         <el-input
           placeholder="请输入宿舍楼名称"
-          v-model="floorsSearchForm.floorName" />
+          v-model="floorsSearchForm.floorsName" />
       </el-form-item>
       <el-form-item>
         <el-select
           style="width: 180px"
+          clearable
           v-model="floorsSearchForm.floorsType"
           placeholder="请选择宿舍类型">
           <el-option
@@ -104,14 +175,12 @@ const paramsRules = useRules(floorsParams)
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(floorsRef)"
+          @click="SearchFloor"
           >搜索</el-button
         >
         <el-button @click="resetForm(floorsRef)">重置</el-button>
       </el-form-item>
     </el-form>
-    <!-- <button @click="exportExcel2">测试</button> -->
-    <!-- 操作 -->
     <OperateButton
       :isOperate="isOperate"
       @excel="expDialog = true"
@@ -157,7 +226,7 @@ const paramsRules = useRules(floorsParams)
         </template>
       </el-table-column>
       <el-table-column
-        prop="amount"
+        prop="dormAmount"
         label="宿舍总数"
         width="150"
         align="center" />
@@ -170,14 +239,15 @@ const paramsRules = useRules(floorsParams)
           <TableButton
             :row="row"
             @merge="floorsVisible = true"
+            @delete="deleteFloors"
             v-model="floorsParams" />
         </template>
       </el-table-column>
     </el-table>
     <Pagination
-      :total="tableData.length"
-      @getCurrentPage="getFloorsInfo"
-      @getPageSizes="getFloorsInfo" />
+      :total="total"
+      @getCurrentPage="getFloors"
+      @getPageSizes="getFloors" />
     <!-- 对话框 -->
     <FormDialog
       v-model="floorsVisible"
@@ -219,16 +289,16 @@ const paramsRules = useRules(floorsParams)
         </el-form-item>
         <el-form-item
           label="宿舍总数量"
-          prop="amount">
+          prop="dormAmount">
           <el-input
-            v-model.number="floorsParams.amount"
+            v-model.number="floorsParams.dormAmount"
             placeholder="请输入宿舍总数" />
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="submitForm(Form)"
+            @click="floorsParams.id ? updateFloors() : createFloors()"
             type="success"
-            >创建</el-button
+            >{{ floorsParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

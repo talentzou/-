@@ -1,5 +1,5 @@
 <script setup>
-import { getExpenseInfoRequest } from "@/server/EXPENSE/expense"
+import { getExpenseInfoRequest } from "@/api/EXPENSE/expense"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules } from "@/rules/expenseRules"
@@ -13,7 +13,9 @@ let expenseSearchParams = reactive({
   settlementDate: "",
   accounter: ""
 })
-let expenseEditParams = reactive({
+let expenseEditParams = ref({
+  id:"",
+  floorsName: "",
   dormNumber: "",
   paymentTime: "",
   waterConsumption: "",
@@ -26,7 +28,7 @@ let expenseEditParams = reactive({
   remark: ""
 })
 const searchRules = useRules(expenseSearchParams)
-const formRules = useRules(expenseEditParams)
+const formRules = useRules(expenseEditParams.value)
 let isOperate = ref(true)
 //导出对话框
 const expDialog = ref(false)
@@ -34,6 +36,7 @@ const expDialog = ref(false)
 let expenseVisible = ref(false)
 //导出表格
 const fields = {
+  floorsName:"宿舍楼",
   dormNumber: "宿舍",
   paymentTime: "订单时间",
   waterConsumption: "用水量",
@@ -54,22 +57,22 @@ function exportTable({ filename, allSelect }) {
 function selectDatePicker(params) {}
 
 const waterCharge = computed(() => {
-  return Number.parseFloat(expenseEditParams.waterConsumption) * 1.5 || 0
+  return Number.parseFloat(expenseEditParams.value.waterConsumption) * 1.5 || 0
 })
 const electricityCharge = computed(() => {
   return (
-    Number.parseFloat(expenseEditParams.electricityConsumption, "kkkk") * 0.6 ||
-    0
+    Number.parseFloat(expenseEditParams.value.electricityConsumption, "kkkk") *
+      0.6 || 0
   )
 })
 const totalCost = computed(() => {
-  console.log(expenseEditParams)
+  console.log(expenseEditParams.value)
   return waterCharge.value + electricityCharge.value || 0
 })
 watchEffect(() => {
-  expenseEditParams.waterCharge = waterCharge.value
-  expenseEditParams.electricityCharge = electricityCharge.value
-  expenseEditParams.totalCost = totalCost.value
+  expenseEditParams.value.waterCharge = waterCharge.value
+  expenseEditParams.value.electricityCharge = electricityCharge.value
+  expenseEditParams.value.totalCost = totalCost.value
 })
 /* 接口 */
 let expenseTableData = ref([])
@@ -139,6 +142,11 @@ onMounted(() => {
         type="index"
         label="序号" />
       <el-table-column
+        prop="floorsName"
+        label="宿舍楼"
+        width="100"
+        align="center" />
+      <el-table-column
         prop="dormNumber"
         label="宿舍"
         width="100"
@@ -186,7 +194,9 @@ onMounted(() => {
       <el-table-column
         prop="操作"
         label="操作"
-        align="center">
+        align="center"
+        fixed="right"
+        width="200">
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
@@ -225,9 +235,18 @@ onMounted(() => {
             value-format="x" />
         </el-form-item>
         <el-form-item
+          prop="floorsName"
+          label="宿舍楼">
+          <el-input
+            :disabled="expenseEditParams.id"
+            v-model="expenseEditParams.floorsName"
+            placeholder="请输入宿舍楼名称" />
+        </el-form-item>
+        <el-form-item
           label="宿舍编号"
           prop="dormNumber">
           <el-input
+            :disabled="expenseEditParams.id"
             placeholder="请输入宿舍名称"
             v-model="expenseEditParams.dormNumber" />
         </el-form-item>

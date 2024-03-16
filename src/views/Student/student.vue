@@ -2,21 +2,19 @@
 import { useRules } from "@/rules/studentRules"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
-import { getStudentInfoRequest } from "@/server/STUDENT/student"
+import { getStudentInfoRequest } from "@/api/STUDENT/student"
 const searchRef = ref(null)
 const Form = ref(null)
 const searchStudentParams = reactive({
   studentName: "",
   studentNumber: "",
-  floorsName: "",
-  dormNumber: "",
   major: ""
 })
 let isOperate = ref(true)
 let studentVisible = ref(false)
 let expDialog = ref(false)
 let refTable = ref(null)
-let studentEditParams = reactive({
+let studentEditParams = ref({
   studentName: "",
   studentNumber: "",
   sex: "",
@@ -25,7 +23,7 @@ let studentEditParams = reactive({
   dormNumber: ""
 })
 const searchRules = useRules(searchStudentParams)
-const formRules = useRules(studentEditParams)
+const formRules = useRules(studentEditParams.value)
 // 导出
 const fields = {
   studentName: "学生姓名",
@@ -61,13 +59,6 @@ onMounted(() => {
       :model="searchStudentParams"
       inline>
       <el-form-item
-        prop="floorsName"
-        style="width: 160px">
-        <el-input
-          v-model="searchStudentParams.floorsName"
-          placeholder="请输入宿舍楼名称" />
-      </el-form-item>
-      <el-form-item
         prop="dormNumber"
         style="width: 160px">
         <el-input
@@ -78,12 +69,6 @@ onMounted(() => {
         <el-input
           v-model="searchStudentParams.studentName"
           placeholder="请输入学生姓名"
-          clearable />
-      </el-form-item>
-      <el-form-item style="width: 160px">
-        <el-input
-          v-model="searchStudentParams.studentNumber"
-          placeholder="请输入学号"
           clearable />
       </el-form-item>
       <el-form-item style="width: 160px">
@@ -193,6 +178,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
+            :disabled="studentEditParams.id"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>

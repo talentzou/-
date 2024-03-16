@@ -1,5 +1,5 @@
 <script setup>
-import { getRepairInfoRequest } from "@/server/REPAIR/repair"
+import { getRepairInfoRequest } from "@/api/REPAIR/repair"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
@@ -15,7 +15,8 @@ let maintenanceSearchParams = reactive({
 const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
-let maintenanceEditParams = reactive({
+let maintenanceEditParams = ref({
+  id:"",
   floorsName: "",
   dormNumber: "",
   problems: "",
@@ -27,7 +28,7 @@ let maintenanceEditParams = reactive({
   remark: ""
 })
 const searchRules = useRules(maintenanceSearchParams)
-const formRules = useRules(maintenanceEditParams)
+const formRules = useRules(maintenanceEditParams.value)
 //导出表格
 const fields = {
   floorsName: "宿舍楼",
@@ -55,7 +56,7 @@ async function getRepairData() {
 }
 
 onMounted(() => {
-  getRepairData()
+  //getRepairData()
 })
 </script>
 

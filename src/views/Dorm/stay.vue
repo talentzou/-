@@ -1,8 +1,15 @@
 <script setup>
-import { getStayInfoRequest } from "@/server/MG/stay/stay"
+import {
+  getStayResponse,
+  updateStayResponse,
+  createStayResponse,
+  deleteStayResponse
+} from "@/api/DORM/stay"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
+import { Notification } from "@/utils/notification"
+import { floorsName, dormNumber } from "@/rules/dormRules"
 //表格实例
 const refTable = ref(null)
 const searchRef = ref(null)
@@ -13,21 +20,35 @@ const expDialog = ref(false)
 let staySearchParams = reactive({
   floorsName: "",
   dormNumber: "",
-  studentName: "",
-  auditOpinion: ""
+  studentName: ""
 })
 //编辑参数
-let stayEditParams = reactive({
-  stayDate: "",
+let stayEditParams = ref({
+  id: "",
+  stayTime: "",
   studentName: "",
   floorsName: "",
   dormNumber: "",
   stayCause: "",
+  opinions: "",
   instructor: ""
 })
 let isOperate = ref(true)
-const searchRules = useRules(staySearchParams)
-const formRules = useRules(stayEditParams)
+const searchRules = {
+  floorsName: [
+    {
+      validator: floorsName,
+      trigger: "blur"
+    }
+  ],
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
+const formRules = useRules(stayEditParams.value)
 //参数编辑对话框
 let stayVisible = ref(false)
 function selectDatePicker() {
@@ -51,34 +72,98 @@ function exportTable({ filename, allSelect }) {
 }
 //标签颜色
 function stateTag(text) {
+  console.log("text", text)
   switch (text) {
     case "同意":
       return "success"
     case "不同意":
       return "danger"
-    case "审核中":
-      return "info"
     default:
-      return "warning"
+      return "info"
   }
 }
-function getStayPageSize(pageSize) {
-  getStayData()
-}
-function getStayPage(pages) {
-  getStayData()
-}
+
 /* 接口 */
 let stayTableData = ref([])
-async function getStayData() {
-  const { code, data } = await getStayInfoRequest()
-  stayTableData.value = data
+const total = ref(0)
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+async function getStays(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    Pages = PageAndSize
+  }
+  console.log("发起请求")
+  const { code, data } = await getStayResponse(staySearchParams, Pages)
+  if (code == 200) {
+    stayTableData.value = data.list
+    total.value = data.total
+  }
 }
+// 更新
+async function updateStays() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateStayResponse(stayEditParams.value)
+    stayVisible.value = false
+    const status = Notification(code, msg)
+    status ? getStays() : ""
+  }
+}
+// 删除
+async function deleteStays(list) {
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  console.log("LIST", list)
+  const { code, msg } = await deleteStayResponse(list)
+  const status = Notification(code, msg)
+  status ? getStays() : ""
+}
+// 添加
+async function createStays() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const list = toRaw(stayEditParams.value)
+    list.stayTime = {
+      startTime: list.stayTime[0],
+      endTime: list.stayTime[0]
+    }
+    console.log("list", list)
+    const { code, msg } = await createStayResponse([list])
+    stayVisible.value = false
+    const status = Notification(code, msg)
+    status ? getStays() : ""
+  }
+}
+//搜索栏
+async function SearchStays() {
+  const query = staySearchParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getStays()
+  }
+}
+
 async function updateStayData() {}
 async function deleteStayData() {}
 async function increaseStayData() {}
 onMounted(() => {
-  getStayData()
+  getStays()
 })
 </script>
 <template>
@@ -104,6 +189,7 @@ onMounted(() => {
       </el-form-item>
       <el-form-item style="width: 180px">
         <el-input
+          clearable
           placeholder="请输入留宿学生名"
           v-model="staySearchParams.studentName" />
       </el-form-item>
@@ -111,7 +197,7 @@ onMounted(() => {
         <el-form-item>
           <el-button
             type="primary"
-            @click="submitForm(searchRef)"
+            @click="SearchStays"
             >搜索</el-button
           >
           <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -122,6 +208,7 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       v-model="stayVisible"
+      @delete="deleteStays"
       @excel="expDialog = true" />
     <!-- 表格数据 -->
     <el-table
@@ -147,7 +234,7 @@ onMounted(() => {
         align="center">
         <template #default="{ row, column, $index }">
           <el-text truncated>
-            {{ row.stayDate[0] }}~{{ row.stayDate[1] }}
+            {{ row.stayTime.startTime }}~{{ row.stayTime.endTime }}
           </el-text>
         </template>
       </el-table-column>
@@ -192,14 +279,12 @@ onMounted(() => {
         align="center"
         width="120" />
       <el-table-column
-        prop="auditProgress"
-        label="审核进度"
+        prop="opinions"
+        label="审核意见"
         align="center"
         width="120">
         <template #default="{ row, column, $index }">
-          <el-tag :type="stateTag(row.auditProgress)">{{
-            row.auditProgress
-          }}</el-tag>
+          <el-tag :type="stateTag(row.opinions)">{{ row.opinions }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -210,14 +295,15 @@ onMounted(() => {
           <TableButton
             :row="row"
             @merge="stayVisible = true"
+            @delete="deleteStays"
             v-model="stayEditParams" />
         </template>
       </el-table-column>
     </el-table>
     <Pagination
-      :total="stayTableData.length"
-      @getCurrentPage="getStayPage"
-      @getPageSizes="getStayPageSize" />
+      :total="total"
+      @getCurrentPage="getStays"
+      @getPageSizes="getStays" />
     <!-- 对话框 -->
     <FormDialog
       @close="Form.resetFields()"
@@ -231,15 +317,15 @@ onMounted(() => {
         label-width="auto">
         <el-form-item
           label="留宿时间"
-          prop="stayDate">
+          prop="stayTime">
           <el-date-picker
             @change="selectDatePicker"
-            v-model="stayEditParams.stayDate"
+            v-model="stayEditParams.stayTime"
             type="daterange"
             format="YYYY-MM-DD"
             start-placeholder="Start date"
             end-placeholder="End date"
-            value-format="x" />
+            value-format="YYYY-MM-DD" />
         </el-form-item>
         <el-form-item
           label="宿舍楼"
@@ -275,11 +361,25 @@ onMounted(() => {
             v-model="stayEditParams.instructor"
             placeholder="请输入辅导员" />
         </el-form-item>
+        <el-form-item
+          label="意见"
+          prop="opinions">
+          <el-select
+            v-model="stayEditParams.opinions"
+            placeholder="请选择意见">
+            <el-option
+              label="同意"
+              value="同意" />
+            <el-option
+              label="不同意"
+              value="不同意" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button
-            @click="submitForm(Form)"
+            @click="stayEditParams.id ? updateStays() : createStays()"
             type="success"
-            >创建</el-button
+            >{{ stayEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

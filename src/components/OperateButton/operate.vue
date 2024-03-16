@@ -6,13 +6,15 @@ const props = defineProps({
     default: true
   }
 })
-const emits = defineEmits(["excel"])
+const emits = defineEmits(["excel","delete"])
 let visible = defineModel()
 const operateIsTrue = ref(true)
 function addBtn() {
   visible.value = true
 }
-function deleteBtn() {}
+function deleteBtn() {
+  emits("delete")
+}
 function exportBtn() {
   emits("excel")
 }
