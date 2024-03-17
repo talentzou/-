@@ -1,13 +1,19 @@
 <script setup>
-import { useRules } from "@/rules/studentRules"
+import { useRules, searchRule } from "@/rules/studentRules"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
-import { getStudentInfoRequest } from "@/api/STUDENT/student"
+import {
+  getStudentResponse,
+  updateStudentResponse,
+  createStudentResponse,
+  deleteStudentResponse
+} from "@/api/STUDENT/student"
+import { Notification } from "@/utils/notification"
 const searchRef = ref(null)
 const Form = ref(null)
 const searchStudentParams = reactive({
   studentName: "",
-  studentNumber: "",
+  dormNumber: "",
   major: ""
 })
 let isOperate = ref(true)
@@ -15,6 +21,7 @@ let studentVisible = ref(false)
 let expDialog = ref(false)
 let refTable = ref(null)
 let studentEditParams = ref({
+  id: "",
   studentName: "",
   studentNumber: "",
   sex: "",
@@ -22,7 +29,7 @@ let studentEditParams = ref({
   phone: "",
   dormNumber: ""
 })
-const searchRules = useRules(searchStudentParams)
+const searchRules = searchRule
 const formRules = useRules(studentEditParams.value)
 // 导出
 const fields = {
@@ -41,12 +48,78 @@ function exportTable({ filename, allSelect }) {
 }
 /* 接口 */
 let studentTableData = ref([])
-async function getStudentData() {
-  const { code, data } = await getStudentInfoRequest()
-  studentTableData.value = data
+const total = ref(0)
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+async function getStudents(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    Pages = PageAndSize
+  }
+  console.log("发起请求")
+  const { code, data } = await getStudentResponse(searchStudentParams, Pages)
+  if (code == 200) {
+    studentTableData.value = data.list
+    total.value = data.total
+  }
 }
+// 更新
+async function updateStudents() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateStudentResponse(studentEditParams.value)
+    studentVisible.value = false
+    const status = Notification(code, msg)
+    status ? getStudents() : ""
+  }
+}
+// 删除
+async function deleteStudents(list) {
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  console.log("LIST", list)
+  const { code, msg } = await deleteStudentResponse(list)
+  const status = Notification(code, msg)
+  status ? getStudents() : ""
+}
+// 添加
+async function createStudents() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const list = toRaw(studentEditParams.value)
+    console.log("list", list)
+    const { code, msg } = await createStudentResponse([list])
+    studentVisible.value = false
+    const status = Notification(code, msg)
+    status ? getStudents() : ""
+  }
+}
+//搜索栏
+async function SearchStudents() {
+  const query = searchStudentParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getStudents()
+  }
+}
+
 onMounted(() => {
-  getStudentData()
+  getStudents()
 })
 </script>
 
@@ -73,14 +146,14 @@ onMounted(() => {
       </el-form-item>
       <el-form-item style="width: 160px">
         <el-input
-          v-model="searchStudentParams.bedNumber"
+          v-model="searchStudentParams.major"
           placeholder="请输入专业"
           clearable />
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(searchRef)"
+          @click="SearchStudents"
           >搜索</el-button
         >
         <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -89,6 +162,7 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       v-model="studentVisible"
+      @delete="deleteStudents"
       @excel="expDialog = true" />
     <!-- 表格数据 -->
     <el-table
@@ -147,6 +221,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            @delete="deleteStudents"
             @merge="studentVisible = true"
             v-model="studentEditParams" />
         </template>
@@ -154,9 +229,9 @@ onMounted(() => {
     </el-table>
     <!-- 分页 -->
     <Pagination
-      :total="100"
-      @getCurrentPage="55"
-      @getPageSizes="55" />
+      :total="total"
+      @getCurrentPage="getStudents"
+      @getPageSizes="getStudents" />
     <FormDialog
       ref="Form"
       v-model="studentVisible"
@@ -178,7 +253,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="studentEditParams.id"
+            :disabled="studentEditParams.id===``?false:true"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>
@@ -219,9 +294,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="submitForm(Form)"
+            @click="studentEditParams.id ? updateStudents() : createStudents()"
             type="success"
-            >创建</el-button
+            >{{ studentEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

@@ -113,6 +113,14 @@ const studentRules = {
   ]
 }
 
+export const searchRule={
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
 export function useRules(params) {
   return Rules(studentRules, params)
 }

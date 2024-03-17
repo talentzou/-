@@ -319,7 +319,6 @@ onMounted(() => {
           label="留宿时间"
           prop="stayTime">
           <el-date-picker
-            @change="selectDatePicker"
             v-model="stayEditParams.stayTime"
             type="daterange"
             format="YYYY-MM-DD"

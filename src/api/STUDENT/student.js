@@ -14,7 +14,7 @@ export const updateStudentResponse = (data) => {
     data
   })
 }
-export const addStudentResponse = (data) => {
+export const createStudentResponse = (data) => {
   return request({
     method: "post",
     url:"/student/Std/createStudent",

@@ -1,9 +1,14 @@
 <script setup>
-import { getExpenseInfoRequest } from "@/api/EXPENSE/expense"
+import {
+  getExpenseResponse,
+  updateExpenseResponse,
+  deleteExpenseResponse,
+  createExpenseResponse
+} from "@/api/EXPENSE/expense"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
-import { useRules } from "@/rules/expenseRules"
-import { computed } from "vue"
+import { useRules,searchRule } from "@/rules/expenseRules"
+import { Notification } from "@/utils/notification"
 const refTable = ref(null)
 const searchRef = ref(null)
 const Form = ref(null)
@@ -14,7 +19,7 @@ let expenseSearchParams = reactive({
   accounter: ""
 })
 let expenseEditParams = ref({
-  id:"",
+  id: "",
   floorsName: "",
   dormNumber: "",
   paymentTime: "",
@@ -27,7 +32,7 @@ let expenseEditParams = ref({
   phone: "",
   remark: ""
 })
-const searchRules = useRules(expenseSearchParams)
+const searchRules = searchRule
 const formRules = useRules(expenseEditParams.value)
 let isOperate = ref(true)
 //导出对话框
@@ -36,7 +41,7 @@ const expDialog = ref(false)
 let expenseVisible = ref(false)
 //导出表格
 const fields = {
-  floorsName:"宿舍楼",
+  floorsName: "宿舍楼",
   dormNumber: "宿舍",
   paymentTime: "订单时间",
   waterConsumption: "用水量",
@@ -76,13 +81,79 @@ watchEffect(() => {
 })
 /* 接口 */
 let expenseTableData = ref([])
-
-async function getExpenseFData() {
-  const { code, data } = await getExpenseInfoRequest(222)
-  expenseTableData.value = data
+const total = ref(0)
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+async function getExpenses(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    Pages = PageAndSize
+  }
+  console.log("发起请求")
+  const { code, data } = await getExpenseResponse(expenseSearchParams, Pages)
+  if (code == 200) {
+    expenseTableData.value = data.list
+    total.value = data.total
+  }
+}
+// 更新
+async function updateExpenses() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateExpenseResponse(expenseEditParams.value)
+    expenseVisible.value = false
+    const status = Notification(code, msg)
+    status ? getExpenses() : ""
+  }
+}
+// 删除
+async function deleteExpenses(list) {
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  console.log("LIST", list)
+  const { code, msg } = await deleteExpenseResponse(list)
+  const status = Notification(code, msg)
+  status ? getExpenses() : ""
+}
+// 添加
+async function createExpenses() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    expenseEditParams.value.waterConsumption=waterCharge.value
+    expenseEditParams.value.electricityCharge= electricityCharge.value
+    const list = toRaw(expenseEditParams.value)
+    console.log(list);
+    const { code, msg } = await createExpenseResponse([list])
+    expenseVisible.value = false
+    const status = Notification(code, msg)
+    status ? getExpenses() : ""
+  }
+}
+//搜索栏
+async function SearchExpenses() {
+  const query = expenseSearchParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getExpenses()
+  }
 }
 onMounted(() => {
-  getExpenseFData()
+  getExpenses()
 })
 </script>
 
@@ -115,7 +186,7 @@ onMounted(() => {
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(searchRef)"
+          @click="SearchExpenses"
           >搜索</el-button
         >
         <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -124,6 +195,7 @@ onMounted(() => {
     <OperateButton
       v-model="expenseVisible"
       :isOperate="isOperate"
+      @delete="deleteExpenses"
       @excel="expDialog = true" />
     <el-table
       :data="expenseTableData"
@@ -200,15 +272,16 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            @delete="deleteExpenses"
             @merge="expenseVisible = true"
             v-model="expenseEditParams" />
         </template>
       </el-table-column>
     </el-table>
     <Pagination
-      :total="0"
-      @getCurrentPage="getExpenseFData"
-      @getPageSizes="getExpenseFData" />
+      :total="total"
+      @getCurrentPage="getExpenses"
+      @getPageSizes="getExpenses" />
     <FormDialog
       :width="45"
       @close="Form.resetFields()"
@@ -232,13 +305,13 @@ onMounted(() => {
             type="date"
             format="YYYY-MM-DD"
             placeholder="Start date"
-            value-format="x" />
+            value-format="YYYY-MM-DD"/>
         </el-form-item>
         <el-form-item
           prop="floorsName"
           label="宿舍楼">
           <el-input
-            :disabled="expenseEditParams.id"
+            :disabled="expenseEditParams.id==``?false:true"
             v-model="expenseEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -246,7 +319,7 @@ onMounted(() => {
           label="宿舍编号"
           prop="dormNumber">
           <el-input
-            :disabled="expenseEditParams.id"
+          :disabled="expenseEditParams.id==``?false:true"
             placeholder="请输入宿舍名称"
             v-model="expenseEditParams.dormNumber" />
         </el-form-item>
@@ -313,9 +386,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="submitForm(Form)"
+            @click="expenseEditParams.id ? updateExpenses() : createExpenses()"
             type="success"
-            >创建</el-button
+            >{{ expenseEditParams.id ? "更新" : "创建" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

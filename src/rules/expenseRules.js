@@ -122,7 +122,20 @@ const expenseRules = {
     }
   ]
 }
-
+export const searchRule={
+  floorsName: [
+    {
+      validator: floorsName,
+      trigger: "blur"
+    }
+  ],
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
 export function useRules(params) {
   return Rules(expenseRules, params)
 }

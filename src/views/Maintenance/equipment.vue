@@ -1,8 +1,15 @@
 <script setup>
-import { getRepairInfoRequest } from "@/api/REPAIR/repair"
+import {
+  getRepairResponse,
+  updateRepairResponse,
+  createRepairResponse,
+  deleteRepairResponse
+} from "@/api/REPAIR/repair"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
+import { floorsName, dormNumber } from "@/rules/dormRules"
+import { Notification } from "@/utils/notification"
 const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
@@ -16,7 +23,7 @@ const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
 let maintenanceEditParams = ref({
-  id:"",
+  id: "",
   floorsName: "",
   dormNumber: "",
   problems: "",
@@ -27,7 +34,20 @@ let maintenanceEditParams = ref({
   repairer: "",
   remark: ""
 })
-const searchRules = useRules(maintenanceSearchParams)
+const searchRules = {
+  floorsName: [
+    {
+      validator: floorsName,
+      trigger: "blur"
+    }
+  ],
+  dormNumber: [
+    {
+      validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
 const formRules = useRules(maintenanceEditParams.value)
 //导出表格
 const fields = {
@@ -47,16 +67,83 @@ function exportTable({ filename, allSelect }) {
     : refTable.value.getSelectionRows()
   useExportExcel(data, fields, filename)
 }
-function selectDatePicker() {}
+
 /* 接口 */
 let repairTableData = ref([])
-async function getRepairData() {
-  const { code, data } = await getRepairInfoRequest()
-  repairTableData.value = data
+const total = ref(0)
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+async function getRepairs(PageAndSize) {
+  if (PageAndSize !== undefined) {
+    Pages = PageAndSize
+  }
+  console.log("发起请求")
+  const { code, data } = await getRepairResponse(maintenanceSearchParams, Pages)
+  if (code == 200) {
+    repairTableData.value = data.list
+    total.value = data.total
+  }
+}
+// 更新
+async function updateRepairs() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await updateRepairResponse(
+      maintenanceEditParams.value
+    )
+    repairVisible.value = false
+    const status = Notification(code, msg)
+    status ? getRepairs() : ""
+  }
+}
+// 删除
+async function deleteRepairs(list) {
+  if (list === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+    // list=toRaw(refTable.value.getSelectionRows())
+  }
+  console.log("LIST", list)
+  const { code, msg } = await deleteRepairResponse(list)
+  const status = Notification(code, msg)
+  status ? getRepairs() : ""
+}
+// 添加
+async function createRepairs() {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const list = toRaw(maintenanceEditParams.value)
+    console.log("list", list)
+    const { code, msg } = await createRepairResponse([list])
+    repairVisible.value = false
+    const status = Notification(code, msg)
+    status ? getRepairs() : ""
+  }
+}
+//搜索栏
+async function SearchRepairs() {
+  const query = maintenanceSearchParams
+  let params = Object.fromEntries(
+    Object.entries(query).filter(([key]) => query[key])
+  )
+  // console.log("对象",params,Object.keys(params).length);
+  if (!Object.keys(params).length) {
+    console.log("控制")
+    ElMessage({
+      message: "搜索输入不能为空",
+      type: "error"
+    })
+    return
+  }
+  const valid = await submitForm(searchRef.value)
+  if (valid) {
+    getRepairs()
+  }
 }
 
 onMounted(() => {
-  //getRepairData()
+  getRepairs()
 })
 </script>
 
@@ -84,20 +171,21 @@ onMounted(() => {
       <el-form-item>
         <el-select
           style="width: 160px"
+          clearable
           v-model="maintenanceSearchParams.repairStatus"
           placeholder="维修状态">
           <el-option
             label="未完成"
-            value="Not" />
+            value="未完成" />
           <el-option
             label="已完成"
-            value="Have" />
+            value="已完成" />
         </el-select>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
-          @click="submitForm(searchRef)"
+          @click="SearchRepairs"
           >搜索</el-button
         >
         <el-button @click="resetForm(searchRef)">重置</el-button>
@@ -106,6 +194,7 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       v-model="repairVisible"
+      @delete="deleteRepairs"
       @excel="expDialog = true" />
     <!-- 表格数据 -->
     <el-table
@@ -180,6 +269,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            @delete="deleteRepairs"
             @merge="repairVisible = true"
             v-model="maintenanceEditParams" />
         </template>
@@ -187,9 +277,9 @@ onMounted(() => {
     </el-table>
     <!-- 分页 -->
     <Pagination
-      :total="100"
-      @getCurrentPage="55"
-      @getPageSizes="55" />
+      :total="total"
+      @getCurrentPage="getRepairs"
+      @getPageSizes="getRepairs" />
     <!-- 对话框 -->
     <FormDialog
       @close="Form.resetFields()"
@@ -207,12 +297,11 @@ onMounted(() => {
           label="上报时间"
           prop="submitDate">
           <el-date-picker
-            @change="selectDatePicker"
             v-model="maintenanceEditParams.submitDate"
             type="date"
             format="YYYY-MM-DD"
             placeholder="Start date"
-            value-format="x" />
+            value-format="YYYY-MM-DD" />
         </el-form-item>
         <el-form-item
           label="宿舍楼"
@@ -238,10 +327,10 @@ onMounted(() => {
             placeholder="请选择维修状态">
             <el-option
               label="未完成"
-              value="Not" />
+              value="未完成" />
             <el-option
               label="已完成"
-              value="Have" />
+              value="已完成" />
           </el-select>
         </el-form-item>
         <el-form-item
@@ -284,9 +373,11 @@ onMounted(() => {
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="submitForm(Form)"
+            @click="
+              maintenanceEditParams.id ? updateRepairs() : createRepairs()
+            "
             type="success"
-            >创建</el-button
+            >{{ maintenanceEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"
