@@ -44,7 +44,6 @@ function studentNumber(rule, value, callback) {
   }
 }
 
-
 const studentRules = {
   floorsName: [
     { required: true, message: "宿舍楼不能为空", trigger: "blur" },
@@ -110,10 +109,25 @@ const studentRules = {
       validator: studentName,
       trigger: "blur"
     }
-  ]
+  ],
+  violate: [
+    {
+      required: true,
+      message: "名字不能为空",
+      trigger: "blur"
+    }
+  ],
+  recordDate: [
+    {
+      required: true,
+      message: "日期不能为空",
+      trigger: "blur"
+    }
+  ],
+  resolve: [{ required: true, message: "处理措施不能为空", trigger: "blur" }]
 }
 
-export const searchRule={
+export const searchRule = {
   dormNumber: [
     {
       validator: dormNumber,

@@ -171,6 +171,14 @@ export const routes = [
           title: "学生信息",
           icon: "studentInfo"
         }
+      },{
+        path:"student-violate",
+        name:"violate",
+        component: () => import("@/views/Violate/violate.vue"),
+        meta: {
+          title: "学生违纪",
+          icon: "violate"
+        }
       }
     ]
   },
