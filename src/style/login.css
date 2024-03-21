@@ -1,0 +1,110 @@
+@charset "UTF-8";
+.login-view {
+  width: 100%;
+  height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  background: url("@/assets/imgs/logo.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.login {
+  padding: 0 12px;
+  border-radius: 1rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 40%;
+  z-index: 9999;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.login .img-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 336px;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 10px;
+}
+
+.login .img-container .appLogo {
+  width: 96px;
+}
+
+.login .title {
+  margin-bottom: 36px;
+}
+
+.login .title .system-name {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.login .title .system-introduce {
+  text-align: center;
+  font-size: small;
+  font-style: normal;
+  margin-top: 10px;
+  color: #6b7280;
+}
+
+.login .captcha-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.login .captcha-container .captcha-input {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  margin-right: 20px;
+}
+
+.login .login-button {
+  -webkit-box-shadow: 0;
+          box-shadow: 0;
+  height: 40px;
+  width: 100%;
+}
+
+.login .login-form {
+  width: 336px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  -webkit-box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  /* 上方阴影 */
+  padding: 15px;
+  border-radius: 1rem;
+}
+/*# sourceMappingURL=login.css.map */

@@ -62,7 +62,13 @@ function exportTable({ filename, allSelect }) {
   useExportExcel(data, fields, filename)
 }
 
-function handleAvatarSuccess() {}
+function handleAvatarSuccess(response, file, fileList) {
+  console.log("Upload successful:", response)
+  if (response.code == 200) {
+    addDormParams.value.img = response.data.url
+  }
+  console.log("file", file)
+}
 //照片上传前钩子
 function beforeAvatarUpload(file) {
   const imgType = ["image/png", "image/jpeg", "image/webp"]
@@ -116,7 +122,7 @@ async function getDorms(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
   }
-  console.log("发起请求")
+  // console.log("发起请求")
   const { code, data } = await getDormResponse(dormSearchParams, Pages)
   if (code == 200) {
     dormTableData.value = data.list
@@ -177,7 +183,7 @@ async function SearchDorms() {
 }
 
 onMounted(() => {
-  getDorms()
+   getDorms()
 })
 </script>
 <template>
@@ -345,12 +351,13 @@ onMounted(() => {
         :model="addDormParams"
         inline
         label-width="auto">
-        <!-- <el-form-item
+        <el-form-item
           label="图片"
           prop="img">
           <el-upload
             class="avatar-uploader"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            action="http://localhost:8080/upload/imageUpload"
+            name="image"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
@@ -375,7 +382,7 @@ onMounted(() => {
               </div>
             </template>
           </el-upload>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item
           label="宿舍楼"
           prop="floorsName">

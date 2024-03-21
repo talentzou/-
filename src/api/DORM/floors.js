@@ -1,7 +1,7 @@
 import request from "@/utils/axios"
 /**
  *
- * @param {*} params 查寻字符串参数
+ * @param {*} params 查寻字符串参数/jwt
  * @param {Object} pages  分页页码，页码数量大小
  * @returns
  */
@@ -12,7 +12,7 @@ export const getFloorsInfoRequest = (query, pages) => {
   // console.log("参数",params,pages);
   return request({
     method: "get",
-    url: `/Dormitory/Floor/getFloor/${pages.Page}/${pages.PageSize}`,
+    url: `/jwt/Dormitory/Floor/getFloor/${pages.Page}/${pages.PageSize}`,
     params
   })
 }
@@ -23,7 +23,7 @@ export const getFloorsInfoRequest = (query, pages) => {
 export const updateFloorsInfoRequest = (data) => {
   console.log("更新的数据",data);
   return request({
-    url: "/Dormitory/Floor/putFloor",
+    url: "/jwt/Dormitory/Floor/putFloor",
     method: "put",
     data
   })
@@ -34,7 +34,7 @@ export const updateFloorsInfoRequest = (data) => {
 export const addFloorsInfoRequest = (data) => {
   return request({
     method: "post",
-    url: "/Dormitory/Floor/createFloor",
+    url: "/jwt/Dormitory/Floor/createFloor",
     data
   })
 }
@@ -46,7 +46,7 @@ export const deleteFloorsInfoRequest = (data) => {
   console.log("hh",data);
   return request({
     method: "delete",
-    url:"/Dormitory/Floor/deleteFloorById ",
+    url:"/jwt/Dormitory/Floor/deleteFloorById ",
     data,
   })
 }

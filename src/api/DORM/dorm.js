@@ -10,14 +10,14 @@ export const getDormResponse = (query,pages) => {
   console.log(params,pages);
   return request({
     method: "get",
-    url: `/Dormitory/dorm/getDorm/${pages.Page}/${pages.PageSize}`,
+    url: `/jwt/Dormitory/dorm/getDorm/${pages.Page}/${pages.PageSize}`,
     params
   })
 }
 export const updateDormResponse = (data) => {
   return request({
     method: "put",
-    url: "/Dormitory/dorm/putDorm",
+    url: "/jwt/Dormitory/dorm/putDorm",
     data
   })
 }
@@ -25,14 +25,14 @@ export const updateDormResponse = (data) => {
 export const createDormResponse = (data) => {
   return request({
     method: "post",
-    url: "/Dormitory/dorm/createDorm",
+    url: "/jwt/Dormitory/dorm/createDorm",
     data
   })
 }
 export const deleteDormResponse = (data) => {
   return request({
     method: "delete",
-    url: "/Dormitory/dorm/deleteDorm_ById",
+    url: "/jwt/Dormitory/dorm/deleteDorm_ById",
     data
   })
 }

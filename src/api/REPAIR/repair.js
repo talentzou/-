@@ -3,14 +3,14 @@ export const getRepairResponse = (query, pages) => {
   const params = filterParams(query)
   return request({
     method: "get",
-    url: `/Repair/getRepair/${pages.Page}/${pages.PageSize}`,
+    url: `/jwt/Repair/getRepair/${pages.Page}/${pages.PageSize}`,
     params,
   })
 }
 export const updateRepairResponse = (data) => {
   return request({
     method: "put",
-    url: "/Repair/putRepair",
+    url: "/jwt/Repair/putRepair",
     data,
   })
 }
@@ -18,14 +18,14 @@ export const updateRepairResponse = (data) => {
 export const createRepairResponse = (data) => {
   return request({
     method: "post",
-    url:"/Repair/createRepair",
+    url:"/jwt/Repair/createRepair",
     data,
   })
 }
 export const deleteRepairResponse = (data) => {
   return request({
     method: "delete",
-    url:"/Repair/deleteById",
+    url:"/jwt/Repair/deleteById",
     data,
   })
 }

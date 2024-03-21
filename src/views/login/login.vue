@@ -1,9 +1,13 @@
 <script setup>
 import { userStore } from "@/stores/user"
 import config from "@/core/config"
+const UseUserStore = userStore()
 const loginForm = ref(null)
 const title = ref(config.systemName)
 const introduce = ref(config.state)
+const $router = useRouter()
+const $route = useRoute()
+const redirect = $route.query.redirect
 const checkUsername = (rule, value, callback) => {
   if (value.length < 5) {
     return callback(new Error("请输入正确的用户名"))
@@ -22,52 +26,37 @@ const checkPassword = (rule, value, callback) => {
 const rules = reactive({
   username: [{ validator: checkUsername, trigger: "blur" }],
   password: [{ validator: checkPassword, trigger: "blur" }],
-  captcha: [
-    {
-      message: "验证码格式不正确",
-      trigger: "blur"
-    }
-  ]
+  authority: [{ required: true, message: "请选择角色", trigger: "blur" }]
 })
 const loginFormData = reactive({
   username: "admin",
   password: "123456",
-  captcha: "",
-  captchaId: "",
-  openCaptcha: true
+  authority: ""
 })
-// 获取验证码
-const loginVerify = () => {
-  captcha({}).then(async (ele) => {
-    rules.captcha.push({
-      max: ele.data.captchaLength,
-      min: ele.data.captchaLength,
-      message: `请输入${ele.data.captchaLength}位验证码`,
-      trigger: "blur"
-    })
-    picPath.value = ele.data.picPath
-    loginFormData.captchaId = ele.data.captchaId
-    loginFormData.openCaptcha = ele.data.openCaptcha
-  })
-}
-
 const login = async () => {
-  return await userStore.userLogin(loginFormData)
+  try {
+    await UseUserStore.userLogin(loginFormData)
+    $router.push({ path: "/", replace: true })
+  } catch (error) {
+    console.log("99999999999999999");
+    ElMessage({
+      type: "error",
+      message: "登录失败",
+      showClose: true
+    })
+  }
+  return
 }
 const submitForm = () => {
   loginForm.value.validate(async (v) => {
     if (v) {
-      const flag = await login()
-      if (!flag) {
-        loginVerify()
-      }
+      await login()
     } else {
       ElMessage({
         type: "error",
         message: "请正确填写登录信息",
         showClose: true
       })
-      loginVerify()
       return false
     }
   })
@@ -113,27 +102,13 @@ const submitForm = () => {
               type="password"
               placeholder="请输入密码" />
           </el-form-item>
-          <el-form-item
-            v-if="loginFormData.openCaptcha"
-            prop="captcha"
-            class="mb-6">
-            <div class="captcha-container">
-              <el-input
-                v-model="loginFormData.captcha"
-                placeholder="请输入验证码"
-                size="large"
-                class="captcha-input" />
-              <!-- <div class="w-1/3 h-11 bg-[#c3d4f2] rounded">
-              <img
-                v-if="picPath"
-                class="w-full h-full"
-                :src="picPath"
-                alt="请输入验证码"
-                @click="loginVerify()" />
-            </div> -->
-            </div>
+          <el-form-item prop="authority">
+            <el-radio-group v-model="loginFormData.authority">
+              <el-radio :label="1">管理人员</el-radio>
+              <el-radio :label="0">学生</el-radio>
+            </el-radio-group>
           </el-form-item>
-          <el-form-item class="mb-6">
+          <el-form-item>
             <el-button
               class="login-button"
               type="primary"

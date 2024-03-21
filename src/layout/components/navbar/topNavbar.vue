@@ -1,9 +1,12 @@
 <script setup>
 import { layoutStore } from "@/stores/layout"
-import { userStore } from "@/stores/user";
+import { userStore } from "@/stores/user"
+
+const router = useRouter()
 const useLayoutStore = layoutStore()
-const useUserStore=userStore()
+const useUserStore = userStore()
 const switchVal = ref(false)
+
 //主题颜色
 const color = ref("rgba(255, 69, 0, 0.68)")
 const predefineColors = ref([
@@ -45,6 +48,10 @@ function refresh() {
   nextTick(() => {
     useLayoutStore.isRefresh = !useLayoutStore.isRefresh
   })
+}
+async function Logout() {
+  await useUserStore.userLogout()
+  router.push({ name: "login", replace: true })
 }
 </script>
 <template>
@@ -109,8 +116,7 @@ function refresh() {
       </span>
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item>登录</el-dropdown-item>
-          <el-dropdown-item>退出</el-dropdown-item>
+          <el-dropdown-item @click="Logout">退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>

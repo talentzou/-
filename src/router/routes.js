@@ -191,7 +191,7 @@ export const routes = [
   },
   //404
   {
-    path: "/:pathMath(.*)*",
+    path: "/:pathMath(.*)",
     name: "404",
     hidden: true,
     component: () => import("@/views/404/notFound.vue")

@@ -28,6 +28,7 @@ const floorsVisible = ref(false)
 //宿舍楼参数
 let floorsParams = ref({
   id: "",
+  role: "1",
   floorsName: "",
   floors: "",
   floorsType: "",
@@ -82,7 +83,7 @@ async function updateFloors() {
 }
 // 删除
 async function deleteFloors(list) {
-  console.log("LIST",list);
+  console.log("LIST", list)
   const { code, msg } = await deleteFloorsInfoRequest(list)
   const status = Notification(code, msg)
   status ? getFloors() : ""
@@ -118,7 +119,7 @@ async function SearchFloor() {
   }
 }
 onMounted(() => {
-  getFloors()
+   getFloors()
 })
 
 const floorsRef = ref(null)
