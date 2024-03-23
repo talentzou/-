@@ -7,3 +7,10 @@ export const LoginResponse = (data) => {
     data,
   })
 }
+// 获取用户信息
+export const getUserInfo = () => {
+  return request({
+    url: 'jwt/user/getUserInfo',
+    method: 'get'
+  })
+}

@@ -12,19 +12,21 @@ const props = defineProps({
 })
 const hasOneChild = ref({})
 function hasChildren(children = [], parent) {
-  if (children.length === 1 && parent.name !== "layout") {
+  if (children?.length === 1 && parent?.name !== "layout") {
     // console.log("我是学生");
     ;[hasOneChild.value] = [...children]
     return true
   }
-  if (children.length > 1) {
+  if (children?.length > 1) {
     // console.log("我是多个", parent.children)
     return true
   }
   return false
 }
 function WhetherHome(children = []) {
-  ;[hasOneChild.value] = [...children]
+  if (!children) {
+    return
+  }[hasOneChild.value] = [...children]
   if (hasOneChild.value?.name === "home") {
     // console.log("jjj",hasOneChild.value?.meta.title );
     return true
@@ -32,21 +34,19 @@ function WhetherHome(children = []) {
   return false
 }
 function completePath(children = []) {
-  // console.log("children", children)
+  // console.log("children", props.baseIndex + "/" + children.path)
   // console.log(props.baseIndex)
   // console.log(props.baseIndex+'/'+children.path);
   return props.baseIndex + "/" + children.path
 }
 </script>
 <template>
-  <template  v-if="!item.hidden">
- 
+  <template v-if="!item.hidden">
     <!-- 有两个以上路由 -->
     <template v-if="hasChildren(item.children, item)">
       <el-sub-menu :index="item.path">
-        
         <template #title>
-          <svg-icon :name="item.meta.icon"/>
+          <svg-icon :name="item.meta.icon" />
           <span class="menu-title">{{ item.meta.title }}</span>
         </template>
         <sidebar-item
@@ -72,12 +72,11 @@ function completePath(children = []) {
       <el-menu-item
         :index="completePath(item)"
         v-else>
-        <svg-icon :name="item.meta.icon"/>
+        <svg-icon :name="item.meta?.icon" />
         <template #title>
-          <span class="menu-title">{{ item.meta.title }}</span></template
+          <span class="menu-title">{{ item.meta?.title }}</span></template
         >
       </el-menu-item>
     </template>
-
-</template>
+  </template>
 </template>

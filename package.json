@@ -17,6 +17,7 @@
     "element-plus": "^2.5.1",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
+    "lodash": "^4.17.21",
     "nprogress": "^0.2.0",
     "pinia": "^2.1.7",
     "reset-css": "^5.0.2",

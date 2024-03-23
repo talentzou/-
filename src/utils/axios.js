@@ -11,7 +11,7 @@ request.interceptors.request.use(
     const useUserStore = userStore()
     if (useUserStore.token) {
       config.headers["x-token"] = useUserStore.token
-      console.log(config.headers)
+      // console.log(config.headers)
     }
     return config
   },

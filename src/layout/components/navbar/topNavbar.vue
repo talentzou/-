@@ -50,7 +50,7 @@ function refresh() {
   })
 }
 async function Logout() {
-  await useUserStore.userLogout()
+  await useUserStore.ClearUserInfo()
   router.push({ name: "login", replace: true })
 }
 </script>
@@ -106,10 +106,10 @@ async function Logout() {
     <el-dropdown trigger="click">
       <span class="avatar-wrapper">
         <img
-          :src="useUserStore.userInfo.avatar"
+          :src="useUserStore.userInfo?.avatar"
           alt=""
           class="avatar-img" />
-        <span>{{ useUserStore.userInfo.nickname }}</span>
+        <span>{{ useUserStore.userInfo?.nickname }}</span>
         <svg-icon
           name="arrow_down"
           color="black"></svg-icon>

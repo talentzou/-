@@ -29,14 +29,13 @@ const rules = reactive({
   authority: [{ required: true, message: "请选择角色", trigger: "blur" }]
 })
 const loginFormData = reactive({
-  username: "admin",
+  username: "2015201153",
   password: "123456",
   authority: ""
 })
 const login = async () => {
   try {
     await UseUserStore.userLogin(loginFormData)
-    $router.push({ path: "/", replace: true })
   } catch (error) {
     console.log("99999999999999999");
     ElMessage({
@@ -105,7 +104,7 @@ const submitForm = () => {
           <el-form-item prop="authority">
             <el-radio-group v-model="loginFormData.authority">
               <el-radio :label="1">管理人员</el-radio>
-              <el-radio :label="0">学生</el-radio>
+              <el-radio :label="2">学生</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item>

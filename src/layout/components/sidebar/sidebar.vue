@@ -10,6 +10,8 @@ const useLayoutStore = layoutStore()
 const $userStore = userStore()
 const $route = useRoute()
 const userMenu = computed(() => $userStore.userMenu)
+// console.log("计算前",userMenu);
+// console.log("$userStore.userMenu",$userStore.userMenu);
 const handleClose = () => {}
 const handleOpen = () => {}
 const isCollapse = computed(()=>useLayoutStore.isFold )

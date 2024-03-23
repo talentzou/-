@@ -356,7 +356,7 @@ onMounted(() => {
           prop="img">
           <el-upload
             class="avatar-uploader"
-            action="http://localhost:8080/upload/imageUpload"
+            action="http://localhost:8080/base/upload/imageUpload"
             name="image"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"

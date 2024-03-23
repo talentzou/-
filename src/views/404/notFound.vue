@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router';
 
 const router=useRouter()
-console.log("router",router);
+// console.log("router",router);
 </script>
 
 <template>

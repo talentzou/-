@@ -1,34 +1,59 @@
 import router from "@/router"
 import { userStore } from "@/stores/user"
+import { routesStore } from "@/stores/routes"
 import Nprogress from "nprogress"
 import "nprogress/nprogress.css"
+import { anyRoute } from "./router/routes"
 Nprogress.configure({ showSpinner: false })
+
+const whiteList=["home","login"]
+
+// 添加路由
+const getAddRoutes = async () => {
+  const $routesStore = routesStore()
+  const $userStore = userStore()
+  await $userStore.getUserInfo()
+  await $routesStore.getAsyncRoutesMenu()
+
+  // console.log("asyncRoute", $routesStore.Routes)
+  const routes = toRaw($routesStore.Routes)
+  // console.log("原生路由", routes)
+  routes.forEach((item) => {
+    router.addRoute(item)
+  })
+  router.addRoute(anyRoute)
+  console.log("已添加路由", router.getRoutes())
+}
+
 // 前置钩子
+const asyncRouterFlag = ref(false)
 router.beforeEach(async (to, from) => {
+  console.log("我是路由鉴权")
   Nprogress.start()
-  const UseUserStore = userStore()
-  const token = UseUserStore.token
+  const $userStore = userStore()
+  const $routesStore = routesStore()
+  const token = $userStore.token
+  // 没有登录
   if (!token) {
     if (to.path === "/login") {
-      return { name: to.name, replace: true }
+      return true
     } else {
+      console.log("not22222")
       return { name: "login", replace: true }
     }
   } else {
-    if (!router.hasRoute(to.name)) {
-      return { name: "404" } // 如果不存在，则重定向到错误页面
-    }
-    if (UseUserStore.userInfo.nickname && UseUserStore.userInfo.avatar) {
-      // console.log("我是同过的路由")
-      return { name: to.name }
+     console.log("$routesStore.asyncRouterFlag555555555", $routesStore.asyncRouterFlag);
+    if ( !$routesStore.asyncRouterFlag) {
+      console.log("我进来了");
+      await getAddRoutes()
+      asyncRouterFlag.value=false
+      return { ...to, replace: true }
     } else {
-      try {
-        await UseUserStore.getUserInfo()
-        return true
-      } catch (error) {
-        await UseUserStore.ClearUserInfo()
-        return { name: "login", replace: true }
+      if (to.name === "login") {
+        console.log("token33333")
+        return { path: "/home" }
       }
+      return true
     }
   }
 })
