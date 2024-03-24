@@ -6,7 +6,7 @@ import "nprogress/nprogress.css"
 import { anyRoute } from "./router/routes"
 Nprogress.configure({ showSpinner: false })
 
-const whiteList=["home","login"]
+const whiteList=["404","login"]
 
 // 添加路由
 const getAddRoutes = async () => {
@@ -38,19 +38,19 @@ router.beforeEach(async (to, from) => {
     if (to.path === "/login") {
       return true
     } else {
-      console.log("not22222")
+      // console.log("not22222")
       return { name: "login", replace: true }
     }
   } else {
-     console.log("$routesStore.asyncRouterFlag555555555", $routesStore.asyncRouterFlag);
-    if ( !$routesStore.asyncRouterFlag) {
-      console.log("我进来了");
+    //  console.log("$routesStore.asyncRouterFlag555555555", $routesStore.asyncRouterFlag);
+    if ( !$routesStore.asyncRouterFlag&&whiteList.indexOf(to.name)<0) {
+      // console.log("我进来了");
       await getAddRoutes()
       asyncRouterFlag.value=false
       return { ...to, replace: true }
     } else {
       if (to.name === "login") {
-        console.log("token33333")
+        // console.log("token33333")
         return { path: "/home" }
       }
       return true

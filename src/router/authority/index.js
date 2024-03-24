@@ -140,7 +140,7 @@ export const asyncRoutes = [
       {
         path: "student-violate",
         name: "violate",
-        component: () => import("@/views/Violate/violate.vue"),
+        component: () => import("@/views/Student/violate.vue"),
         meta: {
           title: "学生违纪",
           icon: "violate"

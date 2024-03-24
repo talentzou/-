@@ -1,6 +1,6 @@
 <template>
   <svg
-    class="svg-icon">
+    class="svg-icon" :style="{width:`${width}px`,height:`${height}px`}">
     <use
       :xlink:href="prefix + name"
       :fill="color"></use>
@@ -19,14 +19,14 @@ defineProps({
     type: String,
     default: "white"
   },
-  // width: {
-  //   type: String,
-  //   default: "16"
-  // },
-  // height: {
-  //   type: String,
-  //   default: "16"
-  // }
+  width: {
+    type: String,
+    default: "16"
+  },
+  height: {
+    type: String,
+    default: "16"
+  }
 })
 </script >
 
