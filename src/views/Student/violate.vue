@@ -170,7 +170,7 @@ onMounted(() => {
       <el-table-column
         width="55"
         type="index"
-        label="序号" />
+        label="#" />
       <el-table-column
         prop="studentNumber"
         label="学号"
@@ -191,8 +191,8 @@ onMounted(() => {
         label="违纪内容"
         width="180"
         align="center">
-        <template #default="{ row, column, $index }"> 
-        <el-tag type="warning"> {{ row.violate }}</el-tag>
+        <template #default="{ row, column, $index }">
+          <el-tag type="warning"> {{ row.violate }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -200,8 +200,8 @@ onMounted(() => {
         label="处理措施"
         width="160"
         align="center">
-        <template #default="{ row, column, $index }"> 
-        <el-tag type="danger"> {{ row.resolve }}</el-tag>
+        <template #default="{ row, column, $index }">
+          <el-tag type="danger"> {{ row.resolve }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column

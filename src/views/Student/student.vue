@@ -180,7 +180,7 @@ onMounted(() => {
       <el-table-column
         width="55"
         type="index"
-        label="序号" />
+        label="#" />
       <el-table-column
         prop="studentNumber"
         label="学号"
@@ -253,7 +253,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="studentEditParams.id===``?false:true"
+            :disabled="studentEditParams.id === `` ? false : true"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>

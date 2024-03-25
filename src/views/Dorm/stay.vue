@@ -226,7 +226,7 @@ onMounted(() => {
       <el-table-column
         width="55"
         type="index"
-        label="序号" />
+        label="#" />
       <el-table-column
         prop="stayDate"
         label="留宿时间"

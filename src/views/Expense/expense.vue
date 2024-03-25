@@ -7,7 +7,7 @@ import {
 } from "@/api/EXPENSE/expense"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
-import { useRules,searchRule } from "@/rules/expenseRules"
+import { useRules, searchRule } from "@/rules/expenseRules"
 import { Notification } from "@/utils/notification"
 const refTable = ref(null)
 const searchRef = ref(null)
@@ -122,10 +122,10 @@ async function deleteExpenses(list) {
 async function createExpenses() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    expenseEditParams.value.waterConsumption=waterCharge.value
-    expenseEditParams.value.electricityCharge= electricityCharge.value
+    expenseEditParams.value.waterConsumption = waterCharge.value
+    expenseEditParams.value.electricityCharge = electricityCharge.value
     const list = toRaw(expenseEditParams.value)
-    console.log(list);
+    console.log(list)
     const { code, msg } = await createExpenseResponse([list])
     expenseVisible.value = false
     const status = Notification(code, msg)
@@ -212,21 +212,21 @@ onMounted(() => {
       <el-table-column
         width="55"
         type="index"
-        label="序号" />
+        label="#" />
       <el-table-column
         prop="floorsName"
         label="宿舍楼"
-        width="100"
+        width="90"
         align="center" />
       <el-table-column
         prop="dormNumber"
         label="宿舍"
-        width="100"
+        width="90"
         align="center" />
       <el-table-column
         prop="paymentTime"
         label="缴费时间"
-        width="130"
+        width="120"
         align="center" />
       <el-table-column
         prop="waterConsumption"
@@ -305,13 +305,13 @@ onMounted(() => {
             type="date"
             format="YYYY-MM-DD"
             placeholder="Start date"
-            value-format="YYYY-MM-DD"/>
+            value-format="YYYY-MM-DD" />
         </el-form-item>
         <el-form-item
           prop="floorsName"
           label="宿舍楼">
           <el-input
-            :disabled="expenseEditParams.id==``?false:true"
+            :disabled="expenseEditParams.id == `` ? false : true"
             v-model="expenseEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -319,7 +319,7 @@ onMounted(() => {
           label="宿舍编号"
           prop="dormNumber">
           <el-input
-          :disabled="expenseEditParams.id==``?false:true"
+            :disabled="expenseEditParams.id == `` ? false : true"
             placeholder="请输入宿舍名称"
             v-model="expenseEditParams.dormNumber" />
         </el-form-item>

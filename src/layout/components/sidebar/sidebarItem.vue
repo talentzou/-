@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+ defineProps({
   item: {
     type: Object,
     require: true
@@ -10,40 +10,20 @@ const props = defineProps({
     default: ""
   }
 })
-const hasOneChild = ref({})
-function hasChildren(children = [], parent) {
-  if (children?.length === 1 && parent?.name !== "layout") {
-    // console.log("我是学生");
-    ;[hasOneChild.value] = [...children]
-    return true
+const childrenRoutes = ref({})
+function completePath(parent = {}) {
+  // console.log("parent", parent.path)
+  childrenRoutes.value =parent.children[0]
+  if (parent.path === "/") {
+    return "/" + parent.children[0].path
   }
-  if (children?.length > 1) {
-    // console.log("我是多个", parent.children)
-    return true
-  }
-  return false
-}
-function WhetherHome(children = []) {
-  if (!children) {
-    return
-  }[hasOneChild.value] = [...children]
-  if (hasOneChild.value?.name === "home") {
-    // console.log("jjj",hasOneChild.value?.meta.title );
-    return true
-  }
-  return false
-}
-function completePath(children = []) {
-  // console.log("children", props.baseIndex + "/" + children.path)
-  // console.log(props.baseIndex)
-  // console.log(props.baseIndex+'/'+children.path);
-  return props.baseIndex + "/" + children.path
+  return parent.path + "/" + parent.children[0].path
 }
 </script>
 <template>
   <template v-if="!item.hidden">
-    <!-- 有两个以上路由 -->
-    <template v-if="hasChildren(item.children, item)">
+    <!-- 有两个以上children -->
+    <template v-if="item.children?.length >= 2">
       <el-sub-menu :index="item.path">
         <template #title>
           <svg-icon :name="item.meta.icon" />
@@ -56,23 +36,21 @@ function completePath(children = []) {
           :base-index="item.path"></sidebar-item>
       </el-sub-menu>
     </template>
-
-    <!-- 有一个子路由 Whether -->
-    <template v-else>
-      <!-- 是主页 -->
-      <el-menu-item
-        :index="item.path"
-        v-if="WhetherHome(item.children)">
-        <svg-icon :name="hasOneChild.meta.icon"></svg-icon>
+    <!-- 只有一个children -->
+    <template v-else-if="item.children?.length === 1">
+      <el-menu-item :index="completePath(item)">
+        <svg-icon :name="childrenRoutes.meta?.icon"></svg-icon>
         <template #title>
-          <span class="menu-title">{{ hasOneChild.meta.title }}</span></template
+          <span class="menu-title">{{
+            childrenRoutes.meta?.title
+          }}</span></template
         >
       </el-menu-item>
-      <!-- 不是主页 -->
-      <el-menu-item
-        :index="completePath(item)"
-        v-else>
-        <svg-icon :name="item.meta?.icon" />
+    </template>
+    <template v-else>
+      <!-- 没有孩子 -->
+      <el-menu-item :index="baseIndex + `/` + item.path">
+        <svg-icon :name="item.meta?.icon"></svg-icon>
         <template #title>
           <span class="menu-title">{{ item.meta?.title }}</span></template
         >

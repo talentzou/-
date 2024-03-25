@@ -5,15 +5,15 @@ const props = defineProps({
   }
 })
 const modelValue = defineModel()
-const emits = defineEmits(["merge","delete"])
+const emits = defineEmits(["merge", "delete"])
 function UpdateRow() {
   modelValue.value = { ...modelValue.value, ...props.row }
-  console.log("hsvfvf",modelValue.value);
+  console.log("hsvfvf", modelValue.value)
   emits("merge")
 }
 function DeleteRow() {
-  console.log("ssssss",props.row.id );
-  emits("delete", [{id:props.row.id}])
+  console.log("ssssss", props.row.id)
+  emits("delete", [{ id: props.row.id, uuid: props.row.uuid }])
 }
 </script>
 <template>

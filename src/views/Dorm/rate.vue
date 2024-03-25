@@ -152,10 +152,10 @@ async function deleteRates(list) {
 async function createRates() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list=toRaw(rateEditParams.value)
+    const list = toRaw(rateEditParams.value)
     console.log("HSBB", list)
-    rateEditParams.value.totalScore=totalScore.value
-    console.log("数据为",typeof rateEditParams.value.totalScore);
+    rateEditParams.value.totalScore = totalScore.value
+    console.log("数据为", typeof rateEditParams.value.totalScore)
     const { code, msg } = await createRateResponse([list])
     rateVisible.value = false
     const status = Notification(code, msg)
@@ -265,7 +265,7 @@ onMounted(() => {
       <el-table-column
         width="55"
         type="index"
-        label="序号" />
+        label="#" />
       <el-table-column
         prop="floorsName"
         label="宿舍楼"
@@ -319,7 +319,7 @@ onMounted(() => {
         align="center"
         width="90">
         <template #default="{ row, column, $index }">
-          <el-tag >{{ row.evaluation }}</el-tag>
+          <el-tag>{{ row.evaluation }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column

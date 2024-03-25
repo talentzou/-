@@ -1,24 +1,26 @@
-<script lang="ts" setup>
-const activities = [
-  {
-    content: "Event start",
-    timestamp: "2018-04-15"
-  },
-  {
-    content: "Approved",
-    timestamp: "2018-04-13"
-  },
-  {
-    content: "Success",
-    timestamp: "2018-04-11"
-  }
-]
+<script setup>
+import { getNoticeResponse } from "@/api/Notice/notice"
+
 const list = ref([
   { title: "用户统计", icon: "user", color: "#2c4058" },
   { title: "空宿舍统计", icon: "empty_dorm", color: "#ffb102" },
   { title: "住宿人数", icon: "accommodation", color: "#0590fd" },
   { title: "待报修统计", icon: "repair_task", color: "#00798a" }
 ])
+
+const noticeList = ref([])
+async function getNotices() {
+  const { code, data } = await getNoticeResponse("", {
+    PageSize: 8,
+    Page: 1
+  })
+  if (code == 200) {
+    noticeList.value = data.list
+  }
+}
+onMounted(() => {
+  getNotices()
+})
 </script>
 <template>
   <div class="home">
@@ -53,14 +55,14 @@ const list = ref([
         <h2 style="margin-bottom: 25px; font-size: 20px">宿舍通告</h2>
         <el-timeline class="annunciation-timeline">
           <el-timeline-item
-            v-for="(activity, index) in activities"
+            v-for="(activity, index) in noticeList"
             :key="index"
+            size="large"
             :timestamp="activity.timestamp">
-            {{ activity.content }}
+            {{ activity.title }}
           </el-timeline-item>
         </el-timeline>
       </div>
-
     </div>
   </div>
 </template>
