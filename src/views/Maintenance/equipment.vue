@@ -10,6 +10,8 @@ import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { floorsName, dormNumber } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("repair")
 const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
@@ -23,7 +25,7 @@ const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
 let maintenanceEditParams = ref({
-  id: "",
+  uuid: "",
   floorsName: "",
   dormNumber: "",
   problems: "",
@@ -193,6 +195,7 @@ onMounted(() => {
     </el-form>
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       v-model="repairVisible"
       @delete="deleteRepairs"
       @excel="expDialog = true" />
@@ -269,6 +272,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @delete="deleteRepairs"
             @merge="repairVisible = true"
             v-model="maintenanceEditParams" />
@@ -286,7 +290,7 @@ onMounted(() => {
       :width="50"
       v-model="repairVisible"
       v-model:params="maintenanceEditParams"
-      :title="maintenanceEditParams.id ? `修改维修信息` : `添加维修信息`">
+      :title="maintenanceEditParams.uuid ? `修改维修信息` : `添加维修信息`">
       <el-form
         ref="Form"
         inline
@@ -301,7 +305,7 @@ onMounted(() => {
             type="date"
             format="YYYY-MM-DD"
             placeholder="Start date"
-            value-format="YYYY-MM-DD" />
+             />
         </el-form-item>
         <el-form-item
           label="宿舍楼"
@@ -374,10 +378,10 @@ onMounted(() => {
         <el-form-item style="display: block">
           <el-button
             @click="
-              maintenanceEditParams.id ? updateRepairs() : createRepairs()
+              maintenanceEditParams.uuid ? updateRepairs() : createRepairs()
             "
             type="success"
-            >{{ maintenanceEditParams.id ? "更新" : "添加" }}</el-button
+            >{{ maintenanceEditParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

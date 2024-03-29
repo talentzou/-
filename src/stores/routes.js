@@ -30,27 +30,27 @@ export const routesStore = defineStore("route", () => {
   const Routes = ref([])
 
   const getAsyncRoutesMenu = async () => {
-    console.log("获取路由")
+    // console.log("获取路由")
     asyncRouterFlag.value = true
     const $userStore = userStore()
-    console.log(
-      "$userStore.userInfo?.authorityId",
-      $userStore.userInfo?.authorityId
-    )
+    // console.log(
+    //   "$userStore.userInfo?.authorityId",
+    //   $userStore.userInfo?.authorityId
+    // )
     const res = await GetMenuResponse($userStore.userInfo?.authorityId)
-    console.log("路由获取数据")
+    // console.log("路由获取数据")
     const localRoutes = filterAsyncRoutes(
       res.data?.menu,
       cloneDeep(asyncRoutes)
     )
-    console.log("resultRoutes555555555", localRoutes)
+    // console.log("resultRoutes555555555", localRoutes)
     // 添加路由
     localRoutes.forEach((item) => {
       router.addRoute(item)
     })
     // 添加错误路由
     router.addRoute(anyRoute)
-    console.log("添加完有")
+    // console.log("添加完有")
     // 路由添加
     Routes.value = localRoutes
     //菜单

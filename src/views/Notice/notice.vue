@@ -9,6 +9,8 @@ import { resetForm, submitForm } from "@/utils/rules"
 import { noticeRules } from "@/rules/noticeRules"
 import { Notification } from "@/utils/notification"
 import { onMounted } from "vue"
+import { authFields} from "@/utils/authFields"
+const {table_auth}=authFields("repair")
 const Form = ref(null)
 const refTable = ref(null)
 const searchNotice = ref("")
@@ -148,6 +150,7 @@ onMounted(() => {
           <template #default="{ row, column, $index }">
             <TableButton
               :row="row"
+              :authBtn="table_auth"
               @delete="deleteNotices"
               @merge="dialogVisible = true"
               v-model="noticeEditParams" />

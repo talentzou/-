@@ -10,6 +10,9 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { floorsName, dormNumber } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("dorm")
+console.log("operate_auth",operate_auth,"table_auth",table_auth);
 const refTable = ref(null)
 const expDialog = ref(false)
 
@@ -20,7 +23,7 @@ let dormSearchParams = reactive({
   dormStatus: ""
 })
 let addDormParams = ref({
-  id: "",
+  uuid:"",
   floorsName: "",
   dormNumber: "",
   img: "",
@@ -253,6 +256,7 @@ onMounted(() => {
     <!-- 操作 -->
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       @delete="deleteDorms"
       @excel="expDialog = true"
       v-model="dormVisible" />
@@ -327,6 +331,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @merge="dormVisible = true"
             @delete="deleteDorms"
             v-model="addDormParams" />
@@ -344,7 +349,7 @@ onMounted(() => {
       v-model="dormVisible"
       @close="Form.resetFields()"
       v-model:params="addDormParams"
-      :title="addDormParams.id ? `修改宿舍信息` : `添加宿舍信息`">
+      :title="addDormParams.uuid ? `修改宿舍信息` : `添加宿舍信息`">
       <el-form
         ref="Form"
         :rules="formParamsRules"
@@ -401,7 +406,7 @@ onMounted(() => {
           label="类型"
           prop="dormCapacity">
           <el-select
-            :disabled="addDormParams.id === `` ? false : true"
+            :disabled="addDormParams.uuid === `` ? false : true"
             style="width: 196px"
             v-model="addDormParams.dormCapacity"
             placeholder="请选择宿舍类型">
@@ -434,9 +439,9 @@ onMounted(() => {
 
         <el-form-item>
           <el-button
-            @click="addDormParams.id ? updateDorms() : createDorms()"
+            @click="addDormParams.uuid ? updateDorms() : createDorms()"
             type="success"
-            >{{ addDormParams.id ? "更新" : "添加" }}
+            >{{ addDormParams.uuid ? "更新" : "添加" }}
           </el-button>
           <el-button
             @click="resetForm(Form)"

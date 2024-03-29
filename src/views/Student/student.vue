@@ -9,6 +9,8 @@ import {
   deleteStudentResponse
 } from "@/api/STUDENT/student"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("student")
 const searchRef = ref(null)
 const Form = ref(null)
 const searchStudentParams = reactive({
@@ -21,7 +23,7 @@ let studentVisible = ref(false)
 let expDialog = ref(false)
 let refTable = ref(null)
 let studentEditParams = ref({
-  id: "",
+  uuid: "",
   studentName: "",
   studentNumber: "",
   sex: "",
@@ -161,6 +163,7 @@ onMounted(() => {
     </el-form>
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       v-model="studentVisible"
       @delete="deleteStudents"
       @excel="expDialog = true" />
@@ -221,6 +224,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @delete="deleteStudents"
             @merge="studentVisible = true"
             v-model="studentEditParams" />
@@ -236,7 +240,7 @@ onMounted(() => {
       ref="Form"
       v-model="studentVisible"
       v-model:params="studentEditParams"
-      :title="studentEditParams.id ? `修改学生信息` : `添加学生信息`"
+      :title="studentEditParams.uuid ? `修改学生信息` : `添加学生信息`"
       @close="Form.resetFields()">
       <el-form
         :model="studentEditParams"
@@ -253,7 +257,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="studentEditParams.id === `` ? false : true"
+            :disabled="studentEditParams.uuid === `` ? false : true"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>
@@ -294,9 +298,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="studentEditParams.id ? updateStudents() : createStudents()"
+            @click="studentEditParams.uuid ? updateStudents() : createStudents()"
             type="success"
-            >{{ studentEditParams.id ? "更新" : "添加" }}</el-button
+            >{{ studentEditParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

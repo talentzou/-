@@ -9,6 +9,7 @@ import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules, searchRule } from "@/rules/expenseRules"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
 const refTable = ref(null)
 const searchRef = ref(null)
 const Form = ref(null)
@@ -19,7 +20,7 @@ let expenseSearchParams = reactive({
   accounter: ""
 })
 let expenseEditParams = ref({
-  id: "",
+  uuid: "",
   floorsName: "",
   dormNumber: "",
   paymentTime: "",
@@ -32,6 +33,9 @@ let expenseEditParams = ref({
   phone: "",
   remark: ""
 })
+// 按钮字段
+const {operate_auth, table_auth}=authFields("expense")
+console.log("operate_auth",operate_auth,"table_auth",table_auth);
 const searchRules = searchRule
 const formRules = useRules(expenseEditParams.value)
 let isOperate = ref(true)
@@ -194,6 +198,7 @@ onMounted(() => {
     </el-form>
     <OperateButton
       v-model="expenseVisible"
+      :authBtn="operate_auth"
       :isOperate="isOperate"
       @delete="deleteExpenses"
       @excel="expDialog = true" />
@@ -226,7 +231,7 @@ onMounted(() => {
       <el-table-column
         prop="paymentTime"
         label="缴费时间"
-        width="120"
+        width="200"
         align="center" />
       <el-table-column
         prop="waterConsumption"
@@ -272,6 +277,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @delete="deleteExpenses"
             @merge="expenseVisible = true"
             v-model="expenseEditParams" />
@@ -287,7 +293,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="expenseVisible"
       v-model:params="expenseEditParams"
-      :title="expenseEditParams.id ? `修改费用信息` : `添加费用信息`">
+      :title="expenseEditParams.uuid ? `修改费用信息` : `添加费用信息`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -304,14 +310,13 @@ onMounted(() => {
             v-model="expenseEditParams.paymentTime"
             type="date"
             format="YYYY-MM-DD"
-            placeholder="Start date"
-            value-format="YYYY-MM-DD" />
+            placeholder="Start date" />
         </el-form-item>
         <el-form-item
           prop="floorsName"
           label="宿舍楼">
           <el-input
-            :disabled="expenseEditParams.id == `` ? false : true"
+            :disabled="expenseEditParams.uuid == `` ? false : true"
             v-model="expenseEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -319,7 +324,7 @@ onMounted(() => {
           label="宿舍编号"
           prop="dormNumber">
           <el-input
-            :disabled="expenseEditParams.id == `` ? false : true"
+            :disabled="expenseEditParams.uuid == `` ? false : true"
             placeholder="请输入宿舍名称"
             v-model="expenseEditParams.dormNumber" />
         </el-form-item>
@@ -386,9 +391,11 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="expenseEditParams.id ? updateExpenses() : createExpenses()"
+            @click="
+              expenseEditParams.uuid ? updateExpenses() : createExpenses()
+            "
             type="success"
-            >{{ expenseEditParams.id ? "更新" : "创建" }}</el-button
+            >{{ expenseEditParams.uuid ? "更新" : "创建" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

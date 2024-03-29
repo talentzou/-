@@ -9,6 +9,8 @@ import {
   deleteViolateResponse
 } from "@/api/STUDENT/violate"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("violate")
 let searchViolateParams = reactive({
   studentNumber: "",
   dormNumber: ""
@@ -19,7 +21,7 @@ let expDialog = ref(false)
 let isOperate = ref(true)
 const Form = ref(null)
 let violateEditParams = ref({
-  id: "",
+  uuid: "",
   studentNumber: "",
   studentName: "",
   dormNumber: "",
@@ -151,6 +153,7 @@ onMounted(() => {
     </el-form>
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       @delete="deleteViolates"
       v-model="violateVisible"
       @excel="expDialog = true" />
@@ -216,6 +219,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @delete="deleteViolates"
             @merge="violateVisible = true"
             v-model="violateEditParams" />
@@ -230,7 +234,7 @@ onMounted(() => {
       ref="Form"
       v-model="violateVisible"
       v-model:params="violateEditParams"
-      :title="violateEditParams.id ? `修改学生信息` : `添加学生信息`"
+      :title="violateEditParams.uuid ? `修改学生信息` : `添加学生信息`"
       @close="Form.resetFields()">
       <el-form
         :model="violateEditParams"
@@ -247,7 +251,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="violateEditParams.id === `` ? false : true"
+            :disabled="violateEditParams.uuid === `` ? false : true"
             v-model="violateEditParams.studentNumber"
             placeholder="请输入学号"
         /></el-form-item>
@@ -280,14 +284,15 @@ onMounted(() => {
             v-model="violateEditParams.recordDate"
             type="date"
             format="YYYY-MM-DD"
-            placeholder="请选择日期"
-            value-format="YYYY-MM-DD" />
+            placeholder="请选择日期" />
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="violateEditParams.id ? updateViolates() : createViolates()"
+            @click="
+              violateEditParams.uuid ? updateViolates() : createViolates()
+            "
             type="success"
-            >{{ violateEditParams.id ? "更新" : "添加" }}</el-button
+            >{{ violateEditParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

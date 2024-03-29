@@ -10,6 +10,9 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 import { floorsName, dormNumber } from "@/rules/dormRules"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("rate")
+console.log("operate_auth",operate_auth,"table_auth",table_auth);
 const searchRef = ref(null)
 const Form = ref(null)
 const refTable = ref(null)
@@ -24,7 +27,7 @@ let rateSearchParams = reactive({
 })
 let isOperate = ref(true)
 let rateEditParams = ref({
-  id: "",
+  uuid:"",
   rateDate: "",
   floorsName: "",
   dormNumber: "",
@@ -245,6 +248,7 @@ onMounted(() => {
     <!-- 操作 -->
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       v-model="rateVisible"
       @delete="deleteRates"
       @excel="expDialog = true" />
@@ -329,6 +333,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @merge="rateVisible = true"
             @delete="deleteRates"
             v-model="rateEditParams" />
@@ -346,7 +351,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="rateVisible"
       v-model:params="rateEditParams"
-      :title="rateEditParams.id ? `修改评分` : `添加评分`">
+      :title="rateEditParams.uuid ? `修改评分` : `添加评分`">
       <el-form
         ref="Form"
         inline
@@ -357,7 +362,7 @@ onMounted(() => {
           label="宿舍楼"
           prop="floorsName">
           <el-input
-            :disabled="rateEditParams.id === `` ? false : true"
+            :disabled="rateEditParams.uuid === `` ? false : true"
             v-model="rateEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -365,7 +370,7 @@ onMounted(() => {
           label="宿舍"
           prop="dormNumber">
           <el-input
-            :disabled="rateEditParams.id === `` ? false : true"
+            :disabled="rateEditParams.uuid === `` ? false : true"
             v-model="rateEditParams.dormNumber"
             placeholder="请输入宿舍名称" />
         </el-form-item>
@@ -445,7 +450,7 @@ onMounted(() => {
             type="date"
             format="YYYY-MM-DD"
             placeholder="Start date"
-            value-format="YYYY-MM-DD" />
+          />
         </el-form-item>
         <el-form-item
           label="备注"
@@ -459,9 +464,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="rateEditParams.id ? updateRates() : createRates()"
+            @click="rateEditParams.uuid ? updateRates() : createRates()"
             type="success"
-            >{{ rateEditParams.id ? "更新" : "添加" }}</el-button
+            >{{ rateEditParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

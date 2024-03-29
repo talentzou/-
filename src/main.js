@@ -5,6 +5,7 @@ import { createApp } from "vue"
 import { createPinia } from "pinia"
 import App from "./App.vue"
 import router from "./router"
+import auth from "@/directive/auth"
 import "@/permission"
 //引入本地icon注册脚本
 import "virtual:svg-icons-register"
@@ -14,4 +15,5 @@ const app = createApp(App)
 app.use(router)
 app.use(createPinia())
 app.use(globalComp)
+app.use(auth)
 app.mount("#app")

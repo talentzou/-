@@ -10,6 +10,8 @@ import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("floor")
 const expDialog = ref(false)
 const refTable = ref(null)
 const isOperate = ref(true)
@@ -27,7 +29,7 @@ const floorsSearchForm = reactive({
 const floorsVisible = ref(false)
 //宿舍楼参数
 let floorsParams = ref({
-  id: "",
+  uuid: "",
   role: "1",
   floorsName: "",
   floors: "",
@@ -184,6 +186,7 @@ const paramsRules = useRules(floorsParams.value)
     </el-form>
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       @excel="expDialog = true"
       v-model="floorsVisible" />
     <!-- 表格数据 -->
@@ -239,6 +242,7 @@ const paramsRules = useRules(floorsParams.value)
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @merge="floorsVisible = true"
             @delete="deleteFloors"
             v-model="floorsParams" />
@@ -264,6 +268,7 @@ const paramsRules = useRules(floorsParams.value)
           label="宿舍楼名称"
           prop="floorsName">
           <el-input
+            :disabled="floorsParams.uuid===``?false:true"
             v-model="floorsParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -297,9 +302,9 @@ const paramsRules = useRules(floorsParams.value)
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="floorsParams.id ? updateFloors() : createFloors()"
+            @click="floorsParams.uuid ? updateFloors() : createFloors()"
             type="success"
-            >{{ floorsParams.id ? "更新" : "添加" }}</el-button
+            >{{ floorsParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

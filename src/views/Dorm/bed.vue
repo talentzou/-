@@ -10,6 +10,8 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { dormNumber } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("bed")
 let $route = useRoute()
 const refTable = ref(null)
 const Form = ref(null)
@@ -19,7 +21,7 @@ let bedSearchParams = reactive({
   dormNumber: ""
 })
 let editBedParams = ref({
-  id: "",
+  uuid: "",
   bedStatus: "",
   dormNumber: "",
   bedNumber: "",
@@ -145,6 +147,7 @@ onMounted(() => {
     <!-- 操作 -->
     <OperateButton
       :isOperate="isOperate"
+      :authBtn="operate_auth"
       @excel="expDialog = true"
       @delete="deleteBeds"
       v-model="bedVisible" />
@@ -204,6 +207,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @merge="bedVisible = true"
             @delete="deleteBeds"
             v-model="editBedParams" />
@@ -216,7 +220,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="bedVisible"
       v-model:params="editBedParams"
-      :title="editBedParams.id ? `修改床位信息` : `添加床位信息`">
+      :title="editBedParams.uuid ? `修改床位信息` : `添加床位信息`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -255,9 +259,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="editBedParams.id ? updateBeds() : createBeds()"
+            @click="editBedParams.uuid ? updateBeds() : createBeds()"
             type="success"
-            >{{ editBedParams.id ? "更新" : "添加" }}</el-button
+            >{{ editBedParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

@@ -4,9 +4,12 @@ const props = defineProps({
     require: true,
     type: Boolean,
     default: true
+  },
+  authBtn: {
+    type: Object
   }
 })
-const emits = defineEmits(["excel","delete"])
+const emits = defineEmits(["excel", "delete"])
 let visible = defineModel()
 const operateIsTrue = ref(true)
 function addBtn() {
@@ -20,9 +23,11 @@ function exportBtn() {
 }
 </script>
 <template>
+  <div>
   <!-- 操作 -->
   <div class="operate">
     <el-button
+      v-auth="`${authBtn.increase}`"
       size="small"
       type="success"
       @click="addBtn">
@@ -34,6 +39,7 @@ function exportBtn() {
     </el-button>
 
     <el-button
+      v-auth="`${authBtn.delete}`"
       type="danger"
       @click="deleteBtn"
       :disabled="props.isOperate"
@@ -57,6 +63,7 @@ function exportBtn() {
       >导出
     </el-button>
   </div>
+</div>
 </template>
 <style>
 .operate {

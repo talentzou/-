@@ -10,6 +10,8 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 import { floorsName, dormNumber } from "@/rules/dormRules"
+import { authFields} from "@/utils/authFields"
+const {operate_auth, table_auth}=authFields("stay")
 //表格实例
 const refTable = ref(null)
 const searchRef = ref(null)
@@ -24,7 +26,7 @@ let staySearchParams = reactive({
 })
 //编辑参数
 let stayEditParams = ref({
-  id: "",
+  uuid: "",
   stayTime: "",
   studentName: "",
   floorsName: "",
@@ -72,7 +74,6 @@ function exportTable({ filename, allSelect }) {
 }
 //标签颜色
 function stateTag(text) {
-  console.log("text", text)
   switch (text) {
     case "同意":
       return "success"
@@ -208,6 +209,7 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       v-model="stayVisible"
+      :authBtn="operate_auth"
       @delete="deleteStays"
       @excel="expDialog = true" />
     <!-- 表格数据 -->
@@ -294,6 +296,7 @@ onMounted(() => {
         <template #default="{ row, column, $index }">
           <TableButton
             :row="row"
+            :authBtn="table_auth"
             @merge="stayVisible = true"
             @delete="deleteStays"
             v-model="stayEditParams" />
@@ -309,7 +312,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="stayVisible"
       v-model:params="stayEditParams"
-      :title="stayEditParams.id ? `修改留宿申请` : `添加留宿申请`">
+      :title="stayEditParams.uuid ? `修改留宿申请` : `添加留宿申请`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -323,8 +326,7 @@ onMounted(() => {
             type="daterange"
             format="YYYY-MM-DD"
             start-placeholder="Start date"
-            end-placeholder="End date"
-            value-format="YYYY-MM-DD" />
+            end-placeholder="End date" />
         </el-form-item>
         <el-form-item
           label="宿舍楼"
@@ -376,9 +378,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="stayEditParams.id ? updateStays() : createStays()"
+            @click="stayEditParams.uuid ? updateStays() : createStays()"
             type="success"
-            >{{ stayEditParams.id ? "更新" : "添加" }}</el-button
+            >{{ stayEditParams.uuid ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

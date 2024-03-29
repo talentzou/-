@@ -22,13 +22,13 @@ const getAddRoutes = async () => {
     router.addRoute(item)
   })
   router.addRoute(anyRoute)
-  console.log("已添加路由", router.getRoutes())
+  // console.log("已添加路由", router.getRoutes())
 }
 
 // 前置钩子
 const asyncRouterFlag = ref(false)
 router.beforeEach(async (to, from) => {
-  console.log("我是路由鉴权")
+  // console.log("我是路由鉴权")
   Nprogress.start()
   const $userStore = userStore()
   const $routesStore = routesStore()
