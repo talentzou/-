@@ -23,7 +23,7 @@ let dormSearchParams = reactive({
   dormStatus: ""
 })
 let addDormParams = ref({
-  uuid:"",
+  id:"",
   floorsName: "",
   dormNumber: "",
   img: "",
@@ -349,7 +349,7 @@ onMounted(() => {
       v-model="dormVisible"
       @close="Form.resetFields()"
       v-model:params="addDormParams"
-      :title="addDormParams.uuid ? `修改宿舍信息` : `添加宿舍信息`">
+      :title="addDormParams.id ? `修改宿舍信息` : `添加宿舍信息`">
       <el-form
         ref="Form"
         :rules="formParamsRules"
@@ -406,7 +406,7 @@ onMounted(() => {
           label="类型"
           prop="dormCapacity">
           <el-select
-            :disabled="addDormParams.uuid === `` ? false : true"
+            :disabled="addDormParams.id === `` ? false : true"
             style="width: 196px"
             v-model="addDormParams.dormCapacity"
             placeholder="请选择宿舍类型">
@@ -439,9 +439,9 @@ onMounted(() => {
 
         <el-form-item>
           <el-button
-            @click="addDormParams.uuid ? updateDorms() : createDorms()"
+            @click="addDormParams.id ? updateDorms() : createDorms()"
             type="success"
-            >{{ addDormParams.uuid ? "更新" : "添加" }}
+            >{{ addDormParams.id ? "更新" : "添加" }}
           </el-button>
           <el-button
             @click="resetForm(Form)"

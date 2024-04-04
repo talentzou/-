@@ -25,7 +25,7 @@ const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
 let maintenanceEditParams = ref({
-  uuid: "",
+  id: "",
   floorsName: "",
   dormNumber: "",
   problems: "",
@@ -290,7 +290,7 @@ onMounted(() => {
       :width="50"
       v-model="repairVisible"
       v-model:params="maintenanceEditParams"
-      :title="maintenanceEditParams.uuid ? `修改维修信息` : `添加维修信息`">
+      :title="maintenanceEditParams.id ? `修改维修信息` : `添加维修信息`">
       <el-form
         ref="Form"
         inline
@@ -378,10 +378,10 @@ onMounted(() => {
         <el-form-item style="display: block">
           <el-button
             @click="
-              maintenanceEditParams.uuid ? updateRepairs() : createRepairs()
+              maintenanceEditParams.id ? updateRepairs() : createRepairs()
             "
             type="success"
-            >{{ maintenanceEditParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ maintenanceEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

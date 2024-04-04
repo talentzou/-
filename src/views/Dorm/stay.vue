@@ -26,7 +26,7 @@ let staySearchParams = reactive({
 })
 //编辑参数
 let stayEditParams = ref({
-  uuid: "",
+  id: "",
   stayTime: "",
   studentName: "",
   floorsName: "",
@@ -312,7 +312,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="stayVisible"
       v-model:params="stayEditParams"
-      :title="stayEditParams.uuid ? `修改留宿申请` : `添加留宿申请`">
+      :title="stayEditParams.id ? `修改留宿申请` : `添加留宿申请`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -378,9 +378,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="stayEditParams.uuid ? updateStays() : createStays()"
+            @click="stayEditParams.id ? updateStays() : createStays()"
             type="success"
-            >{{ stayEditParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ stayEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

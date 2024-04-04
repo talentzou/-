@@ -17,7 +17,7 @@ const searchNotice = ref("")
 
 const dialogVisible = ref(false)
 const noticeEditParams = ref({
-  uuid: "",
+  id: "",
   title: "",
   author: "",
   timestamp: ""
@@ -165,7 +165,7 @@ onMounted(() => {
     <el-dialog
       @close="clearNoticeEditParams"
       v-model="dialogVisible"
-      :title="noticeEditParams.uuid ? `更新` : `添加`"
+      :title="noticeEditParams.id ? `更新` : `添加`"
       width="500"
       align-center>
       <el-form
@@ -198,9 +198,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="noticeEditParams.uuid ? updateNotices() : createNotices()"
+            @click="noticeEditParams.id ? updateNotices() : createNotices()"
             type="success"
-            >{{ noticeEditParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ noticeEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

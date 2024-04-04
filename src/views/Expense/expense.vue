@@ -20,7 +20,7 @@ let expenseSearchParams = reactive({
   accounter: ""
 })
 let expenseEditParams = ref({
-  uuid: "",
+  id: "",
   floorsName: "",
   dormNumber: "",
   paymentTime: "",
@@ -48,9 +48,9 @@ const fields = {
   floorsName: "宿舍楼",
   dormNumber: "宿舍",
   paymentTime: "订单时间",
-  waterConsumption: "用水量",
+  // waterConsumption: "用水量",
   waterCharge: "水费",
-  electricityConsumption: "用电量",
+  // electricityConsumption: "用电量",
   electricityCharge: "电费",
   totalCost: "总费用",
   accountant: "计算人",
@@ -68,20 +68,20 @@ function selectDatePicker(params) {}
 const waterCharge = computed(() => {
   return Number.parseFloat(expenseEditParams.value.waterConsumption) * 1.5 || 0
 })
-const electricityCharge = computed(() => {
-  return (
-    Number.parseFloat(expenseEditParams.value.electricityConsumption, "kkkk") *
-      0.6 || 0
-  )
-})
-const totalCost = computed(() => {
-  console.log(expenseEditParams.value)
-  return waterCharge.value + electricityCharge.value || 0
-})
+// const electricityCharge = computed(() => {
+//   return (
+//     Number.parseFloat(expenseEditParams.value.electricityConsumption, "kkkk") *
+//       0.6 || 0
+//   )
+// })
+// const totalCost = computed(() => {
+//   console.log(expenseEditParams.value)
+//   return waterCharge.value + electricityCharge.value || 0
+// })
 watchEffect(() => {
   expenseEditParams.value.waterCharge = waterCharge.value
-  expenseEditParams.value.electricityCharge = electricityCharge.value
-  expenseEditParams.value.totalCost = totalCost.value
+  // expenseEditParams.value.electricityCharge = electricityCharge.value
+  // expenseEditParams.value.totalCost = totalCost.value
 })
 /* 接口 */
 let expenseTableData = ref([])
@@ -126,8 +126,8 @@ async function deleteExpenses(list) {
 async function createExpenses() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    expenseEditParams.value.waterConsumption = waterCharge.value
-    expenseEditParams.value.electricityCharge = electricityCharge.value
+    // expenseEditParams.value.waterConsumption = waterCharge.value
+    // expenseEditParams.value.electricityCharge = electricityCharge.value
     const list = toRaw(expenseEditParams.value)
     console.log(list)
     const { code, msg } = await createExpenseResponse([list])
@@ -233,19 +233,10 @@ onMounted(() => {
         label="缴费时间"
         width="200"
         align="center" />
-      <el-table-column
-        prop="waterConsumption"
-        label="用水量"
-        width="100"
-        align="center" />
+  
       <el-table-column
         prop="waterCharge"
         label="水费"
-        width="100"
-        align="center" />
-      <el-table-column
-        prop="electricityConsumption"
-        label="用电量"
         width="100"
         align="center" />
       <el-table-column
@@ -293,7 +284,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="expenseVisible"
       v-model:params="expenseEditParams"
-      :title="expenseEditParams.uuid ? `修改费用信息` : `添加费用信息`">
+      :title="expenseEditParams.id ? `修改费用信息` : `添加费用信息`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -316,7 +307,7 @@ onMounted(() => {
           prop="floorsName"
           label="宿舍楼">
           <el-input
-            :disabled="expenseEditParams.uuid == `` ? false : true"
+            :disabled="expenseEditParams.id == `` ? false : true"
             v-model="expenseEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -324,46 +315,27 @@ onMounted(() => {
           label="宿舍编号"
           prop="dormNumber">
           <el-input
-            :disabled="expenseEditParams.uuid == `` ? false : true"
+            :disabled="expenseEditParams.id == `` ? false : true"
             placeholder="请输入宿舍名称"
             v-model="expenseEditParams.dormNumber" />
-        </el-form-item>
-        <el-form-item
-          label="水量"
-          prop="waterConsumption">
-          <el-input
-            v-model.number="expenseEditParams.waterConsumption"
-            placeholder="请输入用水量" />
         </el-form-item>
         <el-form-item
           label="水费"
           prop="waterCharge">
           <el-input
-            disabled
-            @change="expenseEditParams.waterCharge = waterCharge"
             v-model.number="waterCharge"
             placeholder="请输入水费" />
-        </el-form-item>
-        <el-form-item
-          label="电量"
-          prop="electricityConsumption">
-          <el-input
-            v-model.number="expenseEditParams.electricityConsumption"
-            placeholder="请输入用电量" />
         </el-form-item>
         <el-form-item
           label="电费"
           prop="electricityCharge">
           <el-input
-            disabled
-            @change="expenseEditParams.electricityCharge = electricityCharge"
             v-model.number="electricityCharge"
             placeholder="请输入电费" />
         </el-form-item>
         <el-form-item label="总费用">
           <el-input
             disabled
-            @change="expenseEditParams.totalCost = totalCost"
             v-model="totalCost"
             placeholder="总费用" />
         </el-form-item>
@@ -392,10 +364,10 @@ onMounted(() => {
         <el-form-item>
           <el-button
             @click="
-              expenseEditParams.uuid ? updateExpenses() : createExpenses()
+              expenseEditParams.id ? updateExpenses() : createExpenses()
             "
             type="success"
-            >{{ expenseEditParams.uuid ? "更新" : "创建" }}</el-button
+            >{{ expenseEditParams.id ? "更新" : "创建" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

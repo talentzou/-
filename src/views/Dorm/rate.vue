@@ -27,7 +27,7 @@ let rateSearchParams = reactive({
 })
 let isOperate = ref(true)
 let rateEditParams = ref({
-  uuid:"",
+  id:"",
   rateDate: "",
   floorsName: "",
   dormNumber: "",
@@ -351,7 +351,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="rateVisible"
       v-model:params="rateEditParams"
-      :title="rateEditParams.uuid ? `修改评分` : `添加评分`">
+      :title="rateEditParams.id ? `修改评分` : `添加评分`">
       <el-form
         ref="Form"
         inline
@@ -362,7 +362,7 @@ onMounted(() => {
           label="宿舍楼"
           prop="floorsName">
           <el-input
-            :disabled="rateEditParams.uuid === `` ? false : true"
+            :disabled="rateEditParams.id === `` ? false : true"
             v-model="rateEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -370,7 +370,7 @@ onMounted(() => {
           label="宿舍"
           prop="dormNumber">
           <el-input
-            :disabled="rateEditParams.uuid === `` ? false : true"
+            :disabled="rateEditParams.id === `` ? false : true"
             v-model="rateEditParams.dormNumber"
             placeholder="请输入宿舍名称" />
         </el-form-item>
@@ -464,9 +464,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="rateEditParams.uuid ? updateRates() : createRates()"
+            @click="rateEditParams.id ? updateRates() : createRates()"
             type="success"
-            >{{ rateEditParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ rateEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

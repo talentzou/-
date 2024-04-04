@@ -21,7 +21,6 @@ let bedSearchParams = reactive({
   dormNumber: ""
 })
 let editBedParams = ref({
-  uuid: "",
   bedStatus: "",
   dormNumber: "",
   bedNumber: "",
@@ -220,7 +219,7 @@ onMounted(() => {
       @close="Form.resetFields()"
       v-model="bedVisible"
       v-model:params="editBedParams"
-      :title="editBedParams.uuid ? `修改床位信息` : `添加床位信息`">
+      :title="editBedParams.id ? `修改床位信息` : `添加床位信息`">
       <el-form
         ref="Form"
         :rules="formRules"
@@ -259,9 +258,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="editBedParams.uuid ? updateBeds() : createBeds()"
+            @click="editBedParams.id ? updateBeds() : createBeds()"
             type="success"
-            >{{ editBedParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ editBedParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

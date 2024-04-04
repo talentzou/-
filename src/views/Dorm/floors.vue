@@ -29,8 +29,6 @@ const floorsSearchForm = reactive({
 const floorsVisible = ref(false)
 //宿舍楼参数
 let floorsParams = ref({
-  uuid: "",
-  role: "1",
   floorsName: "",
   floors: "",
   floorsType: "",
@@ -93,6 +91,7 @@ async function deleteFloors(list) {
 // 添加
 async function createFloors() {
   const valid = await submitForm(Form.value)
+  console.log("949555",floorsParams.value);
   if (valid) {
     const { code, msg } = await addFloorsInfoRequest([floorsParams.value])
     floorsVisible.value = false
@@ -268,7 +267,7 @@ const paramsRules = useRules(floorsParams.value)
           label="宿舍楼名称"
           prop="floorsName">
           <el-input
-            :disabled="floorsParams.uuid===``?false:true"
+            :disabled="Boolean(floorsParams.id)"
             v-model="floorsParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -302,9 +301,9 @@ const paramsRules = useRules(floorsParams.value)
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="floorsParams.uuid ? updateFloors() : createFloors()"
+            @click="floorsParams.id ? updateFloors() : createFloors()"
             type="success"
-            >{{ floorsParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ floorsParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

@@ -44,7 +44,7 @@ async function updateUserInfo(url) {
       nickname: userInfo.value.nickname,
       sex: userInfo.value.sex,
       avatar: userInfo.value.url,
-      email: userInfo.value.email,
+      // email: userInfo.value.email,
       telephone: userInfo.value.telephone,
       dorm: userInfo.value.dorm
     }
@@ -98,7 +98,7 @@ async function updateUserInfo(url) {
     </div>
     <el-descriptions
       style="max-width: 500px"
-      title="学生个人信息"
+      title="个人信息"
       :column="2"
       size="large"
       border>
@@ -141,7 +141,7 @@ async function updateUserInfo(url) {
           >宿舍</template
         >{{ userInfo.dorm }}</el-descriptions-item
       >
-      <el-descriptions-item>
+      <el-descriptions-item  :span="2"> 
         <template #label>
           <svg-icon
             name="user_phone"
@@ -149,14 +149,14 @@ async function updateUserInfo(url) {
           >手机号码</template
         >{{ userInfo.telephone }}</el-descriptions-item
       >
-      <el-descriptions-item>
+      <!-- <el-descriptions-item>
         <template #label>
           <svg-icon
             name="user_email"
             color="black"></svg-icon
           >邮箱 </template
         >{{ userInfo.email }}</el-descriptions-item
-      >
+      > -->
       <el-descriptions-item :span="2">
         <template #label>
           <svg-icon

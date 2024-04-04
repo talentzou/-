@@ -21,7 +21,7 @@ let expDialog = ref(false)
 let isOperate = ref(true)
 const Form = ref(null)
 let violateEditParams = ref({
-  uuid: "",
+  id: "",
   studentNumber: "",
   studentName: "",
   dormNumber: "",
@@ -234,7 +234,7 @@ onMounted(() => {
       ref="Form"
       v-model="violateVisible"
       v-model:params="violateEditParams"
-      :title="violateEditParams.uuid ? `修改学生信息` : `添加学生信息`"
+      :title="violateEditParams.id ? `修改学生信息` : `添加学生信息`"
       @close="Form.resetFields()">
       <el-form
         :model="violateEditParams"
@@ -251,7 +251,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="violateEditParams.uuid === `` ? false : true"
+            :disabled="violateEditParams.id === `` ? false : true"
             v-model="violateEditParams.studentNumber"
             placeholder="请输入学号"
         /></el-form-item>
@@ -289,10 +289,10 @@ onMounted(() => {
         <el-form-item style="display: block">
           <el-button
             @click="
-              violateEditParams.uuid ? updateViolates() : createViolates()
+              violateEditParams.id ? updateViolates() : createViolates()
             "
             type="success"
-            >{{ violateEditParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ violateEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"

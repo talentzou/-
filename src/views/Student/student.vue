@@ -23,7 +23,7 @@ let studentVisible = ref(false)
 let expDialog = ref(false)
 let refTable = ref(null)
 let studentEditParams = ref({
-  uuid: "",
+  id: "",
   studentName: "",
   studentNumber: "",
   sex: "",
@@ -240,7 +240,7 @@ onMounted(() => {
       ref="Form"
       v-model="studentVisible"
       v-model:params="studentEditParams"
-      :title="studentEditParams.uuid ? `修改学生信息` : `添加学生信息`"
+      :title="studentEditParams.id ? `修改学生信息` : `添加学生信息`"
       @close="Form.resetFields()">
       <el-form
         :model="studentEditParams"
@@ -257,7 +257,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="studentEditParams.uuid === `` ? false : true"
+            :disabled="studentEditParams.id === `` ? false : true"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>
@@ -298,9 +298,9 @@ onMounted(() => {
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="studentEditParams.uuid ? updateStudents() : createStudents()"
+            @click="studentEditParams.id ? updateStudents() : createStudents()"
             type="success"
-            >{{ studentEditParams.uuid ? "更新" : "添加" }}</el-button
+            >{{ studentEditParams.id ? "更新" : "添加" }}</el-button
           >
           <el-button
             @click="resetForm(Form)"
