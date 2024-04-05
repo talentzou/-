@@ -1,9 +1,10 @@
 import { Rules } from "../utils/rules"
+
 export function dormNumber(rule, value, callback) {
-  let reg = /^[A-Z]\d-\d{1,2}$/
+  let reg = /^\d{3}$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A1-xx,x是数字"))
+    callback(new Error("请输入正确格式,如:101"))
   } else {
     callback()
   }
@@ -12,18 +13,12 @@ export function floorsName(rule, value, callback) {
   let reg = /^[A-Z]\d$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如Ax,x是数字"))
+    callback(new Error("请输入正确格式,如A1"))
   } else {
     callback()
   }
 }
 function studentName(rule, value, callback) {
-  if (value.length < 2) {
-    callback(new Error("名字长度至少两位"))
-  }
-  callback()
-}
-function bedNumber(rule, value, callback) {
   if (value.length < 2) {
     callback(new Error("名字长度至少两位"))
   }
@@ -197,32 +192,7 @@ const FormRules = {
       trigger: "blur"
     }
   ],
-  instructor: [
-    {
-      required: true,
-      message: "辅导员不能为空",
-      trigger: "blur"
-    }
-  ],
-  bedStatus: [
-    {
-      required: true,
-      message: "床位状态不能为空",
-      trigger: "blur"
-    }
-  ],
-  bedNumber: [
-    {
-      required: true,
-      message: "床位编号不能为空",
-      trigger: "blur"
-    },
-    {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ]
+  
 }
 export const searchRule={
   floorsName: [

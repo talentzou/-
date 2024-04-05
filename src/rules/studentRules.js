@@ -1,23 +1,15 @@
 import { Rules } from "../utils/rules"
 
-function dormNumber(rule, value, callback) {
-  let reg = /[A-Z]\d-\d{1,2}/
+export function dormNumberF(rule, value, callback) {
+  let reg = /^[A-Z]\d-\d{3}$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A1-xx,x是数字"))
+    callback(new Error("请输入正确格式,如A1-101"))
   } else {
     callback()
   }
 }
-function floorsName(rule, value, callback) {
-  let reg = /[A-Z]\d/
-  const isVal = reg.test(value)
-  if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如Ax,x是数字"))
-  } else {
-    callback()
-  }
-}
+
 function studentName(rule, value, callback) {
   if (value.length < 2) {
     callback(new Error("名字长度至少两位"))
@@ -45,13 +37,6 @@ function studentNumber(rule, value, callback) {
 }
 
 const studentRules = {
-  floorsName: [
-    { required: true, message: "宿舍楼不能为空", trigger: "blur" },
-    {
-      validator: floorsName,
-      trigger: "blur"
-    }
-  ],
   dormNumber: [
     {
       required: true,
@@ -59,7 +44,7 @@ const studentRules = {
       trigger: "blur"
     },
     {
-      validator: dormNumber,
+      validator: dormNumberF,
       trigger: "blur"
     }
   ],
@@ -130,7 +115,7 @@ const studentRules = {
 export const searchRule = {
   dormNumber: [
     {
-      validator: dormNumber,
+      validator: dormNumberF,
       trigger: "blur"
     }
   ]

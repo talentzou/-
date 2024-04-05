@@ -17,7 +17,7 @@ export const updateBedResponse = (data) => {
 
 export const createBedResponse = (data) => {
   return request({
-    url: "/Dormitory/Bed/createBed",
+    url: "/jwt/Dormitory/Bed/createBed",
     method: "post",
     data
   })

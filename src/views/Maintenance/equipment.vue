@@ -10,8 +10,9 @@ import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { floorsName, dormNumber } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("repair")
+import { authFields } from "@/utils/authFields"
+import { FormatTime } from "@/utils/time"
+const { operate_auth, table_auth } = authFields("repair")
 const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
@@ -25,7 +26,6 @@ const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
 let maintenanceEditParams = ref({
-  id: "",
   floorsName: "",
   dormNumber: "",
   problems: "",
@@ -219,13 +219,15 @@ onMounted(() => {
       <el-table-column
         prop="floorsName"
         label="宿舍楼"
-        width="70"
+        width="80"
         align="center" />
       <el-table-column
         prop="dormNumber"
         label="宿舍"
-        width="70"
-        align="center" />
+        width="80"
+        align="center">
+        <template #default="{ row, column, $index }"> {{ row.floorsName + "-" + row.dormNumber }}</template>
+      </el-table-column>
       <el-table-column
         prop="problems"
         label="问题描述"
@@ -237,7 +239,11 @@ onMounted(() => {
         prop="submitDate"
         label="报修时间"
         width="120"
-        align="center" />
+        align="center"
+        ><template #default="{ row, column, $index }">
+          {{ FormatTime(row.submitDate) }}
+        </template></el-table-column
+      >
       <el-table-column
         prop="repairStatus"
         label="维修状态"
@@ -253,7 +259,7 @@ onMounted(() => {
       <el-table-column
         prop="reportMan"
         label="报修人"
-        width="80"
+        width="120"
         align="center" />
       <el-table-column
         prop="phone"
@@ -304,8 +310,7 @@ onMounted(() => {
             v-model="maintenanceEditParams.submitDate"
             type="date"
             format="YYYY-MM-DD"
-            placeholder="Start date"
-             />
+            placeholder="Start date" />
         </el-form-item>
         <el-form-item
           label="宿舍楼"

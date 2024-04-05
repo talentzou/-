@@ -10,8 +10,9 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 import { floorsName, dormNumber } from "@/rules/dormRules"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("stay")
+import { authFields } from "@/utils/authFields"
+import { FormatTime } from "@/utils/time"
+const { operate_auth, table_auth } = authFields("stay")
 //表格实例
 const refTable = ref(null)
 const searchRef = ref(null)
@@ -26,14 +27,12 @@ let staySearchParams = reactive({
 })
 //编辑参数
 let stayEditParams = ref({
-  id: "",
   stayTime: "",
   studentName: "",
   floorsName: "",
   dormNumber: "",
   stayCause: "",
-  opinions: "",
-  instructor: ""
+  opinions: ""
 })
 let isOperate = ref(true)
 const searchRules = {
@@ -91,6 +90,7 @@ let Pages = reactive({
   PageSize: 10,
   Page: 1
 })
+// 查寻
 async function getStays(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
@@ -98,8 +98,14 @@ async function getStays(PageAndSize) {
   console.log("发起请求")
   const { code, data } = await getStayResponse(staySearchParams, Pages)
   if (code == 200) {
-    stayTableData.value = data.list
+    stayTableData.value = data.list.map((item) => {
+      console.log("开始时间", item.stayTime.startTime)
+      console.log("结束时间", item.stayTime.endTime)
+      item.stayTime = [item.stayTime.startTime, item.stayTime.endTime]
+      return item
+    })
     total.value = data.total
+    console.log("jjjkkkkaaa", stayTableData.value)
   }
 }
 // 更新
@@ -115,8 +121,16 @@ async function updateStays() {
 // 删除
 async function deleteStays(list) {
   if (list === undefined) {
+    console.log("8888888")
     list = refTable.value.getSelectionRows().map((item) => toRaw(item))
-    // list=toRaw(refTable.value.getSelectionRows())
+    console.log("8888888", list)
+    list = list.map((item) => {
+      item.stayTime = {
+        startTime: item.stayTime[0],
+        endTime: item.stayTime[1]
+      }
+      return item
+    })
   }
   console.log("LIST", list)
   const { code, msg } = await deleteStayResponse(list)
@@ -130,7 +144,7 @@ async function createStays() {
     const list = toRaw(stayEditParams.value)
     list.stayTime = {
       startTime: list.stayTime[0],
-      endTime: list.stayTime[0]
+      endTime: list.stayTime[1]
     }
     console.log("list", list)
     const { code, msg } = await createStayResponse([list])
@@ -210,7 +224,7 @@ onMounted(() => {
       :isOperate="isOperate"
       v-model="stayVisible"
       :authBtn="operate_auth"
-      @delete="deleteStays"
+      @delete="deleteStays()"
       @excel="expDialog = true" />
     <!-- 表格数据 -->
     <el-table
@@ -236,7 +250,7 @@ onMounted(() => {
         align="center">
         <template #default="{ row, column, $index }">
           <el-text truncated>
-            {{ row.stayTime.startTime }}~{{ row.stayTime.endTime }}
+            {{ FormatTime(row.stayTime[0]) }}~{{ FormatTime(row.stayTime[1]) }}
           </el-text>
         </template>
       </el-table-column>
@@ -248,7 +262,7 @@ onMounted(() => {
       <el-table-column
         prop="stayCause"
         label="留宿原因"
-        width="120"
+        width="220"
         align="center">
         <template #default="{ row, column, $index }">
           <el-tooltip
@@ -273,11 +287,6 @@ onMounted(() => {
       <el-table-column
         prop="dormNumber"
         label="宿舍"
-        align="center"
-        width="120" />
-      <el-table-column
-        prop="instructor"
-        label="辅导员"
         align="center"
         width="120" />
       <el-table-column
@@ -356,15 +365,10 @@ onMounted(() => {
             type="textarea" />
         </el-form-item>
         <el-form-item
-          label="辅导员"
-          prop="instructor">
-          <el-input
-            v-model="stayEditParams.instructor"
-            placeholder="请输入辅导员" />
-        </el-form-item>
-        <el-form-item
           label="意见"
-          prop="opinions">
+          prop="opinions"
+          v-auth="`stay_add_opinions`"
+          v-if="stayEditParams.id">
           <el-select
             v-model="stayEditParams.opinions"
             placeholder="请选择意见">

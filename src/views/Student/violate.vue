@@ -9,8 +9,9 @@ import {
   deleteViolateResponse
 } from "@/api/STUDENT/violate"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("violate")
+import { authFields } from "@/utils/authFields"
+import { FormatTime } from "@/utils/time"
+const { operate_auth, table_auth } = authFields("violate")
 let searchViolateParams = reactive({
   studentNumber: "",
   dormNumber: ""
@@ -21,7 +22,6 @@ let expDialog = ref(false)
 let isOperate = ref(true)
 const Form = ref(null)
 let violateEditParams = ref({
-  id: "",
   studentNumber: "",
   studentName: "",
   dormNumber: "",
@@ -211,7 +211,11 @@ onMounted(() => {
         prop="recordDate"
         label="登记日期"
         width="120"
-        align="center" />
+        align="center">
+        <template #default="{ row, column, $index }">
+          <el-tag type="success"> {{ FormatTime(row.recordDate) }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="操作"
         label="操作"
@@ -239,6 +243,7 @@ onMounted(() => {
       <el-form
         :model="violateEditParams"
         :rules="formRules"
+        label-width="auto"
         ref="Form">
         <el-form-item
           label="宿舍"
@@ -251,7 +256,6 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="violateEditParams.id === `` ? false : true"
             v-model="violateEditParams.studentNumber"
             placeholder="请输入学号"
         /></el-form-item>
@@ -288,9 +292,7 @@ onMounted(() => {
         </el-form-item>
         <el-form-item style="display: block">
           <el-button
-            @click="
-              violateEditParams.id ? updateViolates() : createViolates()
-            "
+            @click="violateEditParams.id ? updateViolates() : createViolates()"
             type="success"
             >{{ violateEditParams.id ? "更新" : "添加" }}</el-button
           >

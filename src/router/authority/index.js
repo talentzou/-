@@ -55,7 +55,7 @@ export const asyncRoutes = [
         }
       },
       {
-        path: "dorm-bed/:name/:type",
+        path: "dorm-bed/:floor/:name/:capacity",//
         // path: "dorm-bed",
         name: "bed",
         hidden: true,

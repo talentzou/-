@@ -23,7 +23,6 @@ let studentVisible = ref(false)
 let expDialog = ref(false)
 let refTable = ref(null)
 let studentEditParams = ref({
-  id: "",
   studentName: "",
   studentNumber: "",
   sex: "",
@@ -245,6 +244,7 @@ onMounted(() => {
       <el-form
         :model="studentEditParams"
         :rules="formRules"
+        label-width="auto"
         ref="Form">
         <el-form-item
           label="宿舍"
@@ -257,7 +257,7 @@ onMounted(() => {
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="studentEditParams.id === `` ? false : true"
+            :disabled="Boolean(studentEditParams.id)"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>

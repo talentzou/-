@@ -10,9 +10,9 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { floorsName, dormNumber } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("dorm")
-console.log("operate_auth",operate_auth,"table_auth",table_auth);
+import { authFields } from "@/utils/authFields"
+const { operate_auth, table_auth } = authFields("dorm")
+// console.log("operate_auth",operate_auth,"table_auth",table_auth);
 const refTable = ref(null)
 const expDialog = ref(false)
 
@@ -23,7 +23,6 @@ let dormSearchParams = reactive({
   dormStatus: ""
 })
 let addDormParams = ref({
-  id:"",
   floorsName: "",
   dormNumber: "",
   img: "",
@@ -285,17 +284,17 @@ onMounted(() => {
         width="180"
         align="center" />
       <el-table-column
-        label="宿舍编号"
+        label="宿舍号"
         width="180"
         align="center">
         <template #default="{ row, column, $index }">
           <router-link
             :to="{
               name: 'bed',
-              params: { name: row.dormNumber, type: row.dormCapacity }
+              params: { floor: row.floorsName, name: row.dormNumber,capacity:row.dormCapacity }
             }"
             style="color: #409eff"
-            >{{ row.dormNumber }}</router-link
+            >{{ row.floorsName + "-" + row.dormNumber }}</router-link
           >
         </template>
       </el-table-column>
@@ -406,7 +405,7 @@ onMounted(() => {
           label="类型"
           prop="dormCapacity">
           <el-select
-            :disabled="addDormParams.id === `` ? false : true"
+            :disabled="addDormParams.id ? true : false"
             style="width: 196px"
             v-model="addDormParams.dormCapacity"
             placeholder="请选择宿舍类型">

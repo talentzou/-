@@ -19,6 +19,7 @@ export function Rules(rules, params) {
  * @returns
  */
 export async function submitForm(formEl) {
+
   if (!formEl) return
   const isTrue = await formEl.validate((valid, fields) => {
     if (valid) {

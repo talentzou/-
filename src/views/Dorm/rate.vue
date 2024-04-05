@@ -10,9 +10,10 @@ import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 import { floorsName, dormNumber } from "@/rules/dormRules"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("rate")
-console.log("operate_auth",operate_auth,"table_auth",table_auth);
+import { authFields } from "@/utils/authFields"
+import { FormatTime } from "@/utils/time"
+const { operate_auth, table_auth } = authFields("rate")
+
 const searchRef = ref(null)
 const Form = ref(null)
 const refTable = ref(null)
@@ -27,7 +28,6 @@ let rateSearchParams = reactive({
 })
 let isOperate = ref(true)
 let rateEditParams = ref({
-  id:"",
   rateDate: "",
   floorsName: "",
   dormNumber: "",
@@ -57,18 +57,7 @@ const searchRules = {
 const formRules = useRules(rateEditParams.value)
 let rateVisible = ref(false)
 function selectDatePicker() {}
-function stateTag(state) {
-  if (state >= 90) {
-    return "success"
-  } else if (state >= 80) {
-    return "primary"
-  } else if (state >= 70) {
-    return "info"
-  } else if (state >= 60) {
-    return "warning"
-  }
-  return "danger"
-}
+
 const totalScore = computed(() => {
   return (
     Number.parseInt(rateEditParams.value.bedRate) +
@@ -91,7 +80,6 @@ watchEffect(() => {
     rateEditParams.value.evaluation = "不合格"
   }
 })
-// let selectRateTableData = ref([])
 //导出表格
 const fields = {
   floorsName: "宿舍楼",
@@ -278,9 +266,13 @@ onMounted(() => {
 
       <el-table-column
         prop="dormNumber"
-        label="宿舍"
+        label="宿舍号"
         width="90"
-        align="center" />
+        align="center">
+        <template #default="{ row, column, $index }">
+          {{ row.floorsName + "-" + row.dormNumber }}
+        </template>
+      </el-table-column>
       <el-table-column
         prop="bedRate"
         label="床铺评分"
@@ -311,7 +303,11 @@ onMounted(() => {
         label="评比时间"
         width="160"
         align="center"
-        sortable />
+        sortable>
+        <template #default="{ row, column, $index }">
+          {{ FormatTime(row.rateDate) }}
+        </template>
+      </el-table-column>
       <el-table-column
         prop="rater"
         label="评分人"
@@ -362,7 +358,7 @@ onMounted(() => {
           label="宿舍楼"
           prop="floorsName">
           <el-input
-            :disabled="rateEditParams.id === `` ? false : true"
+            :disabled="Boolean(rateEditParams.id)"
             v-model="rateEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -370,7 +366,7 @@ onMounted(() => {
           label="宿舍"
           prop="dormNumber">
           <el-input
-            :disabled="rateEditParams.id === `` ? false : true"
+            :disabled="Boolean(rateEditParams.id)"
             v-model="rateEditParams.dormNumber"
             placeholder="请输入宿舍名称" />
         </el-form-item>
@@ -449,8 +445,7 @@ onMounted(() => {
             v-model="rateEditParams.rateDate"
             type="date"
             format="YYYY-MM-DD"
-            placeholder="Start date"
-          />
+            placeholder="Start date" />
         </el-form-item>
         <el-form-item
           label="备注"

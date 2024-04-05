@@ -16,6 +16,7 @@ export const updateExpenseResponse= (data) => {
 }
 
 export const createExpenseResponse= (data) => {
+  console.log("餐数为",data);
   return request({
     method: "post",
     url:"/jwt/expense/Exp/createExpense",

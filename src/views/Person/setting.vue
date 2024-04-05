@@ -49,7 +49,7 @@ async function updateUserInfo(url) {
       dorm: userInfo.value.dorm
     }
   }
-  
+
   const { code, msg } = await SetUserInfo(params)
   const status = Notification(code, msg)
   status ? $userStore.getUserInfo() : ""
@@ -59,123 +59,91 @@ async function updateUserInfo(url) {
 <template>
   <div
     class="info"
-    style="padding: 20px">
-    <div class="uploadContainer">
-      <el-upload
-        class="avatar-uploader"
-        action="http://localhost:8080/base/upload/imageUpload"
-        name="image"
-        :show-file-list="false"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
-        <div class="hover">
-          <img
-            v-if="userInfo.avatar"
-            :src="userInfo.avatar"
-            class="avatar" />
-          <div
-            class="avatar-uploader-icon"
-            v-else>
-            <svg-icon
-              name="plus"
-              color="#b6b8be"></svg-icon>
+    style="padding: 20px; background-color: #eff0f4">
+    <el-card style="display: flex;justify-content: center;">
+      <div class="uploadContainer">
+        <el-upload
+          class="avatar-uploader"
+          action="http://localhost:8080/base/upload/imageUpload"
+          name="image"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload">
+          <div class="hover">
+            <img
+              v-if="userInfo.avatar"
+              :src="userInfo.avatar"
+              class="avatar" />
+            <div
+              class="avatar-uploader-icon"
+              v-else>
+              <svg-icon
+                name="plus"
+                color="#b6b8be"></svg-icon>
+            </div>
+            <span
+              class="editImg back"
+              v-if="userInfo.avatar">
+              <svg-icon
+                name="username"
+                color="#fff"></svg-icon
+              >点击更换头像</span
+            >
           </div>
-          <span
-            class="editImg back"
-            v-if="userInfo.avatar">
-            <svg-icon
-              name="username"
-              color="#fff"></svg-icon
-            >点击更换头像</span
+        </el-upload>
+      </div>
+    </el-card>
+
+    <el-card style="margin-top: 20px">
+      <el-descriptions
+        title="个人信息"
+        :column="1"
+        size="large">
+        <template #extra>
+          <el-button
+            type="primary"
+            @click="centerDialogVisible = true"
+            >编辑</el-button
           >
-        </div>
-      </el-upload>
-      <p style="color: #8c939d; margin: 20px 0">
-        请上传大小不超过<span style="color: red">5MB</span>格式为
-        <span style="color: red">{{ "jpg/png/webp" }}</span
-        >的文件
-      </p>
-    </div>
-    <el-descriptions
-      style="max-width: 500px"
-      title="个人信息"
-      :column="2"
-      size="large"
-      border>
-      <template #extra>
-        <el-button
-          type="primary"
-          @click="centerDialogVisible = true"
-          >编辑</el-button
+        </template>
+        <el-descriptions-item
+          label="用户名"
+          label-class-name="my-label">
+          {{ userInfo.userName }}</el-descriptions-item
         >
-      </template>
-      <el-descriptions-item>
-        <template #label>
-          <svg-icon
-            name="username"
-            color="black"></svg-icon
-          >用户名 </template
-        >{{ userInfo.userName }}</el-descriptions-item
-      >
-      <el-descriptions-item>
-        <template #label>
-          <svg-icon
-            name="nickname"
-            color="black"></svg-icon
-          >姓名 </template
-        >{{ userInfo.nickname }}</el-descriptions-item
-      >
-      <el-descriptions-item>
-        <template #label>
-          <svg-icon
-            name="user_sex"
-            color="black"></svg-icon
-          >性别</template
-        >{{ userInfo.sex }}</el-descriptions-item
-      >
-      <el-descriptions-item>
-        <template #label>
-          <svg-icon
-            name="user_dorm"
-            color="black"></svg-icon
-          >宿舍</template
-        >{{ userInfo.dorm }}</el-descriptions-item
-      >
-      <el-descriptions-item  :span="2"> 
-        <template #label>
-          <svg-icon
-            name="user_phone"
-            color="black"></svg-icon
-          >手机号码</template
-        >{{ userInfo.telephone }}</el-descriptions-item
-      >
-      <!-- <el-descriptions-item>
-        <template #label>
-          <svg-icon
-            name="user_email"
-            color="black"></svg-icon
-          >邮箱 </template
-        >{{ userInfo.email }}</el-descriptions-item
-      > -->
-      <el-descriptions-item :span="2">
-        <template #label>
-          <svg-icon
-            name="user_createat"
-            color="black"></svg-icon
-          >创建时间 </template
-        >{{ userInfo.CreatedAt }}</el-descriptions-item
-      >
-      <el-descriptions-item
-        label="Remarks"
-        :span="2">
-        <template #label>
-          <svg-icon
-            name="user_remark"
-            color="black"></svg-icon
-          >备注 </template
-        >{{ userInfo.remark }}
-      </el-descriptions-item>
-    </el-descriptions>
+        <el-descriptions-item
+          label-class-name="my-label"
+          label="姓名">
+          {{ userInfo.nickname }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label="性别"
+          label-class-name="my-label">
+          {{ userInfo.sex }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label="宿舍"
+          label-class-name="my-label">
+          {{ userInfo.dorm }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label="手机号码"
+          label-class-name="my-label">
+          {{ userInfo.telephone }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label-class-name="my-label"
+          label="创建时间">
+          {{ userInfo.CreatedAt }}</el-descriptions-item
+        >
+        <el-descriptions-item
+          label-class-name="my-label"
+          label="个人描述">
+          {{ userInfo.remark }}
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+
     <el-dialog
       v-model="centerDialogVisible"
       title="编辑信息"
@@ -234,14 +202,6 @@ async function updateUserInfo(url) {
             placeholder="Please input" />
         </el-form-item>
         <el-form-item
-          prop="email"
-          label="邮箱">
-          <el-input
-            v-model="userInfo.email"
-            style="width: 200px"
-            placeholder="Please input" />
-        </el-form-item>
-        <el-form-item
           prop="CreatedAt"
           label="创建时间">
           <el-input
@@ -252,9 +212,8 @@ async function updateUserInfo(url) {
         </el-form-item>
         <el-form-item
           prop="remark"
-          label="备注">
+          label="个人描述">
           <el-input
-            disabled
             v-model="userInfo.remark"
             style="width: 200px"
             placeholder="Please input" />
@@ -273,15 +232,25 @@ async function updateUserInfo(url) {
     </el-dialog>
   </div>
 </template>
-<style>
+<style scoped>
 .uploadContainer {
   width: 500px;
-
   display: flex;
   justify-content: center;
   flex-direction: column;
   align-items: center;
 }
+:deep(.el-descriptions__cell) {
+  display: flex;
+  margin: 5px 0;
+}
+:deep(.el-descriptions__cell) span {
+  font-size: 22px;
+}
+:deep(.el-descriptions__content) {
+  color: #b1e4d1;
+}
+
 .hover {
   position: relative;
   height: 100%;
@@ -316,8 +285,8 @@ async function updateUserInfo(url) {
   transition: var(--el-transition-duration-fast);
 }
 .avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
+  width: 150px;
+  height: 150px;
   display: block;
   border-radius: 50%;
 }
@@ -333,5 +302,9 @@ async function updateUserInfo(url) {
   height: 178px;
   text-align: center;
   line-height: 178px;
+}
+:deep(.my-label) {
+  width: 35%;
+  display: block;
 }
 </style>

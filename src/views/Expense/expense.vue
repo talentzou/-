@@ -9,24 +9,22 @@ import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules, searchRule } from "@/rules/expenseRules"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
+import { authFields } from "@/utils/authFields"
+import { FormatTime } from "@/utils/time"
+import { watchEffect } from "vue"
 const refTable = ref(null)
 const searchRef = ref(null)
 const Form = ref(null)
 let expenseSearchParams = reactive({
   floorsName: "",
   dormNumber: "",
-  settlementDate: "",
   accounter: ""
 })
 let expenseEditParams = ref({
-  id: "",
   floorsName: "",
   dormNumber: "",
   paymentTime: "",
-  waterConsumption: "",
   waterCharge: "",
-  electricityConsumption: "",
   electricityCharge: "",
   totalCost: "",
   accountant: "",
@@ -34,8 +32,8 @@ let expenseEditParams = ref({
   remark: ""
 })
 // 按钮字段
-const {operate_auth, table_auth}=authFields("expense")
-console.log("operate_auth",operate_auth,"table_auth",table_auth);
+const { operate_auth, table_auth } = authFields("expense")
+
 const searchRules = searchRule
 const formRules = useRules(expenseEditParams.value)
 let isOperate = ref(true)
@@ -48,9 +46,7 @@ const fields = {
   floorsName: "宿舍楼",
   dormNumber: "宿舍",
   paymentTime: "订单时间",
-  // waterConsumption: "用水量",
   waterCharge: "水费",
-  // electricityConsumption: "用电量",
   electricityCharge: "电费",
   totalCost: "总费用",
   accountant: "计算人",
@@ -63,25 +59,17 @@ function exportTable({ filename, allSelect }) {
     : refTable.value.getSelectionRows()
   useExportExcel(data, fields, filename)
 }
-function selectDatePicker(params) {}
 
-const waterCharge = computed(() => {
-  return Number.parseFloat(expenseEditParams.value.waterConsumption) * 1.5 || 0
+const totalCost = computed(() => {
+  const electricityCharge =
+    Number.parseFloat(expenseEditParams.value.electricityCharge) || 0
+  const waterCharge =
+    Number.parseFloat(expenseEditParams.value.waterCharge) || 0
+  return electricityCharge + waterCharge
 })
-// const electricityCharge = computed(() => {
-//   return (
-//     Number.parseFloat(expenseEditParams.value.electricityConsumption, "kkkk") *
-//       0.6 || 0
-//   )
-// })
-// const totalCost = computed(() => {
-//   console.log(expenseEditParams.value)
-//   return waterCharge.value + electricityCharge.value || 0
-// })
+
 watchEffect(() => {
-  expenseEditParams.value.waterCharge = waterCharge.value
-  // expenseEditParams.value.electricityCharge = electricityCharge.value
-  // expenseEditParams.value.totalCost = totalCost.value
+  expenseEditParams.value.totalCost = totalCost.value
 })
 /* 接口 */
 let expenseTableData = ref([])
@@ -126,10 +114,8 @@ async function deleteExpenses(list) {
 async function createExpenses() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    // expenseEditParams.value.waterConsumption = waterCharge.value
-    // expenseEditParams.value.electricityCharge = electricityCharge.value
     const list = toRaw(expenseEditParams.value)
-    console.log(list)
+    console.log("添加参数数据", list)
     const { code, msg } = await createExpenseResponse([list])
     expenseVisible.value = false
     const status = Notification(code, msg)
@@ -142,7 +128,7 @@ async function SearchExpenses() {
   let params = Object.fromEntries(
     Object.entries(query).filter(([key]) => query[key])
   )
-  // console.log("对象",params,Object.keys(params).length);
+
   if (!Object.keys(params).length) {
     console.log("控制")
     ElMessage({
@@ -227,13 +213,21 @@ onMounted(() => {
         prop="dormNumber"
         label="宿舍"
         width="90"
-        align="center" />
+        align="center">
+        <template #default="{ row, column, $index }">
+          {{ row.floorsName + "-" + row.dormNumber }}</template
+        >
+      </el-table-column>
       <el-table-column
         prop="paymentTime"
         label="缴费时间"
         width="200"
-        align="center" />
-  
+        align="center">
+        <template #default="{ row, column, $index }">
+          {{ FormatTime(row.paymentTime) }}</template
+        >
+      </el-table-column>
+
       <el-table-column
         prop="waterCharge"
         label="水费"
@@ -297,7 +291,6 @@ onMounted(() => {
           prop="paymentTime"
           style="width: 270px">
           <el-date-picker
-            @change="selectDatePicker"
             v-model="expenseEditParams.paymentTime"
             type="date"
             format="YYYY-MM-DD"
@@ -307,7 +300,7 @@ onMounted(() => {
           prop="floorsName"
           label="宿舍楼">
           <el-input
-            :disabled="expenseEditParams.id == `` ? false : true"
+            :disabled="Boolean(expenseEditParams.id)"
             v-model="expenseEditParams.floorsName"
             placeholder="请输入宿舍楼名称" />
         </el-form-item>
@@ -315,7 +308,7 @@ onMounted(() => {
           label="宿舍编号"
           prop="dormNumber">
           <el-input
-            :disabled="expenseEditParams.id == `` ? false : true"
+            :disabled="Boolean(expenseEditParams.id)"
             placeholder="请输入宿舍名称"
             v-model="expenseEditParams.dormNumber" />
         </el-form-item>
@@ -323,14 +316,24 @@ onMounted(() => {
           label="水费"
           prop="waterCharge">
           <el-input
-            v-model.number="waterCharge"
+            @blur="
+              expenseEditParams.waterCharge = Number.parseFloat(
+                expenseEditParams.waterCharge
+              )
+            "
+            v-model="expenseEditParams.waterCharge"
             placeholder="请输入水费" />
         </el-form-item>
         <el-form-item
           label="电费"
           prop="electricityCharge">
           <el-input
-            v-model.number="electricityCharge"
+            @blur="
+              expenseEditParams.electricityCharge = Number.parseFloat(
+                expenseEditParams.electricityCharge
+              )
+            "
+            v-model="expenseEditParams.electricityCharge"
             placeholder="请输入电费" />
         </el-form-item>
         <el-form-item label="总费用">
@@ -363,9 +366,7 @@ onMounted(() => {
         </el-form-item>
         <el-form-item>
           <el-button
-            @click="
-              expenseEditParams.id ? updateExpenses() : createExpenses()
-            "
+            @click="expenseEditParams.id ? updateExpenses() : createExpenses()"
             type="success"
             >{{ expenseEditParams.id ? "更新" : "创建" }}</el-button
           >

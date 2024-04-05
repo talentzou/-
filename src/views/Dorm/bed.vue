@@ -6,18 +6,21 @@ import {
   createBedResponse
 } from "@/api/DORM/bed"
 import { useExportExcel } from "@/utils/exportExcel"
-import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
-import { dormNumber } from "@/rules/dormRules"
+import { useRules } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("bed")
+import { authFields } from "@/utils/authFields"
+import { dormNumberF } from "@/rules/studentRules"
+const { operate_auth, table_auth } = authFields("bed")
 let $route = useRoute()
+let capacity = $route.params.capacity
+console.log("99999999999999999999999999", $route, "111", $route.params.name)
 const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
 const expDialog = ref(false)
 let bedSearchParams = reactive({
+  floorsName: "",
   dormNumber: ""
 })
 let editBedParams = ref({
@@ -27,18 +30,60 @@ let editBedParams = ref({
   remark: "",
   studentName: ""
 })
-const searchRules = {
+const searchRules = useRules(bedSearchParams)
+
+const formRules = {
   dormNumber: [
     {
-      validator: dormNumber,
+      required: true,
+      message: "宿舍不能为空",
+      trigger: "blur"
+    },
+    {
+      validator: dormNumberF,
+      trigger: "blur"
+    }
+  ],
+  bedStatus: [
+    {
+      required: true,
+      message: "床位状态不能为空",
+      trigger: "blur"
+    }
+  ],
+  bedNumber: [
+    {
+      required: true,
+      message: "床位编号不能为空",
+      trigger: "blur"
+    },
+    {
+      type: "number",
+      message: "请输入数字",
+      trigger: ["blur", "change"]
+    },
+    {
+      validator: (rule, value, callback) => {
+        if (value > capacity) {
+          callback(new Error("床位标号大于宿舍容量"))
+        } else {
+          callback()
+        }
+      },
+      trigger: "blur"
+    }
+  ],
+  studentName: [
+    {
+      required: true,
+      message: "名字不能为空",
       trigger: "blur"
     }
   ]
 }
-const formRules = useRules(editBedParams.value)
 let isOperate = ref(true)
 let bedVisible = ref(false)
-bedSearchParams.dormNumber = $route.params.name
+
 //导出数据
 const fields = {
   dormNumber: "宿舍",
@@ -58,7 +103,10 @@ function exportTable({ filename, allSelect }) {
 let bedTableData = ref([])
 // const total = ref(0)
 async function getBeds() {
-  const { code, data } = await getBedResponse(bedSearchParams)
+  let search = {
+    dormNumber: bedSearchParams.floorsName + "-" + bedSearchParams.dormNumber
+  }
+  const { code, data } = await getBedResponse(search)
   if (code == 200) {
     bedTableData.value = data.list
     // total.value = data.total
@@ -66,6 +114,7 @@ async function getBeds() {
 }
 // 更新
 async function updateBeds() {
+  console.log("更新更新", Form.value)
   const valid = await submitForm(Form.value)
   if (valid) {
     const { code, msg } = await updateBedResponse(editBedParams.value)
@@ -87,8 +136,11 @@ async function deleteBeds(list) {
 }
 // 添加
 async function createBeds() {
+  console.log("添加添加", Form.value)
   const valid = await submitForm(Form.value)
+  console.log("989898", valid)
   if (valid) {
+    console.log("添加添加")
     const { code, msg } = await createBedResponse([editBedParams.value])
     bedVisible.value = false
     const status = Notification(code, msg)
@@ -116,6 +168,8 @@ async function SearchFloor() {
   }
 }
 onMounted(() => {
+  bedSearchParams.dormNumber = $route.params.name
+  bedSearchParams.floorsName = $route.params.floor
   getBeds()
 })
 </script>
@@ -127,6 +181,13 @@ onMounted(() => {
       :model="bedSearchParams"
       ref="searchRef"
       inline>
+      <el-form-item
+        style="width: 180px"
+        prop="floorsName">
+        <el-input
+          placeholder="请输入宿舍楼名称"
+          v-model="bedSearchParams.floorsName" />
+      </el-form-item>
       <el-form-item prop="dormNumber">
         <el-input
           v-model="bedSearchParams.dormNumber"

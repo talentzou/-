@@ -1,18 +1,18 @@
 import { Rules } from "../utils/rules"
 function dormNumber(rule, value, callback) {
-  let reg = /[A-Z]\d-\d{1,2}/
+  let reg = /^\d{3}$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A1-xx,x是数字"))
+    callback(new Error("请输入正确格式,如:101"))
   } else {
     callback()
   }
 }
 function floorsName(rule, value, callback) {
-  let reg = /[A-Z]\d/
+  let reg = /^[A-Z]\d$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如Ax,x是数字"))
+    callback(new Error("请输入正确格式,如:A1"))
   } else {
     callback()
   }

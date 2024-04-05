@@ -1,18 +1,18 @@
 import { Rules } from "../utils/rules"
 function dormNumber(rule, value, callback) {
-  let reg = /[A-Z]\d-\d{1,2}/
+  let reg = /^\d{3}$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A1-xx,x是数字"))
+    callback(new Error("请输入正确格式,如:101"))
   } else {
     callback()
   }
 }
 function floorsName(rule, value, callback) {
-  let reg = /[A-Z]\d/
+  let reg = /^[A-Z]\d$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如Ax,x是数字"))
+    callback(new Error("请输入正确格式,如A1"))
   } else {
     callback()
   }
@@ -21,13 +21,22 @@ function floorsName(rule, value, callback) {
 function phone(rule, value, callback) {
   let reg = /^1[3-9]\d{9}$/
   const isTrue = reg.test(value)
-  console.log(isTrue, 111)
   if (!isTrue) {
     callback(new Error("请输入正确格式的手机号码"))
   } else {
     callback()
   }
 }
+function Charge(rule, value, callback) {
+  let reg = /^\d{1,9}\.\d{1,9}|\d{1,9}$/
+  const isTrue = reg.test(value)
+  if (!isTrue) {
+    callback(new Error("请输入数字"))
+  } else {
+    callback()
+  }
+}
+
 const expenseRules = {
   floorsName: [
     { required: true, message: "宿舍楼不能为空", trigger: "blur" },
@@ -54,18 +63,7 @@ const expenseRules = {
       trigger: "blur"
     }
   ],
-  waterConsumption: [
-    {
-      required: true,
-      message: "水用量不能为空",
-      trigger: "blur"
-    },
-    {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ],
+
   waterCharge: [
     {
       required: true,
@@ -73,23 +71,11 @@ const expenseRules = {
       trigger: "blur"
     },
     {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
-    }
-  ],
-  electricityConsumption: [
-    {
-      required: true,
-      message: "电用量不能为空",
+      validator: Charge,
       trigger: "blur"
-    },
-    {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
     }
   ],
+
   electricityCharge: [
     {
       required: true,
@@ -97,9 +83,8 @@ const expenseRules = {
       trigger: "blur"
     },
     {
-      type: "number",
-      message: "请输入数字",
-      trigger: ["blur", "change"]
+      validator: Charge,
+      trigger: "blur"
     }
   ],
 
@@ -122,7 +107,7 @@ const expenseRules = {
     }
   ]
 }
-export const searchRule={
+export const searchRule = {
   floorsName: [
     {
       validator: floorsName,
