@@ -82,7 +82,7 @@ async function getExpenses(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
   }
-  console.log("发起请求")
+  // console.log("发起请求")
   const { code, data } = await getExpenseResponse(expenseSearchParams, Pages)
   if (code == 200) {
     expenseTableData.value = data.list

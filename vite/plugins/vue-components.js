@@ -9,10 +9,10 @@ export default function createComponentPlugin(){
           // 自动注册组件
           IconsResolver({
             prefix: false,
-            enabledCollections: ["ep"]
-            // alias: {
-            //   Ic:"ep"
-            // }
+            enabledCollections: ["ep"],
+            alias: {
+              Ic:""
+            }
           }),
           ElementPlusResolver()
         ]

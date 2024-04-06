@@ -1,4 +1,47 @@
 export const asyncRoutes = [
+  // 系统管理
+  {
+    path: "/Sys",
+    name: "sys",
+    hidden: false,
+    component: () => import("@/layout/layout.vue"),
+    meta: {
+      title: "系统管理",
+      icon: "sys"
+    },
+    children: [
+      {
+        path: "User",
+        name: "user",
+        hidden: false,
+        component: () => import("@/views/Sys/user.vue"),
+        meta: {
+          title: "用户管理",
+          icon: "user"
+        }
+      },
+      {
+        path: "Menu",
+        name: "menu",
+        hidden: false,
+        component: () => import("@/views/Sys/menu.vue"),
+        meta: {
+          title: "菜单管理",
+          icon: "menu"
+        }
+      },
+      {
+        path: "Role",
+        name: "role",
+        hidden: false,
+        component: () => import("@/views/Sys/role.vue"),
+        meta: {
+          title: "角色管理",
+          icon: "authority"
+        }
+      }
+    ]
+  },
   //宿舍管理
   {
     path: "/DM",
@@ -55,7 +98,7 @@ export const asyncRoutes = [
         }
       },
       {
-        path: "dorm-bed/:floor/:name/:capacity",//
+        path: "dorm-bed/:floor/:name/:capacity", //
         // path: "dorm-bed",
         name: "bed",
         hidden: true,
@@ -63,6 +106,17 @@ export const asyncRoutes = [
         meta: {
           title: "床位",
           icon: ""
+        }
+      },
+      // 宿舍费用
+      {
+        path: "expense",
+        name: "expense",
+        hidden: false,
+        component: () => import("@/views/Dorm/expense.vue"),
+        meta: {
+          title: "水电费信息",
+          icon: "expense"
         }
       }
     ]
@@ -148,31 +202,6 @@ export const asyncRoutes = [
       }
     ]
   },
-  //费用管理
-  {
-    path: "/EM",
-    name: "ExpenseManagement",
-    hidden: false,
-    component: () => import("@/layout/layout.vue"),
-    meta: {
-      title: "费用管理",
-      icon: "ExpenseManagement"
-    },
-    children: [
-      //学生信息
-      {
-        path: "expense",
-        name: "expense",
-        hidden: false,
-        component: () => import("@/views/Expense/expense.vue"),
-        meta: {
-          title: "水电费信息",
-          icon: "expense"
-        }
-      }
-    ]
-  },
-
   // 个人信息
   {
     path: "/PersonInfo",

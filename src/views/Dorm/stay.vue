@@ -95,17 +95,17 @@ async function getStays(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
   }
-  console.log("发起请求")
+  // console.log("发起请求")
   const { code, data } = await getStayResponse(staySearchParams, Pages)
   if (code == 200) {
     stayTableData.value = data.list.map((item) => {
-      console.log("开始时间", item.stayTime.startTime)
-      console.log("结束时间", item.stayTime.endTime)
+      // console.log("开始时间", item.stayTime.startTime)
+      // console.log("结束时间", item.stayTime.endTime)
       item.stayTime = [item.stayTime.startTime, item.stayTime.endTime]
       return item
     })
     total.value = data.total
-    console.log("jjjkkkkaaa", stayTableData.value)
+    // console.log("jjjkkkkaaa", stayTableData.value)
   }
 }
 // 更新

@@ -111,7 +111,7 @@ async function getRates(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
   }
-  console.log("发起请求")
+  // console.log("发起请求")
   const { code, data } = await getRateResponse(rateSearchParams, Pages)
   if (code == 200) {
     rateTableData.value = data.list

@@ -19,7 +19,7 @@ async function getNotices() {
   }
 }
 onMounted(() => {
-  // getNotices()
+  getNotices()
 })
 </script>
 <template>

@@ -29,7 +29,7 @@ const rules = reactive({
   authority: [{ required: true, message: "请选择角色", trigger: "blur" }]
 })
 const loginFormData = reactive({
-  username: "2015201153",
+  username: "admin",
   password: "123456",
   authority: ""
 })
@@ -104,7 +104,8 @@ const submitForm = () => {
           <el-form-item prop="authority">
             <el-radio-group v-model="loginFormData.authority">
               <el-radio :label="1">管理人员</el-radio>
-              <el-radio :label="2">学生</el-radio>
+              <el-radio :label="2">宿管</el-radio>
+              <el-radio :label="3">学生</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item>

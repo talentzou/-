@@ -58,7 +58,7 @@ async function getViolates(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
   }
-  console.log("发起请求")
+  // console.log("发起请求")
   const { code, data } = await getViolateResponse(searchViolateParams, Pages)
   if (code == 200) {
     violateTableData.value = data.list
@@ -91,7 +91,7 @@ async function createViolates() {
   const valid = await submitForm(Form.value)
   if (valid) {
     const list = toRaw(violateEditParams.value)
-    console.log("list", list)
+    // console.log("list", list)
     const { code, msg } = await createViolateResponse([list])
     violateVisible.value = false
     const status = Notification(code, msg)
