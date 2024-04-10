@@ -7,19 +7,18 @@ export const GetUserInfo = () => {
   })
 }
 //更新用户信息
-export const SetUserInfo = (data) => {
+export const SetSelfInfo = (data) => {
   return request({
     method: "post",
-    url: "/base/sys_jwt/user/setUserInfo",
+    url: "/base/sys_jwt/user/setSelfInfo",
     data
   })
 }
 // 获取用户列表
-export const getUserList = (data) => {
+export const getUserList = (pages) => {
   return request({
-    url: '/base/sys_jwt/user/getUserList',
-    method: 'post',
-    data: data
+    url: `/base/sys_jwt/user/getUserList/${pages.Page}/${pages.PageSize}`,
+    method: 'get',
   })
 }
 //删除用户
@@ -35,6 +34,14 @@ export const CreateUser = (data) => {
   return request({
     method: "post",
     url: "/base/sys_jwt/user/admin_register",
+    data
+  })
+}
+//更新用户信息
+export const SetUserInfo = (data) => {
+  return request({
+    method: "post",
+    url: "/base/sys_jwt/user/setUserInfo",
     data
   })
 }

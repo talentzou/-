@@ -4,14 +4,14 @@ import {
   deleteFloorsInfoRequest,
   updateFloorsInfoRequest,
   addFloorsInfoRequest
-} from "@/api/DORM/floors"
+} from "@/api/Dorm/floors"
 
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("floor")
+import { authFields } from "@/utils/authFields"
+const { operate_auth, table_auth } = authFields("floor")
 const expDialog = ref(false)
 const refTable = ref(null)
 const isOperate = ref(true)
@@ -91,7 +91,7 @@ async function deleteFloors(list) {
 // 添加
 async function createFloors() {
   const valid = await submitForm(Form.value)
-  console.log("949555",floorsParams.value);
+  console.log("949555", floorsParams.value)
   if (valid) {
     const { code, msg } = await addFloorsInfoRequest([floorsParams.value])
     floorsVisible.value = false

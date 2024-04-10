@@ -6,5 +6,5 @@ const router = createRouter({
   routes: constantRoutes,
 })
 
-
+//createWebHistory()
 export default router

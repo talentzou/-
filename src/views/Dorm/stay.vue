@@ -4,7 +4,7 @@ import {
   updateStayResponse,
   createStayResponse,
   deleteStayResponse
-} from "@/api/DORM/stay"
+} from "@/api/Dorm/stay"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"

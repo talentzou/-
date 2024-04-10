@@ -4,7 +4,7 @@ import {
   deleteDormResponse,
   updateDormResponse,
   createDormResponse
-} from "@/api/DORM/dorm"
+} from "@/api/Dorm/dorm"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
@@ -291,7 +291,11 @@ onMounted(() => {
           <router-link
             :to="{
               name: 'bed',
-              params: { floor: row.floorsName, name: row.dormNumber,capacity:row.dormCapacity }
+              params: {
+                floor: row.floorsName,
+                name: row.dormNumber,
+                capacity: row.dormCapacity
+              }
             }"
             style="color: #409eff"
             >{{ row.floorsName + "-" + row.dormNumber }}</router-link

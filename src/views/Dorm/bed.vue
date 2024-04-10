@@ -4,7 +4,7 @@ import {
   updateBedResponse,
   deleteBedResponse,
   createBedResponse
-} from "@/api/DORM/bed"
+} from "@/api/Dorm/bed"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules } from "@/rules/dormRules"

@@ -7,7 +7,7 @@ import {
   updateViolateResponse,
   createViolateResponse,
   deleteViolateResponse
-} from "@/api/STUDENT/violate"
+} from "@/api/Student/violate"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"

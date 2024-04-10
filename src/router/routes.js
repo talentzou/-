@@ -28,9 +28,16 @@ export const constantRoutes = [
     name: "login",
     hidden: true,
     component: () => import("@/views/login/login.vue")
-  }
+  },
+  // // 404
+  // {
+  //   path: "/:pathMath(.*)",
+  //   name: "404",
+  //   hidden: true,
+  //   component: () => import("@/views/404/notFound.vue")
+  // }
 ]
-//404
+// //404
 export const anyRoute = {
   path: "/:pathMath(.*)",
   name: "404",

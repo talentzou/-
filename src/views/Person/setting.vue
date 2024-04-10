@@ -1,5 +1,5 @@
 <script setup>
-import { SetUserInfo } from "@/api/User/user"
+import { SetSelfInfo } from "@/api/User/user"
 import { userStore } from "@/stores/user"
 import { Notification } from "@/utils/notification"
 const centerDialogVisible = ref(false)
@@ -50,7 +50,7 @@ async function updateUserInfo(url) {
     }
   }
 
-  const { code, msg } = await SetUserInfo(params)
+  const { code, msg } = await SetSelfInfo(params)
   const status = Notification(code, msg)
   status ? $userStore.getUserInfo() : ""
   centerDialogVisible.value = false

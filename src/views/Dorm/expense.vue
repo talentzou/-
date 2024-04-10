@@ -4,7 +4,7 @@ import {
   updateExpenseResponse,
   deleteExpenseResponse,
   createExpenseResponse
-} from "@/api/EXPENSE/expense"
+} from "@/api/Expense/expense"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules, searchRule } from "@/rules/expenseRules"

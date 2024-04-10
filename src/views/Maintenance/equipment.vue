@@ -4,7 +4,7 @@ import {
   updateRepairResponse,
   createRepairResponse,
   deleteRepairResponse
-} from "@/api/REPAIR/repair"
+} from "@/api/Repair/repair"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"

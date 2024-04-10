@@ -1,6 +1,13 @@
 <script setup>
-import { getUserList, deleteUser, SetUserInfo } from "@/api/User/user"
+import {
+  getUserList,
+  deleteUser,
+  SetUserInfo,
+  CreateUser
+} from "@/api/User/user"
 import { resetForm, submitForm } from "@/utils/rules"
+import { Notification } from "@/utils/notification"
+const Form = ref(null)
 const userListSearch = reactive({
   username: ""
 })
@@ -14,33 +21,15 @@ const searchRule = {
   ]
 }
 const drawerVisible = ref(false)
-const tableData = [
-  {
-    date: "2016-05-03",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles"
-  },
-  {
-    date: "2016-05-02",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles"
-  },
-  {
-    date: "2016-05-04",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles"
-  },
-  {
-    date: "2016-05-01",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles"
-  }
-]
-const handleDeleteUser = () => {
+const tableData = ref([])
+const handleDeleteUser = (id) => {
   ElMessageBox.confirm("确定要删除吗", "提示", {
     confirmButtonText: "OK",
     cancelButtonText: "Cancel",
     type: "warning"
+  }).then(() => {
+    console.log("9999999999999999999");
+    deleteSysUser(id)
   })
 }
 const handleResetPassword = () => {
@@ -50,8 +39,24 @@ const handleResetPassword = () => {
     type: "warning"
   })
 }
+const handleEditUser = (row) => {
+  userEditParams.value = row
+  drawerVisible.value = true
+  console.log("row55", userEditParams.value)
+}
+const handlerReset = () => {
+  Form.value.resetFields()
+  userEditParams.value = {
+    userName: "",
+    nickname: "",
+    sex: "",
+    telephone: "",
+    remark: ""
+  }
+}
 const userEditParams = ref({
   userName: "",
+  authorityId: "",
   nickname: "",
   sex: "",
   telephone: "",
@@ -83,18 +88,51 @@ const formRules = {
   telephone: [
     { required: true, message: "电话不能为空", trigger: "blur" },
     { validator: phone, trigger: "blur" }
-  ],
+  ]
 }
 /* 接口 */
-const createUser = async () => {
+// 添加用户
+const createSysUser = async () => {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const { code, msg } = await createExpenseResponse([list])
-    expenseVisible.value = false
+    const { code, msg } = await CreateUser(userEditParams.value)
+    drawerVisible.value = false
     const status = Notification(code, msg)
-    status ? getExpenses() : ""
+    status ? getSysUserList() : ""
   }
 }
+// 删除用户
+const deleteSysUser = async (id) => {
+  console.log("我是id");
+  const { code, msg } = await deleteUser({id})
+  const status = Notification(code, msg)
+  status ? getSysUserList() : ""
+}
+// 获取用户列表
+let Pages = reactive({
+  PageSize: 10,
+  Page: 1
+})
+const getSysUserList = async () => {
+  const { code, data } = await getUserList(Pages)
+  console.log("发起求情")
+  if (code === 200) {
+    tableData.value = data.list
+  }
+}
+// 编辑用户信息
+const editSysUserInfo = async () => {
+  const valid = await submitForm(Form.value)
+  if (valid) {
+    const { code, msg } = await SetUserInfo(userEditParams.value)
+    drawerVisible.value = false
+    const status = Notification(code, msg)
+    status ? getSysUserList() : ""
+  }
+}
+onMounted(() => {
+  getSysUserList()
+})
 </script>
 <template>
   <div>
@@ -128,46 +166,44 @@ const createUser = async () => {
       stripe
       style="width: 100%">
       <el-table-column
-        prop="date"
+        prop="avatar"
         label="头像"
         width="100">
         <template #default="{ row }">
           <img
-            src="https://qmplusimg.henrongyi.top/gva_header.jpg"
+            :src="row.avatar"
             alt=""
             style="width: 30px; height: 30px; border-radius: 5px"
         /></template>
       </el-table-column>
       <el-table-column
-        prop="name"
+        prop="authorityId"
         label="角色ID"
         width="180" />
       <el-table-column
-        prop="address"
-        label="用户角色" />
-      <el-table-column
-        prop="address"
+        prop="userName"
         label="用户名" />
       <el-table-column
-        prop="address"
-        label="创建时间" />
+        prop="CreatedAt"
+        label="创建时间">
+      </el-table-column>
       <el-table-column
         fixed="right"
         label="操作"
         width="200">
-        <template #default>
+        <template #default="{ row }">
           <el-button
             link
             type="danger"
             size="small"
-            @click="handleDeleteUser"
+            @click="handleDeleteUser(row.ID)"
             >删除</el-button
           >
           <el-button
             link
             type="primary"
             size="small"
-            @click="drawerVisible = true"
+            @click="handleEditUser(row)"
             >编辑</el-button
           >
           <el-button
@@ -185,6 +221,7 @@ const createUser = async () => {
       @getCurrentPage="0"
       @getPageSizes="0" />
     <el-drawer
+      @close="handlerReset"
       v-model="drawerVisible"
       :show-close="false">
       <template #header="{ close, titleId, titleClass }">
@@ -199,12 +236,13 @@ const createUser = async () => {
         </el-button>
         <el-button
           type="primary"
-          @click="close">
+          @click="userEditParams.ID?editSysUserInfo():createSysUser()">
           确定
         </el-button>
       </template>
       <el-form
         inline
+        ref="Form"
         :model="userEditParams"
         :rules="formRules"
         label-width="auto">
@@ -214,8 +252,24 @@ const createUser = async () => {
           <el-input
             v-model="userEditParams.userName"
             style="width: 200px"
-            :disabled="Boolean(userEditParams.id)"
+            :disabled="Boolean(userEditParams.ID)"
             placeholder="Please input" />
+        </el-form-item>
+        <el-form-item
+          prop="sex"
+          label="角色id">
+          <el-select
+            v-model="userEditParams.authorityId"
+            style="width: 200px"
+            :disabled="Boolean(userEditParams.ID)"
+            placeholder="please select your role">
+            <el-option
+              label="学生"
+              :value="3" />
+            <el-option
+              label="宿管"
+              :value="2" />
+          </el-select>
         </el-form-item>
         <el-form-item
           prop="nickname"

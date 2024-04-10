@@ -1,8 +1,9 @@
 import { defineStore } from "pinia"
-import { LoginResponse } from "@/api/LOGIN/login"
+import { LoginResponse } from "@/api/Login/login"
 import { routesStore } from "./routes"
 import router from "@/router"
 import { GetUserInfo } from "@/api/User/user"
+import { GetUserSelfBtn } from "@/api/Btn/btns"
 import { Notification } from "@/utils/notification"
 export const userStore = defineStore("user", () => {
   const userMenu = ref([]) //用户菜单数据
@@ -13,8 +14,8 @@ export const userStore = defineStore("user", () => {
     nickname: "",
     avatar: "",
     authority: ""
-  }) 
-  const authBtn=ref([])
+  })
+  const authBtn = ref([])
   /* 登录 */
   const userLogin = async (FormData) => {
     loadingInstance.value = ElLoading.service({
@@ -25,15 +26,14 @@ export const userStore = defineStore("user", () => {
       const res = await LoginResponse(FormData)
       if (res.code == 200) {
         userInfo.value = res.data.user
-        authBtn.value=res.data?.user?.SysAuthorityBtns
+        // authBtn.value=res.data?.user?.sysBtns
         token.value = res.data.token
         const $routesStore = routesStore()
         // 获取菜单路由
         await $routesStore.getAsyncRoutesMenu(userInfo.value.authorityId)
-        console.log("我执行了")
         router.push({ path: "/", replace: true })
-      }else {
-        Notification(res.code,res.msg)
+      } else {
+        Notification(res.code, res.msg)
       }
     } catch (error) {
       loadingInstance.value.close()
@@ -56,7 +56,8 @@ export const userStore = defineStore("user", () => {
     const res = await GetUserInfo()
     // console.log("获取用户数据9999999999",res);
     userInfo.value = res.data.userInfo
-    authBtn.value= userInfo.value&&userInfo.value.SysAuthorityBtns
+    const res2 = await GetUserSelfBtn()
+    authBtn.value = res2.data.btns
     // console.log("用户数据为8888111即可将宁波办黑板报",authBtn.value);
   }
 

@@ -11,7 +11,7 @@ export default {
         const authBtn = toRaw($userStore.authBtn)
         let isHas = false
         for (const index in authBtn) {
-          if (authBtn[index][`btn_name`] == binding.value) {
+          if (authBtn[index][`btn_key`] == binding.value) {
             isHas = true
             break
           }

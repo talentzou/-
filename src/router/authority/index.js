@@ -215,7 +215,7 @@ export const asyncRoutes = [
     children: [
       {
         path: "setting",
-        name: "userInfo",
+        name: "userSelfInfo",
         hidden: false,
         component: () => import("@/views/Person/setting.vue"),
         meta: {

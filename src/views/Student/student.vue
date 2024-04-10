@@ -7,10 +7,10 @@ import {
   updateStudentResponse,
   createStudentResponse,
   deleteStudentResponse
-} from "@/api/STUDENT/student"
+} from "@/api/Student/student"
 import { Notification } from "@/utils/notification"
-import { authFields} from "@/utils/authFields"
-const {operate_auth, table_auth}=authFields("student")
+import { authFields } from "@/utils/authFields"
+const { operate_auth, table_auth } = authFields("student")
 const searchRef = ref(null)
 const Form = ref(null)
 const searchStudentParams = reactive({

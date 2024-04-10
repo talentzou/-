@@ -4,7 +4,7 @@ import {
   deleteRateResponse,
   updateRateResponse,
   createRateResponse
-} from "@/api/DORM/rate"
+} from "@/api/Dorm/rate"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"

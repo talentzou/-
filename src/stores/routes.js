@@ -1,9 +1,8 @@
 import { defineStore } from "pinia"
 import router from "@/router"
-import { GetMenuResponse } from "@/api/Menu/menu"
+import { GetMenuResponse, GetSelfMenu } from "@/api/Menu/menu"
 import { asyncRoutes } from "@/router/authority/index"
 import { cloneDeep } from "lodash"
-import { anyRoute } from "@/router/routes"
 import { constantRoutes } from "@/router/routes"
 import { userStore } from "./user"
 const filterAsyncRoutes = (AsyncRoutes, local) => {
@@ -26,21 +25,42 @@ const filterAsyncRoutes = (AsyncRoutes, local) => {
   })
 }
 export const routesStore = defineStore("route", () => {
-  const asyncRouterFlag = ref(0)
+  const asyncRouterFlag = ref(false)
   const Routes = ref([])
-
   const getAsyncRoutesMenu = async () => {
-    // console.log("获取路由")
     asyncRouterFlag.value = true
-    const $userStore = userStore()
-    // console.log(
-    //   "$userStore.userInfo?.authorityId",
-    //   $userStore.userInfo?.authorityId
+    // const $userStore = userStore()
+    // // console.log(
+    // //   "$userStore.userInfo?.authorityId",
+    // //   $userStore.userInfo?.authorityId
+    // // )
+    // const res = await GetMenuResponse($userStore.userInfo?.authorityId)
+
+    // // console.log("路由获取数据")
+    // const localRoutes = filterAsyncRoutes(
+    //   res.data?.menu,
+    //   cloneDeep(asyncRoutes)
     // )
-    const res = await GetMenuResponse($userStore.userInfo?.authorityId)
-    // console.log("路由获取数据")
+    // // console.log("resultRoutes555555555", localRoutes)
+    // // 添加路由
+    // localRoutes.forEach((item) => {
+    //   router.addRoute(item)
+    // })
+    // // 添加错误路由
+    // router.addRoute(anyRoute)
+    // // console.log("添加完有")
+    // // 路由添加
+    // Routes.value = localRoutes
+    // //菜单
+    // const resultRoutes = [...constantRoutes, ...localRoutes]
+    // $userStore.userMenu = resultRoutes
+    //  await test()--------------------------------------------------------------------
+
+    const $userStore = userStore()
+    const res = await GetSelfMenu()
+    // console.log("获取的路由数据为",res);
     const localRoutes = filterAsyncRoutes(
-      res.data?.menu,
+      res.data?.menus,
       cloneDeep(asyncRoutes)
     )
     // console.log("resultRoutes555555555", localRoutes)
@@ -48,14 +68,12 @@ export const routesStore = defineStore("route", () => {
     localRoutes.forEach((item) => {
       router.addRoute(item)
     })
-    // 添加错误路由
-    router.addRoute(anyRoute)
-    // console.log("添加完有")
-    // 路由添加
-    Routes.value = localRoutes
+    console.log("我是路由仓库做操添加路由完成")
+    console.log(router.getRoutes())
     //菜单
     const resultRoutes = [...constantRoutes, ...localRoutes]
     $userStore.userMenu = resultRoutes
+    Routes.value = resultRoutes
   }
 
   return {

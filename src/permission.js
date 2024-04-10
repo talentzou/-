@@ -6,47 +6,55 @@ import "nprogress/nprogress.css"
 import { anyRoute } from "./router/routes"
 Nprogress.configure({ showSpinner: false })
 
-const whiteList=["404","login"]
+const whiteList = ["login"]
 
-// 添加路由
+// 添加路由，获取用户信息
 const getAddRoutes = async () => {
   const $routesStore = routesStore()
   const $userStore = userStore()
   await $userStore.getUserInfo()
   await $routesStore.getAsyncRoutesMenu()
-
   // console.log("asyncRoute", $routesStore.Routes)
   const routes = toRaw($routesStore.Routes)
-  // console.log("原生路由", routes)
-  routes.forEach((item) => {
-    router.addRoute(item)
-  })
-  router.addRoute(anyRoute)
-  // console.log("已添加路由", router.getRoutes())
+  // console.log("获取的路由", routes)
+  console.log("获取的路由", $userStore.userMenu)
+  routes &&
+    routes.forEach((item) => {
+      router.addRoute(item)
+    })
+    router.addRoute(anyRoute)
+  console.log("getAddRoutes", router.getRoutes())
 }
 
 // 前置钩子
-const asyncRouterFlag = ref(false)
+// let asyncRouterFlag = true
+let count = 1
 router.beforeEach(async (to, from) => {
-  // console.log("我是路由鉴权")
   Nprogress.start()
   const $userStore = userStore()
   const $routesStore = routesStore()
   const token = $userStore.token
+
   // 没有登录
   if (!token) {
     if (to.path === "/login") {
       return true
     } else {
-      // console.log("not22222")
       return { name: "login", replace: true }
     }
   } else {
-    //  console.log("$routesStore.asyncRouterFlag555555555", $routesStore.asyncRouterFlag);
-    if ( !$routesStore.asyncRouterFlag&&whiteList.indexOf(to.name)<0) {
-      // console.log("我进来了");
+    //
+    console.log(
+      `第${count}次!$routesStore.asyncRouterFlag`,
+      $routesStore.asyncRouterFlag
+    )
+    console.log("我是路由鉴权", to)
+    count = count + 1
+    if (!$routesStore.asyncRouterFlag) {
       await getAddRoutes()
-      asyncRouterFlag.value=false
+      console.log(
+        `-------------------------${count,to.name}----------------------------`
+      )
       return { ...to, replace: true }
     } else {
       if (to.name === "login") {
@@ -58,7 +66,7 @@ router.beforeEach(async (to, from) => {
   }
 })
 // 全局后置钩子
-router.afterEach((to, from) => {
+router.afterEach((to) => {
   Nprogress.done()
   document.title = to.meta.title
 })
