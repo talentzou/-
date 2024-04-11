@@ -20,16 +20,16 @@ export const asyncRoutes = [
           icon: "user"
         }
       },
-      {
-        path: "Menu",
-        name: "menu",
-        hidden: false,
-        component: () => import("@/views/Sys/menu.vue"),
-        meta: {
-          title: "菜单管理",
-          icon: "menu"
-        }
-      },
+      // {
+      //   path: "Menu",
+      //   name: "menu",
+      //   hidden: false,
+      //   component: () => import("@/views/Sys/menu.vue"),
+      //   meta: {
+      //     title: "菜单管理",
+      //     icon: "menu"
+      //   }
+      // },
       {
         path: "Role",
         name: "role",

@@ -17,13 +17,13 @@ const getAddRoutes = async () => {
   // console.log("asyncRoute", $routesStore.Routes)
   const routes = toRaw($routesStore.Routes)
   // console.log("获取的路由", routes)
-  console.log("获取的路由", $userStore.userMenu)
+  // console.log("获取的路由", $userStore.userMenu)
   routes &&
     routes.forEach((item) => {
       router.addRoute(item)
     })
     router.addRoute(anyRoute)
-  console.log("getAddRoutes", router.getRoutes())
+  // console.log("getAddRoutes", router.getRoutes())
 }
 
 // 前置钩子
@@ -48,13 +48,13 @@ router.beforeEach(async (to, from) => {
       `第${count}次!$routesStore.asyncRouterFlag`,
       $routesStore.asyncRouterFlag
     )
-    console.log("我是路由鉴权", to)
+    // console.log("我是路由鉴权", to)
     count = count + 1
     if (!$routesStore.asyncRouterFlag) {
       await getAddRoutes()
-      console.log(
-        `-------------------------${count,to.name}----------------------------`
-      )
+      // console.log(
+      //   `-------------------------${count,to.name}----------------------------`
+      // )
       return { ...to, replace: true }
     } else {
       if (to.name === "login") {

@@ -32,13 +32,13 @@ const handleDeleteUser = (id) => {
     deleteSysUser(id)
   })
 }
-const handleResetPassword = () => {
-  ElMessageBox.confirm("确定重置密码为:123456?", "提示", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
-    type: "warning"
-  })
-}
+// const handleResetPassword = () => {
+//   ElMessageBox.confirm("确定重置密码为:123456?", "提示", {
+//     confirmButtonText: "OK",
+//     cancelButtonText: "Cancel",
+//     type: "warning"
+//   })
+// }
 const handleEditUser = (row) => {
   userEditParams.value = row
   drawerVisible.value = true
@@ -197,22 +197,22 @@ onMounted(() => {
             type="danger"
             size="small"
             @click="handleDeleteUser(row.ID)"
-            >删除</el-button
+            ><el-icon ><ep-Delete/></el-icon>删除</el-button
           >
           <el-button
             link
             type="primary"
             size="small"
             @click="handleEditUser(row)"
-            >编辑</el-button
+            ><el-icon ><ep-Edit/></el-icon>编辑</el-button
           >
-          <el-button
+          <!-- <el-button
             link
             type="success"
             size="small"
             @click="handleResetPassword"
             >重置密码</el-button
-          >
+          > -->
         </template>
       </el-table-column>
     </el-table>

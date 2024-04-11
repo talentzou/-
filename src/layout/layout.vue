@@ -14,7 +14,9 @@ const useLayoutStore = layoutStore()
     <!-- 内容区 -->
     <div class="main_container">
       <navbar></navbar>
-      <app-main></app-main>
+      <keep-alive>
+        <app-main></app-main>
+      </keep-alive>
     </div>
   </div>
 </template>

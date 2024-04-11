@@ -3,7 +3,7 @@ import { userStore } from "@/stores/user"
 import router from "@/router"
 const request = axios.create({
   baseURL: import.meta.env.DORM_PROXY_PREFIX_API,
-  timeout: 5000,
+  timeout: 10000,
   headers: { "X-Custom-Header": "foobar" }
 })
 request.interceptors.request.use(

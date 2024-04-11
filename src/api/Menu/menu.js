@@ -13,3 +13,9 @@ export const GetSelfMenu = () => {
     url: "/base/sys_jwt/menu/getSelfMenu"
   })
 }
+export const GetAllMenus = () => {
+  return request({
+    method: "get",
+    url: "/base/sys_jwt/menu/getAllMenu"
+  })
+}
