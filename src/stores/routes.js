@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import router from "@/router"
-import { GetMenuResponse, GetSelfMenu } from "@/api/Menu/menu"
+import { GetSelfMenu } from "@/api/Menu/menu"
 import { asyncRoutes } from "@/router/authority/index"
 import { cloneDeep } from "lodash"
 import { constantRoutes } from "@/router/routes"
@@ -29,7 +29,7 @@ export const routesStore = defineStore("route", () => {
   const Routes = ref([])
   const getAsyncRoutesMenu = async () => {
     asyncRouterFlag.value = true
-   
+
     //  await test()--------------------------------------------------------------------
 
     const $userStore = userStore()
