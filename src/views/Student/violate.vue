@@ -8,6 +8,7 @@ import {
   createViolateResponse,
   deleteViolateResponse
 } from "@/api/Student/violate"
+import { GetDormWithStudent } from "@/api/Dorm/dorm"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
@@ -22,9 +23,9 @@ let expDialog = ref(false)
 let isOperate = ref(true)
 const Form = ref(null)
 let violateEditParams = ref({
-  studentNumber: "",
-  studentName: "",
-  dormNumber: "",
+  sorts:[],
+  studentInfoId: "",
+  dormId: "",
   violate: "",
   resolve: "",
   recordDate: ""
@@ -64,6 +65,7 @@ async function getViolates(PageAndSize) {
     violateTableData.value = data.list
     total.value = data.total
   }
+  console.log("jjjj",data.list);
 }
 // 更新
 async function updateViolates() {
@@ -92,6 +94,8 @@ async function createViolates() {
   if (valid) {
     const list = toRaw(violateEditParams.value)
     // console.log("list", list)
+    list.dormId = violateEditParams.value.sorts[0]
+    list.studentInfoId = violateEditParams.value.sorts[1]
     const { code, msg } = await createViolateResponse([list])
     violateVisible.value = false
     const status = Notification(code, msg)
@@ -118,7 +122,37 @@ async function SearchViolates() {
     getViolates()
   }
 }
+const options = ref([])
+const dormWithStu = ref([])
+const getDormWithStu = async () => {
+  const { code, data } = await GetDormWithStudent()
+  // console.log("ppp宿舍学生", data)
+  if (code == 200) {
+    // options.value = data.list
+    HandleCustomProps(data)
+  }
+}
+// 处理数据
+// 处理数据
+const HandleCustomProps = (data) => {
+  const CustomProps = data.map((item) => {
+    const temp = {}
+    temp.label = item.floorsName + "-" + item.dormNumber
+    temp.value = item.id
+    temp.children = []
+    item.studInfoList.forEach((children) => {
+      let cc = {}
+      cc.label = children.studentName
+      cc.value = children.id
+      temp.children.push(cc)
+    })
+    return temp
+  })
+  // console.log(" CustomProps", CustomProps)
+  options.value = CustomProps
+}
 onMounted(() => {
+  getDormWithStu()
   getViolates()
 })
 </script>
@@ -175,12 +209,12 @@ onMounted(() => {
         type="index"
         label="#" />
       <el-table-column
-        prop="studentNumber"
+        prop="studInfo.studentNumber"
         label="学号"
         width="160"
         align="center" />
       <el-table-column
-        prop="studentName"
+        prop="studInfo.studentName"
         label="姓名"
         width="160"
         align="center" />
@@ -188,13 +222,17 @@ onMounted(() => {
         prop="dormNumber"
         label="宿舍"
         width="160"
-        align="center" />
+        align="center" >
+        <template #default="{ row }">
+          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
+        >
+      </el-table-column>
       <el-table-column
         prop="violate"
         label="违纪内容"
         width="180"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag type="warning"> {{ row.violate }}</el-tag>
         </template>
       </el-table-column>
@@ -203,7 +241,7 @@ onMounted(() => {
         label="处理措施"
         width="160"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag type="danger"> {{ row.resolve }}</el-tag>
         </template>
       </el-table-column>
@@ -212,7 +250,7 @@ onMounted(() => {
         label="登记日期"
         width="120"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag type="success"> {{ FormatTime(row.recordDate) }}</el-tag>
         </template>
       </el-table-column>
@@ -220,7 +258,7 @@ onMounted(() => {
         prop="操作"
         label="操作"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"
@@ -245,27 +283,44 @@ onMounted(() => {
         :rules="formRules"
         label-width="auto"
         ref="Form">
-        <el-form-item
+        <!-- <el-form-item
           label="宿舍"
-          prop="dormNumber"
-          ><el-input
-            v-model="violateEditParams.dormNumber"
-            placeholder="请输入宿舍"
-        /></el-form-item>
-        <el-form-item
-          label="学号"
-          prop="studentNumber"
-          ><el-input
-            v-model="violateEditParams.studentNumber"
-            placeholder="请输入学号"
-        /></el-form-item>
+          prop="dormId">
+          <el-select
+            v-model="violateEditParams.dormId"
+            placeholder="请选择宿舍"
+            style="width: 200px">
+            <el-option-group
+              v-for="group in options"
+              :key="group.floorsName"
+              :label="group.floorsName">
+              <el-option
+                v-for="item in group.dormList"
+                :key="item.id"
+                :label="group.floorsName + `-` + item.dormNumber"
+                :value="item.id" />
+            </el-option-group>
+          </el-select>
+        </el-form-item>
         <el-form-item
           label="学生名字"
           prop="studentName"
           ><el-input
             v-model="violateEditParams.studentName"
             placeholder="请输入学生名字"
-        /></el-form-item>
+        /></el-form-item> -->
+        <el-form-item
+          label="宿舍和学生"
+          style="width: 100%"
+          prop="sorts">
+          <el-cascader
+            clearable
+            v-model="violateEditParams.sorts"
+            placeholder="Try searchingL Guide"
+            :options="options"
+            filterable />
+        </el-form-item>
+
         <el-form-item
           label="违纪内容"
           prop="violate"

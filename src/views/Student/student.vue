@@ -8,6 +8,7 @@ import {
   createStudentResponse,
   deleteStudentResponse
 } from "@/api/Student/student"
+import { GetFloorWithDormList } from "@/api/Dorm/floors"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 const { operate_auth, table_auth } = authFields("student")
@@ -15,8 +16,7 @@ const searchRef = ref(null)
 const Form = ref(null)
 const searchStudentParams = reactive({
   studentName: "",
-  dormNumber: "",
-  major: ""
+  studentNumber: "",
 })
 let isOperate = ref(true)
 let studentVisible = ref(false)
@@ -26,9 +26,8 @@ let studentEditParams = ref({
   studentName: "",
   studentNumber: "",
   sex: "",
-  major: "",
   phone: "",
-  dormNumber: ""
+  dormId: ""
 })
 const searchRules = searchRule
 const formRules = useRules(studentEditParams.value)
@@ -37,9 +36,8 @@ const fields = {
   studentName: "学生姓名",
   studentNumber: "学号",
   sex: "性别",
-  major: "专业",
   phone: "联系电话",
-  dormNumber: "宿舍"
+  dormId: "宿舍"
 }
 function exportTable({ filename, allSelect }) {
   const data = allSelect
@@ -118,8 +116,16 @@ async function SearchStudents() {
     getStudents()
   }
 }
-
+const options = ref([])
+const getFloorWithDorm = async () => {
+  const { code, data } = await GetFloorWithDormList()
+  console.log("ppp", data)
+  if (code == 200) {
+    options.value = data.list
+  }
+}
 onMounted(() => {
+  getFloorWithDorm()
   getStudents()
 })
 </script>
@@ -133,22 +139,16 @@ onMounted(() => {
       :model="searchStudentParams"
       inline>
       <el-form-item
-        prop="dormNumber"
+        prop="studentNumber"
         style="width: 160px">
         <el-input
-          v-model="searchStudentParams.dormNumber"
-          placeholder="请输入宿舍名称" />
+          v-model="searchStudentParams.studentNumber"
+          placeholder="请输入学号" />
       </el-form-item>
       <el-form-item style="width: 160px">
         <el-input
           v-model="searchStudentParams.studentName"
           placeholder="请输入学生姓名"
-          clearable />
-      </el-form-item>
-      <el-form-item style="width: 160px">
-        <el-input
-          v-model="searchStudentParams.major"
-          placeholder="请输入专业"
           clearable />
       </el-form-item>
       <el-form-item>
@@ -186,36 +186,35 @@ onMounted(() => {
       <el-table-column
         prop="studentNumber"
         label="学号"
-        width="120"
+        width="150"
         align="center" />
       <el-table-column
         prop="studentName"
         label="姓名"
-        width="120"
+        width="150"
         align="center" />
       <el-table-column
         prop="sex"
         label="性别"
-        width="80"
+        width="120"
         align="center">
         <template #default="{ row, column, $index }"> </template>
       </el-table-column>
       <el-table-column
         prop="phone"
         label="电话"
-        width="120"
+        width="150"
         align="center" />
-      <el-table-column
-        prop="major"
-        label="专业"
-        width="180"
-        align="center">
-      </el-table-column>
+
       <el-table-column
         prop="dormNumber"
         label="宿舍"
-        width="120"
-        align="center" />
+        width="180"
+        align="center">
+        <template #default="{ row }">
+          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
+        >
+      </el-table-column>
       <el-table-column
         prop="操作"
         label="操作"
@@ -248,16 +247,27 @@ onMounted(() => {
         ref="Form">
         <el-form-item
           label="宿舍"
-          prop="dormNumber"
-          ><el-input
-            v-model="studentEditParams.dormNumber"
-            placeholder="请输入宿舍"
-        /></el-form-item>
+          prop="dormId">
+          <el-select
+            v-model="studentEditParams.dormId"
+            placeholder="请选择宿舍"
+            style="width: 100%">
+            <el-option-group
+              v-for="group in options"
+              :key="group.floorsName"
+              :label="group.floorsName">
+              <el-option
+                v-for="item in group.dormList"
+                :key="item.id"
+                :label="group.floorsName + `-` + item.dormNumber"
+                :value="item.id" />
+            </el-option-group>
+          </el-select>
+        </el-form-item>
         <el-form-item
           label="学号"
           prop="studentNumber"
           ><el-input
-            :disabled="Boolean(studentEditParams.id)"
             v-model="studentEditParams.studentNumber"
             placeholder="请输入"
         /></el-form-item>
@@ -282,13 +292,6 @@ onMounted(() => {
               value="女" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="专业"
-          prop="major"
-          ><el-input
-            v-model="studentEditParams.major"
-            placeholder="请输入专业"
-        /></el-form-item>
         <el-form-item
           label="手机号"
           prop="phone"

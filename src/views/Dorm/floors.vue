@@ -3,7 +3,8 @@ import {
   getFloorsInfoRequest,
   deleteFloorsInfoRequest,
   updateFloorsInfoRequest,
-  addFloorsInfoRequest
+  addFloorsInfoRequest,
+  QueryFloorsInfoRequest
 } from "@/api/Dorm/floors"
 
 import { useExportExcel } from "@/utils/exportExcel"
@@ -22,25 +23,24 @@ let pageAndSizeParams = reactive({
 })
 //搜索表单
 const floorsSearchForm = reactive({
-  floorsName: "",
-  floorsType: ""
+  // floorsName: "",
+  // floorsType: "",
+  queryStr: ""
 })
 //对话框
 const floorsVisible = ref(false)
 //宿舍楼参数
 let floorsParams = ref({
   floorsName: "",
-  floors: "",
   floorsType: "",
-  dormAmount: ""
+  dormAmount:"",
 })
 
 //导出数据
 const fields = {
-  amount: "宿舍总数",
-  floors: "楼层数",
   floorsName: "宿舍楼名",
-  floorsType: "宿舍楼类型"
+  floorsType: "宿舍楼类型",
+  amount: "宿舍数量",
 }
 function exportTable({ filename, allSelect }) {
   const data = allSelect
@@ -62,10 +62,10 @@ async function getFloors(PageAndSize) {
   if (PageAndSize !== undefined) {
     pageAndSizeParams = PageAndSize
   }
-  const { code, data } = await getFloorsInfoRequest(
-    floorsSearchForm,
+  const { code, data,msg } = await getFloorsInfoRequest(
     pageAndSizeParams
   )
+  console.log(data,msg);
   if (code == 200) {
     tableData.value = data.list
     total.value = data.total
@@ -101,24 +101,48 @@ async function createFloors() {
 }
 //搜索栏
 async function SearchFloor() {
-  const query = floorsSearchForm
-  let params = Object.fromEntries(
-    Object.entries(query).filter(([key]) => query[key])
-  )
-  // console.log("对象",params,Object.keys(params).length);
-  if (!Object.keys(params).length) {
-    console.log("控制")
+  // const query = floorsSearchForm
+  // let params = Object.fromEntries(
+  //   Object.entries(query).filter(([key]) => query[key])
+  // )
+  // // console.log("对象",params,Object.keys(params).length);
+  // if (!Object.keys(params).length) {
+  //   console.log("控制")
+  //   ElMessage({
+  //     message: "搜索输入不能为空",
+  //     type: "error"
+  //   })
+  //   return
+  // }
+  if (floorsSearchForm.queryStr.length === 0) {
     ElMessage({
       message: "搜索输入不能为空",
       type: "error"
     })
     return
   }
+
   const valid = await submitForm(floorsRef.value)
   if (valid) {
-    getFloors()
+    queryFloor()
   }
 }
+// 带参数查寻
+const queryFloor = async (PageAndSize) => {
+  if (PageAndSize !== undefined) {
+    pageAndSizeParams = PageAndSize
+  }
+  const { code, data, msg } = await QueryFloorsInfoRequest(
+    floorsSearchForm,
+    pageAndSizeParams
+  )
+  if (code == 200) {
+    tableData.value = data.list
+    total.value = data.total
+  }
+  Notification(code, msg)
+}
+
 onMounted(() => {
   getFloors()
 })
@@ -140,7 +164,8 @@ const searchRules = {
       validator: floorsName,
       trigger: "blur"
     }
-  ]
+  ],
+  queryStr: [{ required: true, message: "搜索参数为不能为空", trigger: "blur" }]
 }
 const paramsRules = useRules(floorsParams.value)
 </script>
@@ -154,25 +179,11 @@ const paramsRules = useRules(floorsParams.value)
       style="line-height: 50px"
       inline>
       <el-form-item
-        style="width: 180px"
-        prop="floorsName">
+        style="width: 400px"
+        prop="queryStr">
         <el-input
-          placeholder="请输入宿舍楼名称"
-          v-model="floorsSearchForm.floorsName" />
-      </el-form-item>
-      <el-form-item>
-        <el-select
-          style="width: 180px"
-          clearable
-          v-model="floorsSearchForm.floorsType"
-          placeholder="请选择宿舍类型">
-          <el-option
-            label="男生宿舍"
-            value="男生宿舍" />
-          <el-option
-            label="女生宿舍"
-            value="女生宿舍" />
-        </el-select>
+          placeholder="请输入宿舍楼名称:如A1;或宿舍楼类型:男生|女生宿舍"
+          v-model="floorsSearchForm.queryStr" />
       </el-form-item>
       <el-form-item>
         <el-button
@@ -212,17 +223,12 @@ const paramsRules = useRules(floorsParams.value)
       <el-table-column
         prop="floorsName"
         label="宿舍楼名"
-        width="180"
-        align="center" />
-      <el-table-column
-        prop="floors"
-        label="楼层数"
-        width="180"
+        width="250"
         align="center" />
       <el-table-column
         prop="floorsType"
         label="类型"
-        width="180"
+        width="250"
         align="center">
         <template #default="{ row, column, $index }">
           <el-tag :type="tagState(row)">{{ row.floorsType }}</el-tag>
@@ -230,8 +236,8 @@ const paramsRules = useRules(floorsParams.value)
       </el-table-column>
       <el-table-column
         prop="dormAmount"
-        label="宿舍总数"
-        width="150"
+        label="宿舍数量"
+        width="250"
         align="center" />
       <el-table-column
         prop="操作"
@@ -267,16 +273,8 @@ const paramsRules = useRules(floorsParams.value)
           label="宿舍楼名称"
           prop="floorsName">
           <el-input
-            :disabled="Boolean(floorsParams.id)"
             v-model="floorsParams.floorsName"
             placeholder="请输入宿舍楼名称" />
-        </el-form-item>
-        <el-form-item
-          label="楼层数"
-          prop="floors">
-          <el-input
-            v-model.number="floorsParams.floors"
-            placeholder="请输入楼层数" />
         </el-form-item>
         <el-form-item
           label="宿舍楼类型"

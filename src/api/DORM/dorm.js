@@ -5,9 +5,9 @@ import request, { filterParams } from "@/utils/axios"
  * @body  {*}
  * @returns
  */
-export const getDormResponse = (query,pages) => {
+export const getDormResponse = (query, pages) => {
   const params = filterParams(query)
-  console.log(params,pages);
+  console.log(params, pages)
   return request({
     method: "get",
     url: `/jwt/Dormitory/dorm/getDorm/${pages.Page}/${pages.PageSize}`,
@@ -34,5 +34,12 @@ export const deleteDormResponse = (data) => {
     method: "delete",
     url: "/jwt/Dormitory/dorm/deleteDorm_ById",
     data
+  })
+}
+// 获取宿舍携带学生
+export const GetDormWithStudent = () => {
+  return request({
+    method: "get",
+    url: "/jwt/Dormitory/dorm/getDormWithStudent"
   })
 }

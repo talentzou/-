@@ -5,6 +5,7 @@ import {
   deleteExpenseResponse,
   createExpenseResponse
 } from "@/api/Expense/expense"
+import { GetFloorWithDormList } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules, searchRule } from "@/rules/expenseRules"
@@ -16,20 +17,17 @@ const refTable = ref(null)
 const searchRef = ref(null)
 const Form = ref(null)
 let expenseSearchParams = reactive({
-  floorsName: "",
-  dormNumber: "",
+  paymentTime:"",
   accounter: ""
 })
 let expenseEditParams = ref({
-  floorsName: "",
-  dormNumber: "",
+  dormId: "",
   paymentTime: "",
   waterCharge: "",
   electricityCharge: "",
   totalCost: "",
   accountant: "",
   phone: "",
-  remark: ""
 })
 // 按钮字段
 const { operate_auth, table_auth } = authFields("expense")
@@ -122,6 +120,7 @@ async function createExpenses() {
     status ? getExpenses() : ""
   }
 }
+
 //搜索栏
 async function SearchExpenses() {
   const query = expenseSearchParams
@@ -142,7 +141,16 @@ async function SearchExpenses() {
     getExpenses()
   }
 }
+const options = ref([])
+const getFloorWithDorm = async () => {
+  const { code, data } = await GetFloorWithDormList()
+  console.log("ppp", data)
+  if (code == 200) {
+    options.value = data.list
+  }
+}
 onMounted(() => {
+  getFloorWithDorm()
   getExpenses()
 })
 </script>
@@ -154,17 +162,13 @@ onMounted(() => {
       ref="searchRef"
       :rules="searchRules"
       inline>
-      <el-form-item prop="floorsName">
-        <el-input
-          style="width: 180px"
-          v-model="expenseSearchParams.floorsName"
-          placeholder="请输入宿舍楼名称" />
-      </el-form-item>
-      <el-form-item prop="dormNumber">
-        <el-input
-          style="width: 180px"
-          v-model="expenseSearchParams.dormNumber"
-          placeholder="请输入宿舍名称" />
+      <el-form-item prop="paymentTime">
+        <el-date-picker
+            style="width: 195px"
+            v-model="expenseSearchParams.paymentTime"
+            type="date"
+            format="YYYY-MM-DD"
+            placeholder="请选择缴费时间" />
       </el-form-item>
       <el-form-item prop="accounter">
         <el-input
@@ -205,17 +209,12 @@ onMounted(() => {
         type="index"
         label="#" />
       <el-table-column
-        prop="floorsName"
-        label="宿舍楼"
-        width="90"
-        align="center" />
-      <el-table-column
         prop="dormNumber"
         label="宿舍"
-        width="90"
+        width="180"
         align="center">
-        <template #default="{ row, column, $index }">
-          {{ row.floorsName + "-" + row.dormNumber }}</template
+        <template #default="{ row }">
+          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
         >
       </el-table-column>
       <el-table-column
@@ -297,20 +296,23 @@ onMounted(() => {
             placeholder="Start date" />
         </el-form-item>
         <el-form-item
-          prop="floorsName"
-          label="宿舍楼">
-          <el-input
-            :disabled="Boolean(expenseEditParams.id)"
-            v-model="expenseEditParams.floorsName"
-            placeholder="请输入宿舍楼名称" />
-        </el-form-item>
-        <el-form-item
-          label="宿舍编号"
-          prop="dormNumber">
-          <el-input
-            :disabled="Boolean(expenseEditParams.id)"
-            placeholder="请输入宿舍名称"
-            v-model="expenseEditParams.dormNumber" />
+          label="宿舍"
+          prop="dormId">
+          <el-select
+            v-model="expenseEditParams.dormId"
+            placeholder="请选择宿舍"
+            style="width: 200px">
+            <el-option-group
+              v-for="group in options"
+              :key="group.floorsName"
+              :label="group.floorsName">
+              <el-option
+                v-for="item in group.dormList"
+                :key="item.id"
+                :label="group.floorsName + `-` + item.dormNumber"
+                :value="item.id" />
+            </el-option-group>
+          </el-select>
         </el-form-item>
         <el-form-item
           label="水费"
@@ -355,14 +357,6 @@ onMounted(() => {
           <el-input
             v-model="expenseEditParams.phone"
             placeholder="请输入手机号码" />
-        </el-form-item>
-        <el-form-item
-          label="备注"
-          style="width: 100%">
-          <el-input
-            v-model="expenseEditParams.remark"
-            placeholder="请输入备注"
-            type="textarea" />
         </el-form-item>
         <el-form-item>
           <el-button

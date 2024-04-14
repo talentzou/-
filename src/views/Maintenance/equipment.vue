@@ -5,6 +5,7 @@ import {
   createRepairResponse,
   deleteRepairResponse
 } from "@/api/Repair/repair"
+import { GetFloorWithDormList } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
@@ -17,8 +18,7 @@ const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
 let maintenanceSearchParams = reactive({
-  searchMessage: "",
-  floorsName: "",
+  repairer: "",
   repairStatus: ""
 })
 //导出对话框
@@ -26,26 +26,19 @@ const expDialog = ref(false)
 let isOperate = ref(true)
 let repairVisible = ref(false)
 let maintenanceEditParams = ref({
-  floorsName: "",
-  dormNumber: "",
+  dormId: "",
   problems: "",
   submitDate: "",
   repairStatus: "",
   reportMan: "",
   phone: "",
-  repairer: "",
-  remark: ""
+  repairer: ""
 })
 const searchRules = {
-  floorsName: [
+  reportMan: [
     {
-      validator: floorsName,
-      trigger: "blur"
-    }
-  ],
-  dormNumber: [
-    {
-      validator: dormNumber,
+      required: true,
+      message: "上报人不能为空",
       trigger: "blur"
     }
   ]
@@ -143,8 +136,16 @@ async function SearchRepairs() {
     getRepairs()
   }
 }
-
+const options = ref([])
+const getFloorWithDorm = async () => {
+  const { code, data } = await GetFloorWithDormList()
+  console.log("ppp", data)
+  if (code == 200) {
+    options.value = data.list
+  }
+}
 onMounted(() => {
+  getFloorWithDorm()
   getRepairs()
 })
 </script>
@@ -158,21 +159,15 @@ onMounted(() => {
       :rules="searchRules"
       style="line-height: 50px"
       inline>
-      <el-form-item prop="floorsName">
+      <el-form-item>
         <el-input
-          style="width: 160px"
-          v-model="maintenanceSearchParams.floorsName"
-          placeholder="请输入宿舍楼名称" />
-      </el-form-item>
-      <el-form-item prop="dormNumber">
-        <el-input
-          style="width: 160px"
-          v-model="maintenanceSearchParams.dormNumber"
-          placeholder="请输入宿舍名称" />
+        style="width: 200px"
+          v-model="maintenanceSearchParams.reportMan"
+          placeholder="请输入维修问题上报人" />
       </el-form-item>
       <el-form-item>
         <el-select
-          style="width: 160px"
+          style="width: 200px"
           clearable
           v-model="maintenanceSearchParams.repairStatus"
           placeholder="维修状态">
@@ -217,16 +212,13 @@ onMounted(() => {
         type="index"
         label="#" />
       <el-table-column
-        prop="floorsName"
-        label="宿舍楼"
-        width="80"
-        align="center" />
-      <el-table-column
         prop="dormNumber"
         label="宿舍"
         width="80"
         align="center">
-        <template #default="{ row, column, $index }"> {{ row.floorsName + "-" + row.dormNumber }}</template>
+        <template #default="{ row }">
+          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
+        >
       </el-table-column>
       <el-table-column
         prop="problems"
@@ -236,20 +228,11 @@ onMounted(() => {
         <template #default="{ row, column, $index }"> </template>
       </el-table-column>
       <el-table-column
-        prop="submitDate"
-        label="报修时间"
-        width="120"
-        align="center"
-        ><template #default="{ row, column, $index }">
-          {{ FormatTime(row.submitDate) }}
-        </template></el-table-column
-      >
-      <el-table-column
         prop="repairStatus"
         label="维修状态"
         width="100"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag
             :type="row.repairStatus === `已完成` ? `success` : `danger`"
             >{{ row.repairStatus }}</el-tag
@@ -267,15 +250,39 @@ onMounted(() => {
         width="120"
         align="center" />
       <el-table-column
+        prop="submitDate"
+        label="报修时间"
+        width="200"
+        align="center"
+        ><template #default="{ row }">
+          {{ FormatTime(row.submitDate) }}
+        </template></el-table-column
+      >
+      <el-table-column
+        prop="finishDate"
+        label="完成时间"
+        width="200"
+        align="center"
+        ><template #default="{ row }">
+          {{
+            FormatTime(row.finishDate) === "0001-01-01"
+              ? "无"
+              : FormatTime(row.finishDate)
+          }}
+        </template></el-table-column
+      >
+      <el-table-column
         prop="repairer"
         label="维修人"
-        width="80"
+        width="120"
         align="center" />
       <el-table-column
+        fixed="right"
+        width="200"
         prop="操作"
         label="操作"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"
@@ -304,6 +311,7 @@ onMounted(() => {
         :model="maintenanceEditParams"
         label-width="auto">
         <el-form-item
+          style="width: 300px"
           label="上报时间"
           prop="submitDate">
           <el-date-picker
@@ -313,20 +321,24 @@ onMounted(() => {
             placeholder="Start date" />
         </el-form-item>
         <el-form-item
-          label="宿舍楼"
-          prop="floorsName">
-          <el-input
-            v-model="maintenanceEditParams.floorsName"
-            placeholder="请选择宿舍楼" />
+          label="宿舍"
+          prop="dormId">
+          <el-select
+            v-model="maintenanceEditParams.dormId"
+            placeholder="请选择宿舍"
+            style="width: 200px">
+            <el-option-group
+              v-for="group in options"
+              :key="group.floorsName"
+              :label="group.floorsName">
+              <el-option
+                v-for="item in group.dormList"
+                :key="item.id"
+                :label="group.floorsName + `-` + item.dormNumber"
+                :value="item.id" />
+            </el-option-group>
+          </el-select>
         </el-form-item>
-        <el-form-item
-          label="宿舍编号"
-          prop="dormNumber">
-          <el-input
-            v-model="maintenanceEditParams.dormNumber"
-            placeholder="请选择宿舍" />
-        </el-form-item>
-
         <el-form-item
           label="维修状态"
           prop="repairStatus">
@@ -370,14 +382,6 @@ onMounted(() => {
           <el-input
             v-model="maintenanceEditParams.problems"
             placeholder="请输入内容"
-            type="textarea" />
-        </el-form-item>
-        <el-form-item
-          label="备注"
-          style="width: 100%">
-          <el-input
-            v-model="maintenanceEditParams.remark"
-            placeholder="请输入备注"
             type="textarea" />
         </el-form-item>
         <el-form-item style="display: block">

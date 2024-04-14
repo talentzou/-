@@ -5,6 +5,7 @@ import {
   createStayResponse,
   deleteStayResponse
 } from "@/api/Dorm/stay"
+import { GetFloorWithDormList } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
@@ -21,30 +22,22 @@ const Form = ref(null)
 const expDialog = ref(false)
 //搜索参数
 let staySearchParams = reactive({
-  floorsName: "",
-  dormNumber: "",
   studentName: ""
 })
 //编辑参数
 let stayEditParams = ref({
   stayTime: "",
   studentName: "",
-  floorsName: "",
-  dormNumber: "",
+  dormId: "",
   stayCause: "",
   opinions: ""
 })
 let isOperate = ref(true)
 const searchRules = {
-  floorsName: [
+  studentName: [
     {
-      validator: floorsName,
-      trigger: "blur"
-    }
-  ],
-  dormNumber: [
-    {
-      validator: dormNumber,
+      required: true,
+      message: "学生姓名不能为空",
       trigger: "blur"
     }
   ]
@@ -52,9 +45,7 @@ const searchRules = {
 const formRules = useRules(stayEditParams.value)
 //参数编辑对话框
 let stayVisible = ref(false)
-function selectDatePicker() {
-  console.log(staySearchParams.date)
-}
+
 //导出表格
 const fields = {
   stayDate: "留宿时间",
@@ -97,6 +88,7 @@ async function getStays(PageAndSize) {
   }
   // console.log("发起请求")
   const { code, data } = await getStayResponse(staySearchParams, Pages)
+  console.log("留宿申请数据",data.list);
   if (code == 200) {
     stayTableData.value = data.list.map((item) => {
       // console.log("开始时间", item.stayTime.startTime)
@@ -112,7 +104,12 @@ async function getStays(PageAndSize) {
 async function updateStays() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const { code, msg } = await updateStayResponse(stayEditParams.value)
+    const list = toRaw(stayEditParams.value)
+    list.stayTime = {
+      startTime: list.stayTime[0],
+      endTime: list.stayTime[1]
+    }
+    const { code, msg } = await updateStayResponse(list)
     stayVisible.value = false
     const status = Notification(code, msg)
     status ? getStays() : ""
@@ -173,11 +170,16 @@ async function SearchStays() {
     getStays()
   }
 }
-
-async function updateStayData() {}
-async function deleteStayData() {}
-async function increaseStayData() {}
+const options = ref([])
+const getFloorWithDorm = async () => {
+  const { code, data } = await GetFloorWithDormList()
+  console.log("ppp", data)
+  if (code == 200) {
+    options.value = data.list
+  }
+}
 onMounted(() => {
+  getFloorWithDorm()
   getStays()
 })
 </script>
@@ -188,21 +190,7 @@ onMounted(() => {
       :rules="searchRules"
       :model="staySearchParams"
       inline>
-      <el-form-item
-        style="width: 180px"
-        prop="floorsName">
-        <el-input
-          placeholder="请输入宿舍楼名称"
-          v-model="staySearchParams.floorsName" />
-      </el-form-item>
-      <el-form-item
-        style="width: 180px"
-        prop="dormNumber">
-        <el-input
-          placeholder="请输入宿舍名称"
-          v-model="staySearchParams.dormNumber" />
-      </el-form-item>
-      <el-form-item style="width: 180px">
+      <el-form-item style="width: 250px">
         <el-input
           clearable
           placeholder="请输入留宿学生名"
@@ -280,15 +268,14 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column
-        prop="floorsName"
-        label="宿舍楼"
-        width="120"
-        align="center" />
-      <el-table-column
         prop="dormNumber"
         label="宿舍"
         align="center"
-        width="120" />
+        width="180">
+        <template #default="{ row, column, $index }">
+          <el-tag type="success">{{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="opinions"
         label="审核意见"
@@ -338,18 +325,23 @@ onMounted(() => {
             end-placeholder="End date" />
         </el-form-item>
         <el-form-item
-          label="宿舍楼"
-          prop="floorsName">
-          <el-input
-            placeholder="请选择宿舍楼"
-            v-model="stayEditParams.floorsName" />
-        </el-form-item>
-        <el-form-item
-          label="宿舍编号"
-          prop="dormNumber">
-          <el-input
+          label="宿舍"
+          prop="dormId">
+          <el-select
+            v-model="stayEditParams.dormId"
             placeholder="请选择宿舍"
-            v-model="stayEditParams.dormNumber" />
+            style="width: 100%">
+            <el-option-group
+              v-for="group in options"
+              :key="group.floorsName"
+              :label="group.floorsName">
+              <el-option
+                v-for="item in group.dormList"
+                :key="item.id"
+                :label="group.floorsName + `-` + item.dormNumber"
+                :value="item.id" />
+            </el-option-group>
+          </el-select>
         </el-form-item>
         <el-form-item
           label="留宿学生"

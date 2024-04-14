@@ -18,14 +18,14 @@ export const SetSelfInfo = (data) => {
 export const getUserList = (pages) => {
   return request({
     url: `/base/sys_jwt/user/getUserList/${pages.Page}/${pages.PageSize}`,
-    method: 'get',
+    method: "get"
   })
 }
 //删除用户
 export const deleteUser = (data) => {
   return request({
-    url: '/base/sys_jwt/user/deleteUser',
-    method: 'delete',
+    url: "/base/sys_jwt/user/deleteUser",
+    method: "delete",
     data: data
   })
 }
@@ -45,4 +45,11 @@ export const SetUserInfo = (data) => {
     data
   })
 }
-
+//查询用户信息
+export const QueryUser = (pages, data) => {
+  return request({
+    method: "post",
+    url: `/base/sys_jwt/user/queryUserList/${pages.Page}/${pages.PageSize}`,
+    data
+  })
+}

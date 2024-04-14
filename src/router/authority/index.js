@@ -60,7 +60,7 @@ export const asyncRoutes = [
         hidden: false,
         component: () => import("@/views/Dorm/floors.vue"),
         meta: {
-          title: "楼层信息",
+          title: "宿舍楼信息",
           icon: "floors"
         }
       },
@@ -97,17 +97,17 @@ export const asyncRoutes = [
           icon: "application"
         }
       },
-      {
-        path: "dorm-bed/:floor/:name/:capacity", //
-        // path: "dorm-bed",
-        name: "bed",
-        hidden: true,
-        component: () => import("@/views/Dorm/bed.vue"),
-        meta: {
-          title: "床位",
-          icon: ""
-        }
-      },
+      // {
+      //   path: "dorm-bed/:floor/:name/:capacity", //
+      //   // path: "dorm-bed",
+      //   name: "bed",
+      //   hidden: true,
+      //   component: () => import("@/views/Dorm/bed.vue"),
+      //   meta: {
+      //     title: "床位",
+      //     icon: ""
+      //   }
+      // },
       // 宿舍费用
       {
         path: "expense",

@@ -1,10 +1,10 @@
 import { Rules } from "../utils/rules"
 
 export function dormNumberF(rule, value, callback) {
-  let reg = /^[A-Z]\d-\d{3}$/
+  let reg = /^[A-Z]-\d{3}$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A1-101"))
+    callback(new Error("请输入正确格式,如A-101"))
   } else {
     callback()
   }
@@ -70,13 +70,6 @@ const studentRules = {
       trigger: "blur"
     }
   ],
-  major: [
-    {
-      required: true,
-      message: "专业不能为空",
-      trigger: "blur"
-    }
-  ],
   sex: [
     {
       required: true,
@@ -109,7 +102,17 @@ const studentRules = {
       trigger: "blur"
     }
   ],
-  resolve: [{ required: true, message: "处理措施不能为空", trigger: "blur" }]
+  resolve: [{ required: true, message: "处理措施不能为空", trigger: "blur" }],
+  dormId:[
+    {
+      required: true,
+      message: "宿舍不能为空",
+      trigger: "blur"
+    },
+  ],
+  sorts:[
+    { required: true, message: "内容不能为空", trigger: "blur" }
+  ]
 }
 
 export const searchRule = {

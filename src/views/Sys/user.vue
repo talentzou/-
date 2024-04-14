@@ -3,7 +3,8 @@ import {
   getUserList,
   deleteUser,
   SetUserInfo,
-  CreateUser
+  CreateUser,
+  QueryUser
 } from "@/api/User/user"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
@@ -28,7 +29,7 @@ const handleDeleteUser = (id) => {
     cancelButtonText: "Cancel",
     type: "warning"
   }).then(() => {
-    console.log("9999999999999999999");
+    console.log("9999999999999999999")
     deleteSysUser(id)
   })
 }
@@ -57,9 +58,9 @@ const handlerReset = () => {
 const userEditParams = ref({
   userName: "",
   authorityId: "",
-  nickname: "",
+  // nickname: "",
   sex: "",
-  telephone: "",
+  // telephone: "",
   remark: ""
 })
 const checkUsername = (rule, value, callback) => {
@@ -69,26 +70,26 @@ const checkUsername = (rule, value, callback) => {
     callback()
   }
 }
-const phone = (rule, value, callback) => {
-  let reg = /^1[3-9]\d{9}$/
-  const isTrue = reg.test(value)
-  if (!isTrue) {
-    callback(new Error("请输入正确格式的手机号码"))
-  } else {
-    callback()
-  }
-}
+// const phone = (rule, value, callback) => {
+//   let reg = /^1[3-9]\d{9}$/
+//   const isTrue = reg.test(value)
+//   if (!isTrue) {
+//     callback(new Error("请输入正确格式的手机号码"))
+//   } else {
+//     callback()
+//   }
+// }
 const formRules = {
   userName: [
     { required: true, message: "用户名不能为空", trigger: "blur" },
     { validator: checkUsername, trigger: "blur" }
   ],
-  nickname: [{ required: true, message: "昵称不能为空", trigger: "blur" }],
-  sex: [{ required: true, message: "性别不能为空", trigger: "blur" }],
-  telephone: [
-    { required: true, message: "电话不能为空", trigger: "blur" },
-    { validator: phone, trigger: "blur" }
-  ]
+  // nickname: [{ required: true, message: "昵称不能为空", trigger: "blur" }],
+  sex: [{ required: true, message: "性别不能为空", trigger: "blur" }]
+  // telephone: [
+  //   { required: true, message: "电话不能为空", trigger: "blur" },
+  //   { validator: phone, trigger: "blur" }
+  // ]
 }
 /* 接口 */
 // 添加用户
@@ -103,8 +104,8 @@ const createSysUser = async () => {
 }
 // 删除用户
 const deleteSysUser = async (id) => {
-  console.log("我是id");
-  const { code, msg } = await deleteUser({id})
+  console.log("我是id")
+  const { code, msg } = await deleteUser({ id })
   const status = Notification(code, msg)
   status ? getSysUserList() : ""
 }
@@ -113,11 +114,13 @@ let Pages = reactive({
   PageSize: 10,
   Page: 1
 })
+const total = ref(0)
 const getSysUserList = async () => {
   const { code, data } = await getUserList(Pages)
   console.log("发起求情")
   if (code === 200) {
     tableData.value = data.list
+    total.value = data.total
   }
 }
 // 编辑用户信息
@@ -128,6 +131,18 @@ const editSysUserInfo = async () => {
     drawerVisible.value = false
     const status = Notification(code, msg)
     status ? getSysUserList() : ""
+  }
+}
+//搜索用户
+const queryUserInfo = async () => {
+  console.log("搜索");
+  const { code, data,msg } = await QueryUser(Pages, {
+    userName: userListSearch.username
+  })
+  console.log(msg,data);
+  if (code === 200) {
+    tableData.value = data.list
+    total.value = data.total
   }
 }
 onMounted(() => {
@@ -149,7 +164,11 @@ onMounted(() => {
           v-model="userListSearch.username" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">搜索</el-button>
+        <el-button
+          type="primary"
+          @click="queryUserInfo"
+          >搜索</el-button
+        >
         <el-button @click="resetForm(searchRef)">重置</el-button>
       </el-form-item>
     </el-form>
@@ -197,27 +216,20 @@ onMounted(() => {
             type="danger"
             size="small"
             @click="handleDeleteUser(row.ID)"
-            ><el-icon ><ep-Delete/></el-icon>删除</el-button
+            ><el-icon><ep-Delete /></el-icon>删除</el-button
           >
           <el-button
             link
             type="primary"
             size="small"
             @click="handleEditUser(row)"
-            ><el-icon ><ep-Edit/></el-icon>编辑</el-button
+            ><el-icon><ep-Edit /></el-icon>编辑</el-button
           >
-          <!-- <el-button
-            link
-            type="success"
-            size="small"
-            @click="handleResetPassword"
-            >重置密码</el-button
-          > -->
         </template>
       </el-table-column>
     </el-table>
     <Pagination
-      :total="0"
+      :total="total"
       @getCurrentPage="0"
       @getPageSizes="0" />
     <el-drawer
@@ -236,7 +248,7 @@ onMounted(() => {
         </el-button>
         <el-button
           type="primary"
-          @click="userEditParams.ID?editSysUserInfo():createSysUser()">
+          @click="userEditParams.ID ? editSysUserInfo() : createSysUser()">
           确定
         </el-button>
       </template>
@@ -271,14 +283,14 @@ onMounted(() => {
               :value="2" />
           </el-select>
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           prop="nickname"
           label="昵称">
           <el-input
             v-model="userEditParams.nickname"
             style="width: 200px"
             placeholder="Please input" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item
           prop="sex"
           label="性别">
@@ -294,17 +306,17 @@ onMounted(() => {
               value="女" />
           </el-select>
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           prop="telephone"
           label="电话">
           <el-input
             v-model="userEditParams.telephone"
             style="width: 200px"
             placeholder="Please input" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item
           prop="remark"
-          label="个人描述">
+          label="备注">
           <el-input
             type="textarea"
             v-model="userEditParams.remark"

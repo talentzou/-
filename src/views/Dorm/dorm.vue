@@ -5,6 +5,7 @@ import {
   updateDormResponse,
   createDormResponse
 } from "@/api/Dorm/dorm"
+import { getFloorsInfoRequest } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
@@ -17,28 +18,20 @@ const refTable = ref(null)
 const expDialog = ref(false)
 
 let dormSearchParams = reactive({
-  floorsName: "",
+  floorId: "",
   dormNumber: "",
-  dormCapacity: "",
-  dormStatus: ""
+  Capacity: ""
 })
 let addDormParams = ref({
-  floorsName: "",
+  floorId: "",
   dormNumber: "",
   img: "",
-  dormCapacity: "",
-  dormStatus: ""
+  Capacity: ""
 })
 const searchRef = ref(null)
 const Form = ref(null)
 
 const searchRules = {
-  floorsName: [
-    {
-      validator: floorsName,
-      trigger: "blur"
-    }
-  ],
   dormNumber: [
     {
       validator: dormNumber,
@@ -128,6 +121,7 @@ async function getDorms(PageAndSize) {
   const { code, data } = await getDormResponse(dormSearchParams, Pages)
   if (code == 200) {
     dormTableData.value = data.list
+    console.log(data.list)
     total.value = data.total
   }
 }
@@ -183,8 +177,21 @@ async function SearchDorms() {
     getDorms()
   }
 }
+const floorList = ref([])
+const getFloorList = async () => {
+  const { code, data } = await getFloorsInfoRequest({
+    PageSize: 10,
+    Page: 1
+  })
+  if (code == 200) {
+    floorList.value = data.list
+    console.log("999tttt", data)
+  }
+  console.log("dghgggdggd", code)
+}
 
 onMounted(() => {
+  getFloorList()
   getDorms()
 })
 </script>
@@ -197,11 +204,19 @@ onMounted(() => {
       style="line-height: 50px"
       inline>
       <el-form-item
-        style="width: 160px"
-        prop="floorsName">
-        <el-input
-          placeholder="请输入宿舍楼名称"
-          v-model="dormSearchParams.floorsName" />
+        prop="floorId">
+        <el-select
+          clearable
+          prop="floorId"
+          style="width: 160px"
+          v-model="dormSearchParams.floorId"
+          placeholder="请选择宿舍楼">
+          <el-option
+            v-for="item in floorList"
+            :key="item.id"
+            :label="item.floorsName"
+            :value="item.id" />
+        </el-select>
       </el-form-item>
       <el-form-item
         style="width: 160px"
@@ -213,9 +228,9 @@ onMounted(() => {
       <el-form-item>
         <el-select
           clearable
-          prop="dormCapacity"
+          prop="Capacity"
           style="width: 160px"
-          v-model="dormSearchParams.dormCapacity"
+          v-model="dormSearchParams.Capacity"
           placeholder="请选择宿舍类型">
           <el-option
             label="六人间"
@@ -223,24 +238,6 @@ onMounted(() => {
           <el-option
             label="四人间"
             :value="4" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-select
-          prop="dormStatus"
-          clearable
-          style="width: 160px"
-          v-model="dormSearchParams.dormStatus"
-          placeholder="宿舍状态">
-          <el-option
-            label="空闲"
-            value="空闲" />
-          <el-option
-            label="满人"
-            value="满人" />
-          <el-option
-            label="有剩余床位"
-            value="有剩余床位" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -288,18 +285,7 @@ onMounted(() => {
         width="180"
         align="center">
         <template #default="{ row, column, $index }">
-          <router-link
-            :to="{
-              name: 'bed',
-              params: {
-                floor: row.floorsName,
-                name: row.dormNumber,
-                capacity: row.dormCapacity
-              }
-            }"
-            style="color: #409eff"
-            >{{ row.floorsName + "-" + row.dormNumber }}</router-link
-          >
+          <el-tag>{{ row.floorsName + "-" + row.dormNumber }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -315,17 +301,10 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column
-        prop="dormCapacity"
-        label="类型(几人间)"
-        width="180"
-        align="center" />
-      <el-table-column
-        label="宿舍状态"
+        prop="Capacity"
+        label="容纳数"
         width="180"
         align="center">
-        <template #default="{ row, column, $index }">
-          <el-tag :type="stateTag(row.dormStatus)">{{ row.dormStatus }}</el-tag>
-        </template>
       </el-table-column>
       <el-table-column
         prop="操作"
@@ -393,10 +372,19 @@ onMounted(() => {
         </el-form-item>
         <el-form-item
           label="宿舍楼"
-          prop="floorsName">
-          <el-input
-            v-model="addDormParams.floorsName"
-            placeholder="请输入宿舍楼名称" />
+          prop="floorId">
+          <el-select
+            clearable
+            prop="floorId"
+            style="width: 160px"
+            v-model="addDormParams.floorId"
+            placeholder="请选择宿舍楼">
+            <el-option
+              v-for="item in floorList"
+              :key="item.id"
+              :label="item.floorsName"
+              :value="item.id" />
+          </el-select>
         </el-form-item>
         <el-form-item
           label="编号"
@@ -407,12 +395,12 @@ onMounted(() => {
         </el-form-item>
         <el-form-item
           label="类型"
-          prop="dormCapacity">
+          prop="Capacity">
           <el-select
             :disabled="addDormParams.id ? true : false"
             style="width: 196px"
-            v-model="addDormParams.dormCapacity"
-            placeholder="请选择宿舍类型">
+            v-model="addDormParams.Capacity"
+            placeholder="请选择宿舍容纳数">
             <el-option
               label="六人间"
               :value="6" />
@@ -421,25 +409,6 @@ onMounted(() => {
               :value="4" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="状态"
-          prop="dormStatus">
-          <el-select
-            style="width: 196px"
-            v-model="addDormParams.dormStatus"
-            placeholder="请选择宿舍状态">
-            <el-option
-              label="空闲"
-              value="空闲" />
-            <el-option
-              label="满人"
-              value="满人" />
-            <el-option
-              label="有剩余床位"
-              value="有剩余床位" />
-          </el-select>
-        </el-form-item>
-
         <el-form-item>
           <el-button
             @click="addDormParams.id ? updateDorms() : createDorms()"

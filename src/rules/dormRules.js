@@ -10,10 +10,10 @@ export function dormNumber(rule, value, callback) {
   }
 }
 export function floorsName(rule, value, callback) {
-  let reg = /^[A-Z]\d$/
+  let reg = /^[A-Z]$/
   const isVal = reg.test(value)
   if (!isVal && value !== "") {
-    callback(new Error("请输入正确格式,如A1"))
+    callback(new Error("请输入正确格式,如A"))
   } else {
     callback()
   }
@@ -33,6 +33,7 @@ const FormRules = {
       trigger: "blur"
     }
   ],
+  floorId:[ { required: true, message: "宿舍楼不能为空", trigger: "blur" },],
   floorsType: [
     { required: true, message: "宿舍楼类型不能为空", trigger: "blur" }
   ],
@@ -64,20 +65,6 @@ const FormRules = {
       trigger: "blur"
     }
   ],
-  dormType: [
-    {
-      required: true,
-      message: "宿舍类型不能为空",
-      trigger: "blur"
-    }
-  ],
-  dormStatus: [
-    {
-      required: true,
-      message: "宿舍状态不能为空",
-      trigger: "blur"
-    }
-  ],
   rateDate: [
     {
       required: true,
@@ -85,7 +72,7 @@ const FormRules = {
       trigger: "blur"
     }
   ],
-  Rater: [
+  rater: [
     {
       required: true,
       message: "人物不能为空",
@@ -192,9 +179,22 @@ const FormRules = {
       trigger: "blur"
     }
   ],
-  
+  Capacity: [
+    {
+      required: true,
+      message: "宿舍容纳量不能为空",
+      trigger: "blur"
+    }
+  ],
+  dormId:[
+    {
+      required: true,
+      message: "宿舍不能为空",
+      trigger: "blur"
+    },
+  ]
 }
-export const searchRule={
+export const searchRule = {
   floorsName: [
     {
       validator: floorsName,

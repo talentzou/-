@@ -1,7 +1,7 @@
 <script setup>
 import { GetAllMenus } from "@/api/Menu/menu"
 import { GetBtnTree } from "@/api/Btn/btns"
-import { GetRoles, DeleteRoles, CreateRoles } from "@/api/Role/role"
+import { GetRoles, DeleteRoles, CreateRoles} from "@/api/Role/role"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 const drawerVisible = ref(false)
@@ -116,6 +116,7 @@ const deleteRoles = async (row) => {
   const status = Notification(code, msg)
   status ? getRoleList() : ""
 }
+
 onMounted(() => {
   getAllMenus()
   getAllBtnTree()
@@ -158,11 +159,11 @@ onMounted(() => {
             @click="handleMenuAndBtnIdList(row)"
             ><el-icon><ep-Setting /></el-icon>设置权限</el-button
           >
-          <el-button
+          <!-- <el-button
             text
             type="primary"
             ><el-icon><ep-Edit /></el-icon>编辑</el-button
-          >
+          > -->
           <el-button
             text
             type="danger"
