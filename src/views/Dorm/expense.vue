@@ -8,7 +8,8 @@ import {
 import { GetFloorWithDormList } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
-import { useRules, searchRule } from "@/rules/expenseRules"
+import { useRules } from "@/rules/expenseRules"
+import { floorDormRule } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
@@ -17,8 +18,7 @@ const refTable = ref(null)
 const searchRef = ref(null)
 const Form = ref(null)
 let expenseSearchParams = reactive({
-  paymentTime:"",
-  accounter: ""
+  floorDorm: ""
 })
 let expenseEditParams = ref({
   dormId: "",
@@ -27,12 +27,10 @@ let expenseEditParams = ref({
   electricityCharge: "",
   totalCost: "",
   accountant: "",
-  phone: "",
+  phone: ""
 })
 // 按钮字段
 const { operate_auth, table_auth } = authFields("expense")
-
-const searchRules = searchRule
 const formRules = useRules(expenseEditParams.value)
 let isOperate = ref(true)
 //导出对话框
@@ -81,10 +79,13 @@ async function getExpenses(PageAndSize) {
     Pages = PageAndSize
   }
   // console.log("发起请求")
-  const { code, data } = await getExpenseResponse(expenseSearchParams, Pages)
+  const { code, data,msg } = await getExpenseResponse(expenseSearchParams, Pages)
+    console.log(code,"99999");
   if (code == 200) {
     expenseTableData.value = data.list
     total.value = data.total
+  }else{
+     Notification(code, msg)
   }
 }
 // 更新
@@ -123,12 +124,7 @@ async function createExpenses() {
 
 //搜索栏
 async function SearchExpenses() {
-  const query = expenseSearchParams
-  let params = Object.fromEntries(
-    Object.entries(query).filter(([key]) => query[key])
-  )
-
-  if (!Object.keys(params).length) {
+  if (expenseSearchParams.floorDorm.length==0) {
     console.log("控制")
     ElMessage({
       message: "搜索输入不能为空",
@@ -137,6 +133,7 @@ async function SearchExpenses() {
     return
   }
   const valid = await submitForm(searchRef.value)
+  console.log("AKANSNSN",valid);
   if (valid) {
     getExpenses()
   }
@@ -160,22 +157,15 @@ onMounted(() => {
     <el-form
       :model="expenseSearchParams"
       ref="searchRef"
-      :rules="searchRules"
+      :rules="floorDormRule"
       inline>
-      <el-form-item prop="paymentTime">
-        <el-date-picker
-            style="width: 195px"
-            v-model="expenseSearchParams.paymentTime"
-            type="date"
-            format="YYYY-MM-DD"
-            placeholder="请选择缴费时间" />
-      </el-form-item>
-      <el-form-item prop="accounter">
+      <el-form-item
+        style="width: 180px"
+        prop="floorDorm">
         <el-input
-          v-model="expenseSearchParams.accounter"
-          placeholder="请输入结算人"
-          clearable
-          style="width: 180px" />
+        clearable
+          v-model="expenseSearchParams.floorDorm"
+          placeholder="请输入宿舍" />
       </el-form-item>
       <el-form-item>
         <el-button
@@ -214,15 +204,15 @@ onMounted(() => {
         width="180"
         align="center">
         <template #default="{ row }">
-          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
-        >
+          <el-tag>{{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</el-tag>
+        </template>
       </el-table-column>
       <el-table-column
         prop="paymentTime"
         label="缴费时间"
         width="200"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           {{ FormatTime(row.paymentTime) }}</template
         >
       </el-table-column>
@@ -258,7 +248,7 @@ onMounted(() => {
         align="center"
         fixed="right"
         width="200">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"

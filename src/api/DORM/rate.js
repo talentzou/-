@@ -1,6 +1,7 @@
 import request, { filterParams } from "@/utils/axios"
 export const getRateResponse = (query, pages) => {
   const params = filterParams(query)
+  console.log("参数为99",params);
   return request({
     method: "get",
     url: `/jwt/Dormitory/Rate/getRate/${pages.Page}/${pages.PageSize}`,

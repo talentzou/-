@@ -65,11 +65,12 @@ async function getFloors(PageAndSize) {
   const { code, data,msg } = await getFloorsInfoRequest(
     pageAndSizeParams
   )
-  console.log(data,msg);
-  if (code == 200) {
+  console.log(data,msg)
+  if(code==200){
     tableData.value = data.list
     total.value = data.total
   }
+
 }
 // 更新
 async function updateFloors() {
@@ -179,10 +180,10 @@ const paramsRules = useRules(floorsParams.value)
       style="line-height: 50px"
       inline>
       <el-form-item
-        style="width: 400px"
+        style="width: 250px"
         prop="queryStr">
         <el-input
-          placeholder="请输入宿舍楼名称:如A1;或宿舍楼类型:男生|女生宿舍"
+          placeholder="请输入宿舍楼名称"
           v-model="floorsSearchForm.queryStr" />
       </el-form-item>
       <el-form-item>
@@ -230,7 +231,7 @@ const paramsRules = useRules(floorsParams.value)
         label="类型"
         width="250"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row}">
           <el-tag :type="tagState(row)">{{ row.floorsType }}</el-tag>
         </template>
       </el-table-column>
@@ -244,7 +245,7 @@ const paramsRules = useRules(floorsParams.value)
         label="操作"
         align="center"
         fixed="right">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"

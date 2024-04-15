@@ -88,7 +88,8 @@ async function getStays(PageAndSize) {
   }
   // console.log("发起请求")
   const { code, data } = await getStayResponse(staySearchParams, Pages)
-  console.log("留宿申请数据",data.list);
+  console.log("留宿申请数据", data.list)
+
   if (code == 200) {
     stayTableData.value = data.list.map((item) => {
       // console.log("开始时间", item.stayTime.startTime)
@@ -97,7 +98,6 @@ async function getStays(PageAndSize) {
       return item
     })
     total.value = data.total
-    // console.log("jjjkkkkaaa", stayTableData.value)
   }
 }
 // 更新
@@ -236,7 +236,7 @@ onMounted(() => {
         label="留宿时间"
         width="200"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-text truncated>
             {{ FormatTime(row.stayTime[0]) }}~{{ FormatTime(row.stayTime[1]) }}
           </el-text>
@@ -252,7 +252,7 @@ onMounted(() => {
         label="留宿原因"
         width="220"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tooltip
             class="box-item"
             effect="light"
@@ -272,8 +272,8 @@ onMounted(() => {
         label="宿舍"
         align="center"
         width="180">
-        <template #default="{ row, column, $index }">
-          <el-tag type="success">{{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</el-tag>
+        <template #default="{ row }">
+          <el-tag>{{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -281,7 +281,7 @@ onMounted(() => {
         label="审核意见"
         align="center"
         width="120">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag :type="stateTag(row.opinions)">{{ row.opinions }}</el-tag>
         </template>
       </el-table-column>
@@ -289,7 +289,7 @@ onMounted(() => {
         prop="操作"
         label="操作"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"

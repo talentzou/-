@@ -24,7 +24,15 @@ function studentName(rule, value, callback) {
   }
   callback()
 }
-
+export const floorDorm=(rule, value, callback)=>{
+  let reg = /^[A-G]-\d{3}$/
+  const isVal = reg.test(value)
+  if (!isVal && value !== "") {
+    callback(new Error("请输入正确格式,如:A-101"))
+  } else {
+    callback()
+  }
+}
 const FormRules = {
   floorsName: [
     { required: true, message: "宿舍楼不能为空", trigger: "blur" },
@@ -204,6 +212,20 @@ export const searchRule = {
   dormNumber: [
     {
       validator: dormNumber,
+      trigger: "blur"
+    }
+  ]
+}
+
+export const floorDormRule={
+  floorDorm: [
+    {
+      required: true,
+      message: "不能为空",
+      trigger: "blur"
+    },
+    {
+      validator: floorDorm,
       trigger: "blur"
     }
   ]

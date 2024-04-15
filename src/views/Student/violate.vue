@@ -1,5 +1,5 @@
 <script setup>
-import { useRules, searchRule } from "@/rules/studentRules"
+import { useRules } from "@/rules/studentRules"
 import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import {
@@ -8,14 +8,15 @@ import {
   createViolateResponse,
   deleteViolateResponse
 } from "@/api/Student/violate"
+import { floorDormRule } from "@/rules/dormRules"
 import { GetDormWithStudent } from "@/api/Dorm/dorm"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
 const { operate_auth, table_auth } = authFields("violate")
 let searchViolateParams = reactive({
-  studentNumber: "",
-  dormNumber: ""
+  floorDorm: "",
+  studentName: ""
 })
 let searchRef = ref(null)
 let violateVisible = ref(false)
@@ -23,8 +24,8 @@ let expDialog = ref(false)
 let isOperate = ref(true)
 const Form = ref(null)
 let violateEditParams = ref({
-  sorts:[],
-  studentInfoId: "",
+  sorts: [],
+  studInfoId: "",
   dormId: "",
   violate: "",
   resolve: "",
@@ -65,12 +66,14 @@ async function getViolates(PageAndSize) {
     violateTableData.value = data.list
     total.value = data.total
   }
-  console.log("jjjj",data.list);
+
+  console.log("jjjj", data.list)
 }
 // 更新
 async function updateViolates() {
   const valid = await submitForm(Form.value)
   if (valid) {
+    violateEditParams.value.dormId = violateEditParams.value.sorts[0]
     const { code, msg } = await updateViolateResponse(violateEditParams.value)
     violateVisible.value = false
     const status = Notification(code, msg)
@@ -95,7 +98,7 @@ async function createViolates() {
     const list = toRaw(violateEditParams.value)
     // console.log("list", list)
     list.dormId = violateEditParams.value.sorts[0]
-    list.studentInfoId = violateEditParams.value.sorts[1]
+    list.studInfoId = violateEditParams.value.sorts[1]
     const { code, msg } = await createViolateResponse([list])
     violateVisible.value = false
     const status = Notification(code, msg)
@@ -123,7 +126,7 @@ async function SearchViolates() {
   }
 }
 const options = ref([])
-const dormWithStu = ref([])
+
 const getDormWithStu = async () => {
   const { code, data } = await GetDormWithStudent()
   // console.log("ppp宿舍学生", data)
@@ -132,8 +135,18 @@ const getDormWithStu = async () => {
     HandleCustomProps(data)
   }
 }
+// 合并参数
+const mergeParams = (arr) => {
+  violateVisible.value = true
+  options.value = NotHaveChild.value
+  violateEditParams.value.sorts=arr[0]
+  // violateEditParams.value.studInfoId=arr[1]
+  console.log(violateEditParams.value);
+}
 // 处理数据
 // 处理数据
+const dormWithStu = ref([])
+const NotHaveChild = ref([])
 const HandleCustomProps = (data) => {
   const CustomProps = data.map((item) => {
     const temp = {}
@@ -148,8 +161,17 @@ const HandleCustomProps = (data) => {
     })
     return temp
   })
+  const NotChild = data.map((item) => {
+    const temp = {}
+    temp.label = item.floorsName + "-" + item.dormNumber
+    temp.value = item.id
+    temp.children = null
+    return temp
+  })
   // console.log(" CustomProps", CustomProps)
-  options.value = CustomProps
+  dormWithStu.value = CustomProps
+  NotHaveChild.value = NotChild
+  console.log("没有孩子", NotChild)
 }
 onMounted(() => {
   getDormWithStu()
@@ -160,20 +182,20 @@ onMounted(() => {
   <div>
     <el-form
       ref="searchRef"
-      :rules="searchRule"
+      :rules="floorDormRule"
       :model="searchViolateParams"
       inline>
       <el-form-item
-        prop="dormNumber"
+        prop="floorDorm"
         style="width: 160px">
         <el-input
-          v-model="searchViolateParams.dormNumber"
+          v-model="searchViolateParams.floorDorm"
           placeholder="请输入宿舍名称" />
       </el-form-item>
       <el-form-item style="width: 160px">
         <el-input
-          v-model="searchViolateParams.studentNumber"
-          placeholder="请输入学号"
+          v-model="searchViolateParams.studentName"
+          placeholder="请输入学生姓名"
           clearable />
       </el-form-item>
       <el-form-item>
@@ -188,6 +210,7 @@ onMounted(() => {
     <OperateButton
       :isOperate="isOperate"
       :authBtn="operate_auth"
+      @add="options = dormWithStu"
       @delete="deleteViolates"
       v-model="violateVisible"
       @excel="expDialog = true" />
@@ -222,7 +245,7 @@ onMounted(() => {
         prop="dormNumber"
         label="宿舍"
         width="160"
-        align="center" >
+        align="center">
         <template #default="{ row }">
           {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
         >
@@ -263,7 +286,7 @@ onMounted(() => {
             :row="row"
             :authBtn="table_auth"
             @delete="deleteViolates"
-            @merge="violateVisible = true"
+            @merge="mergeParams"
             v-model="violateEditParams" />
         </template>
       </el-table-column>
@@ -283,32 +306,6 @@ onMounted(() => {
         :rules="formRules"
         label-width="auto"
         ref="Form">
-        <!-- <el-form-item
-          label="宿舍"
-          prop="dormId">
-          <el-select
-            v-model="violateEditParams.dormId"
-            placeholder="请选择宿舍"
-            style="width: 200px">
-            <el-option-group
-              v-for="group in options"
-              :key="group.floorsName"
-              :label="group.floorsName">
-              <el-option
-                v-for="item in group.dormList"
-                :key="item.id"
-                :label="group.floorsName + `-` + item.dormNumber"
-                :value="item.id" />
-            </el-option-group>
-          </el-select>
-        </el-form-item>
-        <el-form-item
-          label="学生名字"
-          prop="studentName"
-          ><el-input
-            v-model="violateEditParams.studentName"
-            placeholder="请输入学生名字"
-        /></el-form-item> -->
         <el-form-item
           label="宿舍和学生"
           style="width: 100%"

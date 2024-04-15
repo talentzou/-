@@ -147,7 +147,7 @@ onMounted(() => {
         <el-table-column
           label="操作"
           prop="title">
-          <template #default="{ row, column, $index }">
+          <template #default="{ row }">
             <TableButton
               :row="row"
               :authBtn="table_auth"

@@ -9,7 +9,7 @@ import { GetFloorWithDormList } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
-import { floorsName, dormNumber } from "@/rules/dormRules"
+import { floorDormRule } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
@@ -18,8 +18,8 @@ const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
 let maintenanceSearchParams = reactive({
-  repairer: "",
-  repairStatus: ""
+  floorDorm: "",
+  repairStatus:""
 })
 //导出对话框
 const expDialog = ref(false)
@@ -34,15 +34,7 @@ let maintenanceEditParams = ref({
   phone: "",
   repairer: ""
 })
-const searchRules = {
-  reportMan: [
-    {
-      required: true,
-      message: "上报人不能为空",
-      trigger: "blur"
-    }
-  ]
-}
+
 const formRules = useRules(maintenanceEditParams.value)
 //导出表格
 const fields = {
@@ -156,14 +148,15 @@ onMounted(() => {
     <el-form
       ref="searchRef"
       :model="maintenanceSearchParams"
-      :rules="searchRules"
+      :rules="floorDormRule"
       style="line-height: 50px"
       inline>
-      <el-form-item>
+      <el-form-item prop="floorDorm">
         <el-input
-        style="width: 200px"
-          v-model="maintenanceSearchParams.reportMan"
-          placeholder="请输入维修问题上报人" />
+          clearable
+          style="width: 200px"
+          v-model="maintenanceSearchParams.floorDorm"
+          placeholder="请输入宿舍" />
       </el-form-item>
       <el-form-item>
         <el-select
@@ -225,7 +218,7 @@ onMounted(() => {
         label="问题描述"
         width="250"
         align="center">
-        <template #default="{ row, column, $index }"> </template>
+        <!-- <template #default="{ row, column, $index }"> </template> -->
       </el-table-column>
       <el-table-column
         prop="repairStatus"

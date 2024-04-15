@@ -1,4 +1,6 @@
 <script setup>
+import { add } from 'lodash';
+
 const props = defineProps({
   isOperate: {
     require: true,
@@ -9,11 +11,12 @@ const props = defineProps({
     type: Object
   }
 })
-const emits = defineEmits(["excel", "delete"])
+const emits = defineEmits(["excel", "delete","add"])
 let visible = defineModel()
 const operateIsTrue = ref(true)
 function addBtn() {
   visible.value = true
+  emits("add")
 }
 function deleteBtn() {
   emits("delete")

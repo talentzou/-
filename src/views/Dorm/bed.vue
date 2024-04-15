@@ -246,7 +246,7 @@ onMounted(() => {
         label="床位状态"
         width="180"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag
             type="info"
             v-if="row.bedStatus === '没人'"
@@ -264,7 +264,7 @@ onMounted(() => {
         prop="操作"
         label="操作"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row}">
           <TableButton
             :row="row"
             :authBtn="table_auth"

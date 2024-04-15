@@ -26,7 +26,7 @@ function handleCurrentChange(event) {
     <el-pagination
       v-model:current-page="pageAndSize.Page"
       v-model:page-size="pageAndSize.PageSize"
-      :page-sizes="[10, 20, 40, 60]"
+      :page-sizes="[10, 20, 30, 40]"
       background
       layout="total, sizes, prev, pager, next, jumper"
       :total="$props.total"

@@ -1,6 +1,6 @@
 <script setup>
 import { getNoticeResponse } from "@/api/Notice/notice"
-
+import { GetHomeMessage } from "@/api/Home/home"
 const list = ref([
   { title: "用户统计", icon: "user", color: "#2c4058" },
   { title: "空宿舍统计", icon: "empty_dorm", color: "#ffb102" },
@@ -18,8 +18,17 @@ async function getNotices() {
     noticeList.value = data.list
   }
 }
+const message=ref({})
+const getHome = async () => {
+  const res = await GetHomeMessage()
+  if (res.code==200){
+   message.value=res.data
+  }
+  console.log("主页",res)
+}
 onMounted(() => {
-  // getNotices()
+  getHome()
+  getNotices()
 })
 </script>
 <template>
@@ -28,7 +37,7 @@ onMounted(() => {
     <div>
       <el-card class="statistics">
         <div
-          v-for="d in list"
+          v-for="(d,index) in list"
           :style="{ backgroundColor: d.color }"
           :key="d">
           <svg-icon
@@ -38,7 +47,7 @@ onMounted(() => {
             height="65"></svg-icon>
           <div class="statistics-text">
             <span>{{ d.title }}</span>
-            <span>{{ 0 }}</span>
+            <span>{{  message[index] }}</span>
           </div>
         </div>
       </el-card>

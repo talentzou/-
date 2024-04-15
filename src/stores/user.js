@@ -57,8 +57,9 @@ export const userStore = defineStore("user", () => {
     // console.log("获取用户数据9999999999",res);
     userInfo.value = res.data.userInfo
     const res2 = await GetUserSelfBtn()
+    console.log("按钮数据为++++++",res2);
     authBtn.value = res2.data.btns
-    // console.log("用户数据为8888111即可将宁波办黑板报",authBtn.value);
+    // console.log("用户数据",authBtn.value);
   }
 
   watch(

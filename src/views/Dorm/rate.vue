@@ -10,7 +10,7 @@ import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
-import { floorsName, dormNumber } from "@/rules/dormRules"
+import { floorDormRule } from "@/rules/dormRules"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
 const { operate_auth, table_auth } = authFields("rate")
@@ -21,8 +21,7 @@ const refTable = ref(null)
 const expDialog = ref(false)
 
 let rateSearchParams = reactive({
-  dormNumber: "",
-  evaluation: ""
+  floorDorm: ""
 })
 let isOperate = ref(true)
 let rateEditParams = ref({
@@ -36,18 +35,9 @@ let rateEditParams = ref({
   rater: "",
   evaluation: ""
 })
-const searchRules = {
-  evaluation: [
-    {
-      required: true,
-      message: "不能为空",
-      trigger: "blur"
-    }
-  ]
-}
+
 const formRules = useRules(rateEditParams.value)
 let rateVisible = ref(false)
-
 
 const totalScore = computed(() => {
   return (
@@ -95,10 +85,13 @@ async function getRates(PageAndSize) {
     Pages = PageAndSize
   }
   // console.log("发起请求")
-  const { code, data } = await getRateResponse(rateSearchParams, Pages)
-  if (code == 200) {
+  const { code, data,msg } = await getRateResponse(rateSearchParams, Pages)
+
+  if(code==200){
     rateTableData.value = data.list
     total.value = data.total
+  }else{
+     Notification(code, msg)
   }
   console.log("表格数据", data.list)
 }
@@ -139,12 +132,7 @@ async function createRates() {
 }
 //搜索栏
 async function SearchRates() {
-  const query = rateSearchParams
-  let params = Object.fromEntries(
-    Object.entries(query).filter(([key]) => query[key])
-  )
-  // console.log("对象",params,Object.keys(params).length);
-  if (!Object.keys(params).length) {
+  if (rateSearchParams.floorDorm.length === 0) {
     console.log("控制")
     ElMessage({
       message: "搜索输入不能为空",
@@ -161,7 +149,7 @@ async function SearchRates() {
 const options = ref([])
 const getFloorWithDorm = async () => {
   const { code, data } = await GetFloorWithDormList()
-  console.log("ppp", data)
+  // console.log("ppp", data)
   if (code == 200) {
     options.value = data.list
   }
@@ -175,21 +163,15 @@ onMounted(() => {
   <div>
     <el-form
       ref="searchRef"
-      :rules="searchRules"
+      :rules="floorDormRule"
       :model="rateSearchParams"
       inline>
-      <el-form-item style="width: 180px">
-        <el-select
-          clearable
-          placeholder="请选择综合评价"
-          v-model="rateSearchParams.evaluation">
-          <el-option
-            value="合格"
-            label="合格" />
-          <el-option
-            value="不合格"
-            label="不合格" />
-        </el-select>
+      <el-form-item
+        style="width: 180px"
+        prop="floorDorm">
+        <el-input
+          v-model="rateSearchParams.floorDorm"
+          placeholder="请输入宿舍" />
       </el-form-item>
       <el-form-item>
         <el-button
@@ -237,7 +219,7 @@ onMounted(() => {
         width="90"
         align="center">
         <template #default="{ row }">
-          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}
+          <el-tag>{{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -271,7 +253,7 @@ onMounted(() => {
         width="160"
         align="center"
         sortable>
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           {{ FormatTime(row.rateDate) }}
         </template>
       </el-table-column>
@@ -285,7 +267,7 @@ onMounted(() => {
         label="综合评价"
         align="center"
         width="90">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag>{{ row.evaluation }}</el-tag>
         </template>
       </el-table-column>
@@ -293,7 +275,7 @@ onMounted(() => {
         prop="操作"
         label="操作"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"

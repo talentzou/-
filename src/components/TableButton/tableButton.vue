@@ -11,11 +11,15 @@ const modelValue = defineModel()
 const emits = defineEmits(["merge", "delete"])
 function UpdateRow() {
   modelValue.value = { ...modelValue.value, ...props.row }
-  console.log("hsvfvf", modelValue.value)
-  emits("merge")
+  // console.log();
+  // if (Reflect.has(props.row,"studInfoId")&&Reflect.has(props.row,"dormId")){
+  //   emits("merge")
+  // }
+  // console.log("9999");
+  emits("merge",[props.row.dormId,props.row.studInfoId])
 }
 function DeleteRow() {
-  console.log("ssssss", props.row.id)
+  // console.log("ssssss", props.row.id)
   emits("delete", [{ id: props.row.id, uuid: props.row.uuid }])
 }
 </script>

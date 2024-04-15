@@ -8,6 +8,7 @@ export const getViolateResponse = (query, pages) => {
   })
 }
 export const updateViolateResponse = (data) => {
+  console.log("更新99999参数为",data);
   return request({
     method: "put",
     url:"/jwt/student/violate/updateViolate",
@@ -15,6 +16,7 @@ export const updateViolateResponse = (data) => {
   })
 }
 export const createViolateResponse = (data) => {
+  console.log("添加参数为",data);
   return request({
     method: "post",
     url:"/jwt/student/violate/createViolate",

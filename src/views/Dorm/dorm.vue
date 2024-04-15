@@ -119,7 +119,7 @@ async function getDorms(PageAndSize) {
   }
   // console.log("发起请求")
   const { code, data } = await getDormResponse(dormSearchParams, Pages)
-  if (code == 200) {
+  if(code==200){
     dormTableData.value = data.list
     console.log(data.list)
     total.value = data.total
@@ -203,8 +203,7 @@ onMounted(() => {
       :rules="searchRules"
       style="line-height: 50px"
       inline>
-      <el-form-item
-        prop="floorId">
+      <el-form-item prop="floorId">
         <el-select
           clearable
           prop="floorId"
@@ -224,21 +223,6 @@ onMounted(() => {
         <el-input
           placeholder="请选择宿舍"
           v-model="dormSearchParams.dormNumber" />
-      </el-form-item>
-      <el-form-item>
-        <el-select
-          clearable
-          prop="Capacity"
-          style="width: 160px"
-          v-model="dormSearchParams.Capacity"
-          placeholder="请选择宿舍类型">
-          <el-option
-            label="六人间"
-            :value="6" />
-          <el-option
-            label="四人间"
-            :value="4" />
-        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button
@@ -284,7 +268,7 @@ onMounted(() => {
         label="宿舍号"
         width="180"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <el-tag>{{ row.floorsName + "-" + row.dormNumber }}</el-tag>
         </template>
       </el-table-column>
@@ -293,7 +277,7 @@ onMounted(() => {
         label="宿舍照片"
         width="180"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <img
             :src="row.img"
             alt=""
@@ -305,12 +289,16 @@ onMounted(() => {
         label="容纳数"
         width="180"
         align="center">
+        <template #default="{ row }">{{
+          row.count + "/" + row.Capacity
+        }}</template>
       </el-table-column>
+
       <el-table-column
         prop="操作"
         label="操作"
         align="center">
-        <template #default="{ row, column, $index }">
+        <template #default="{ row }">
           <TableButton
             :row="row"
             :authBtn="table_auth"

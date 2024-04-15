@@ -16,7 +16,7 @@ const searchRef = ref(null)
 const Form = ref(null)
 const searchStudentParams = reactive({
   studentName: "",
-  studentNumber: "",
+  studentNumber: ""
 })
 let isOperate = ref(true)
 let studentVisible = ref(false)
@@ -57,8 +57,11 @@ async function getStudents(PageAndSize) {
     Pages = PageAndSize
   }
   console.log("发起请求")
-  const { code, data } = await getStudentResponse(searchStudentParams, Pages)
-  if (code == 200) {
+  const { code, data } = await getStudentResponse(
+    searchStudentParams,
+    Pages
+  )
+  if(code==200){
     studentTableData.value = data.list
     total.value = data.total
   }
@@ -212,7 +215,9 @@ onMounted(() => {
         width="180"
         align="center">
         <template #default="{ row }">
-          {{ row.dorm.floorsName + "-" + row.dorm.dormNumber }}</template
+          <el-tag>{{
+            row.dorm.floorsName + "-" + row.dorm.dormNumber
+          }}</el-tag></template
         >
       </el-table-column>
       <el-table-column
