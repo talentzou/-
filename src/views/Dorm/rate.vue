@@ -76,7 +76,7 @@ function exportTable({ filename, allSelect }) {
 /* 接口 */
 let rateTableData = ref([])
 const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
@@ -85,20 +85,21 @@ async function getRates(PageAndSize) {
     Pages = PageAndSize
   }
   // console.log("发起请求")
-  const { code, data,msg } = await getRateResponse(rateSearchParams, Pages)
+  const { code, data, msg } = await getRateResponse(rateSearchParams, Pages.value)
 
-  if(code==200){
+  if (code == 200) {
     rateTableData.value = data.list
     total.value = data.total
-  }else{
-     Notification(code, msg)
+  } else {
+    Notification(code, msg)
   }
-  console.log("表格数据", data.list)
+ 
 }
 // 更新
 async function updateRates() {
   const valid = await submitForm(Form.value)
   if (valid) {
+    rateEditParams.value.totalScore=totalScore.value
     const { code, msg } = await updateRateResponse(rateEditParams.value)
     rateVisible.value = false
     const status = Notification(code, msg)
@@ -158,6 +159,14 @@ onMounted(() => {
   getFloorWithDorm()
   getRates()
 })
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  Pages.value=page
+  const { code, data, } = await getRateResponse(rateSearchParams, page)
+  if (code == 200) {
+    rateTableData.value = data.list
+  }
+}
 </script>
 <template>
   <div>
@@ -288,8 +297,8 @@ onMounted(() => {
     <!--分页 -->
     <Pagination
       :total="total"
-      @getCurrentPage="getRates"
-      @getPageSizes="getRates" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <!-- 对话框 -->
     <FormDialog
       :width="45"

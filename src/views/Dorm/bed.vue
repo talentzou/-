@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import {
   getBedResponse,
   updateBedResponse,
@@ -335,4 +335,4 @@ onMounted(() => {
       v-model="expDialog"
       @select="exportTable" />
   </div>
-</template>
+</template> -->

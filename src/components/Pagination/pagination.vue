@@ -11,14 +11,14 @@ const pageAndSize = reactive({
   Page: 1
 })
 function handleSizeChange(event) {
-//   console.log("PageSizes", event)
+  console.log("PageSizes", event)
   pageAndSize.PageSize = event
-  $emit("getPageSizes", pageAndSize)
+  $emit("getPageSizes", {PageSize: event, Page: pageAndSize.Page})
 }
 function handleCurrentChange(event) {
-//   console.log("Page", event)
+  console.log("我是页数改变触发Page9999", event)
   pageAndSize.Page = event
-  $emit("getCurrentPage", pageAndSize)
+  $emit("getCurrentPage", {PageSize: pageAndSize.PageSize, Page:event})
 }
 </script>
 <template>
@@ -26,7 +26,7 @@ function handleCurrentChange(event) {
     <el-pagination
       v-model:current-page="pageAndSize.Page"
       v-model:page-size="pageAndSize.PageSize"
-      :page-sizes="[10, 20, 30, 40]"
+      :page-sizes="[10, 15, 20, 30]"
       background
       layout="total, sizes, prev, pager, next, jumper"
       :total="$props.total"

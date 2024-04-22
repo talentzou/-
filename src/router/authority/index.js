@@ -118,6 +118,16 @@ export const asyncRoutes = [
           title: "水电费信息",
           icon: "expense"
         }
+      },
+      {
+        path: "equipment-repair",
+        name: "equipment",
+        component: () => import("@/views/Maintenance/equipment.vue"),
+        hidden: false,
+        meta: {
+          title: "维修列表",
+          icon: "equipment"
+        }
       }
     ]
   },
@@ -172,36 +182,36 @@ export const asyncRoutes = [
         component: () => import("@/views/Notice/notice.vue"),
         hidden: false,
         meta: {
-          title: "通告消息",
+          title: "通告管理",
           icon: "notice"
         }
       }
     ]
   },
   //维修
-  {
-    path: "/Maintenance",
-    name: "Maintenance",
-    hidden: false,
-    meta: {
-      title: "维修管理",
-      icon: "repair"
-    },
-    component: () => import("@/layout/layout.vue"),
+  // {
+  //   path: "/Maintenance",
+  //   name: "Maintenance",
+  //   hidden: false,
+  //   meta: {
+  //     title: "维修管理",
+  //     icon: "repair"
+  //   },
+  //   component: () => import("@/layout/layout.vue"),
 
-    children: [
-      {
-        path: "equipment-repair",
-        name: "equipment",
-        component: () => import("@/views/Maintenance/equipment.vue"),
-        hidden: false,
-        meta: {
-          title: "维修列表",
-          icon: "equipment"
-        }
-      }
-    ]
-  },
+  //   children: [
+  //     {
+  //       path: "equipment-repair",
+  //       name: "equipment",
+  //       component: () => import("@/views/Maintenance/equipment.vue"),
+  //       hidden: false,
+  //       meta: {
+  //         title: "维修管理",
+  //         icon: "equipment"
+  //       }
+  //     }
+  //   ]
+  // },
   // 个人信息
   {
     path: "/PersonInfo",

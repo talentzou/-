@@ -29,7 +29,7 @@ const listId = computed(() => {
 let length = ref(0)
 const IdList = ref([])
 const CheckChange = () => {
-  // console.log(Tree.value.getCheckedKeys())
+  console.log(Tree.value.getCheckedKeys())
   // console.log("之前的长度", Comp.list.length)
 
   if (Comp.tab === "btn") {
@@ -37,9 +37,12 @@ const CheckChange = () => {
     temp = temp.filter((item) => item < 1000)
     length.value = temp.length
     IdList.value = temp
+    console.log("9999",IdList.value);
   } else {
+    console.log("半选中", ...Tree.value.getHalfCheckedKeys());
     length.value = Tree.value.getCheckedKeys().length
     IdList.value = Tree.value.getCheckedKeys()
+    IdList.value.push(...Tree.value.getHalfCheckedKeys())
   }
   // console.log("选中后", length.value)
 }

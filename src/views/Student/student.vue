@@ -48,20 +48,18 @@ function exportTable({ filename, allSelect }) {
 /* 接口 */
 let studentTableData = ref([])
 const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
-async function getStudents(PageAndSize) {
-  if (PageAndSize !== undefined) {
-    Pages = PageAndSize
-  }
+// 获取
+async function getStudents() {
   console.log("发起请求")
   const { code, data } = await getStudentResponse(
     searchStudentParams,
-    Pages
+    Pages.value
   )
-  if(code==200){
+  if (code == 200) {
     studentTableData.value = data.list
     total.value = data.total
   }
@@ -131,6 +129,15 @@ onMounted(() => {
   getFloorWithDorm()
   getStudents()
 })
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  console.log("页码数发生改变");
+  Pages.value = page
+  const { code, data } = await getStudentResponse(searchStudentParams, page)
+  if (code == 200) {
+    studentTableData.value = data.list
+  }
+}
 </script>
 
 <template>
@@ -201,7 +208,7 @@ onMounted(() => {
         label="性别"
         width="120"
         align="center">
-        <template #default="{ row, column, $index }"> </template>
+        <template #default="{ row}"> </template>
       </el-table-column>
       <el-table-column
         prop="phone"
@@ -237,8 +244,8 @@ onMounted(() => {
     <!-- 分页 -->
     <Pagination
       :total="total"
-      @getCurrentPage="getStudents"
-      @getPageSizes="getStudents" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <FormDialog
       ref="Form"
       v-model="studentVisible"

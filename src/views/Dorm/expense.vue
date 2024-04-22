@@ -70,7 +70,7 @@ watchEffect(() => {
 /* 接口 */
 let expenseTableData = ref([])
 const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
@@ -79,13 +79,16 @@ async function getExpenses(PageAndSize) {
     Pages = PageAndSize
   }
   // console.log("发起请求")
-  const { code, data,msg } = await getExpenseResponse(expenseSearchParams, Pages)
-    console.log(code,"99999");
+  const { code, data, msg } = await getExpenseResponse(
+    expenseSearchParams,
+    Pages.value
+  )
+  console.log(code, "99999")
   if (code == 200) {
     expenseTableData.value = data.list
     total.value = data.total
-  }else{
-     Notification(code, msg)
+  } else {
+    Notification(code, msg)
   }
 }
 // 更新
@@ -124,7 +127,7 @@ async function createExpenses() {
 
 //搜索栏
 async function SearchExpenses() {
-  if (expenseSearchParams.floorDorm.length==0) {
+  if (expenseSearchParams.floorDorm.length == 0) {
     console.log("控制")
     ElMessage({
       message: "搜索输入不能为空",
@@ -133,7 +136,7 @@ async function SearchExpenses() {
     return
   }
   const valid = await submitForm(searchRef.value)
-  console.log("AKANSNSN",valid);
+  console.log("AKANSNSN", valid)
   if (valid) {
     getExpenses()
   }
@@ -150,6 +153,14 @@ onMounted(() => {
   getFloorWithDorm()
   getExpenses()
 })
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  Pages.value = page
+  const { code, data } = await getExpenseResponse(expenseSearchParams, page)
+  if (code == 200) {
+    expenseTableData.value = data.list
+  }
+}
 </script>
 
 <template>
@@ -163,7 +174,7 @@ onMounted(() => {
         style="width: 180px"
         prop="floorDorm">
         <el-input
-        clearable
+          clearable
           v-model="expenseSearchParams.floorDorm"
           placeholder="请输入宿舍" />
       </el-form-item>
@@ -260,8 +271,8 @@ onMounted(() => {
     </el-table>
     <Pagination
       :total="total"
-      @getCurrentPage="getExpenses"
-      @getPageSizes="getExpenses" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <FormDialog
       :width="45"
       @close="Form.resetFields()"

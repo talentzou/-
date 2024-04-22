@@ -77,7 +77,7 @@ function stateTag(text) {
 /* 接口 */
 let stayTableData = ref([])
 const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
@@ -87,7 +87,7 @@ async function getStays(PageAndSize) {
     Pages = PageAndSize
   }
   // console.log("发起请求")
-  const { code, data } = await getStayResponse(staySearchParams, Pages)
+  const { code, data } = await getStayResponse(staySearchParams, Pages.value)
   console.log("留宿申请数据", data.list)
 
   if (code == 200) {
@@ -113,6 +113,11 @@ async function updateStays() {
     stayVisible.value = false
     const status = Notification(code, msg)
     status ? getStays() : ""
+    if (Reflect.has(stayEditParams.value, "id")) {
+      console.log("有id99")
+      delete stayEditParams.value.id
+      delete stayEditParams.value.dorm
+    }
   }
 }
 // 删除
@@ -182,6 +187,16 @@ onMounted(() => {
   getFloorWithDorm()
   getStays()
 })
+const HandlePageChange = async (page) => {
+  Pages.value = page
+  const { code, data } = await getStayResponse(staySearchParams, page)
+  if (code == 200) {
+    stayTableData.value = data.list.map((item) => {
+      item.stayTime = [item.stayTime.startTime, item.stayTime.endTime]
+      return item
+    })
+  }
+}
 </script>
 <template>
   <div>
@@ -301,8 +316,8 @@ onMounted(() => {
     </el-table>
     <Pagination
       :total="total"
-      @getCurrentPage="getStays"
-      @getPageSizes="getStays" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <!-- 对话框 -->
     <FormDialog
       @close="Form.resetFields()"

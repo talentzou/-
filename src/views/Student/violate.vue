@@ -52,32 +52,30 @@ function exportTable({ filename, allSelect }) {
 /* 接口 */
 let violateTableData = ref([])
 const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
-async function getViolates(PageAndSize) {
-  if (PageAndSize !== undefined) {
-    Pages = PageAndSize
-  }
-  // console.log("发起请求")
-  const { code, data } = await getViolateResponse(searchViolateParams, Pages)
+async function getViolates() {
+
+  const { code, data } = await getViolateResponse(searchViolateParams, Pages.value)
   if (code == 200) {
     violateTableData.value = data.list
     total.value = data.total
   }
-
   console.log("jjjj", data.list)
 }
 // 更新
 async function updateViolates() {
   const valid = await submitForm(Form.value)
   if (valid) {
+    // console.log( typeof violateEditParams.value.sorts[0]);
     violateEditParams.value.dormId = violateEditParams.value.sorts[0]
     const { code, msg } = await updateViolateResponse(violateEditParams.value)
     violateVisible.value = false
     const status = Notification(code, msg)
     status ? getViolates() : ""
+    delete violateEditParams.value.is
   }
 }
 // 删除
@@ -134,12 +132,14 @@ const getDormWithStu = async () => {
     // options.value = data.list
     HandleCustomProps(data)
   }
+  // const res = await GetDormWithStudent()
+  // console.log("vbvnvnv+++++",res);
 }
 // 合并参数
 const mergeParams = (arr) => {
   violateVisible.value = true
   options.value = NotHaveChild.value
-  violateEditParams.value.sorts=arr[0]
+  violateEditParams.value.sorts=[arr[0]]
   // violateEditParams.value.studInfoId=arr[1]
   console.log(violateEditParams.value);
 }
@@ -171,12 +171,20 @@ const HandleCustomProps = (data) => {
   // console.log(" CustomProps", CustomProps)
   dormWithStu.value = CustomProps
   NotHaveChild.value = NotChild
-  console.log("没有孩子", NotChild)
+  // console.log("没有孩子", NotChild)
 }
 onMounted(() => {
   getDormWithStu()
   getViolates()
 })
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  Pages.value=page
+  const { code, data } = await getViolateResponse(searchViolateParams, page)
+  if (code == 200) {
+    violateTableData.value = data.list
+  }
+}
 </script>
 <template>
   <div>
@@ -274,7 +282,7 @@ onMounted(() => {
         width="120"
         align="center">
         <template #default="{ row }">
-          <el-tag type="success"> {{ FormatTime(row.recordDate) }}</el-tag>
+        {{ FormatTime(row.recordDate) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -293,8 +301,8 @@ onMounted(() => {
     </el-table>
     <Pagination
       :total="total"
-      @getCurrentPage="getViolates"
-      @getPageSizes="getViolates" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <FormDialog
       ref="Form"
       v-model="violateVisible"

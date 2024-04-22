@@ -17,7 +17,6 @@ const searchNotice = ref("")
 
 const dialogVisible = ref(false)
 const noticeEditParams = ref({
-  id: "",
   title: "",
   author: "",
   timestamp: ""

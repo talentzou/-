@@ -51,10 +51,10 @@ function exportBtn() {
         <svg-icon
           name="delete"
           color="white"></svg-icon> </template
-      >删除
+      >批量删除
     </el-button>
 
-    <el-button
+    <!-- <el-button
       type="warning"
       :disabled="props.isOperate"
       size="small"
@@ -64,7 +64,7 @@ function exportBtn() {
           name="export"
           color="white"></svg-icon> </template
       >导出
-    </el-button>
+    </el-button> -->
   </div>
 </div>
 </template>

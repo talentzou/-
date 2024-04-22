@@ -58,17 +58,16 @@ function exportTable({ filename, allSelect }) {
 /* 接口 */
 let repairTableData = ref([])
 const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
-async function getRepairs(PageAndSize) {
-  if (PageAndSize !== undefined) {
-    Pages = PageAndSize
-  }
+// 获取
+async function getRepairs() {
   console.log("发起请求")
-  const { code, data } = await getRepairResponse(maintenanceSearchParams, Pages)
+  const { code, data } = await getRepairResponse(maintenanceSearchParams, Pages.value)
   if (code == 200) {
+    console.log("9kkkk+++",data);
     repairTableData.value = data.list
     total.value = data.total
   }
@@ -124,6 +123,7 @@ async function SearchRepairs() {
     return
   }
   const valid = await submitForm(searchRef.value)
+  console.log("校验+++++++",valid);
   if (valid) {
     getRepairs()
   }
@@ -140,6 +140,14 @@ onMounted(() => {
   getFloorWithDorm()
   getRepairs()
 })
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  Pages.value=page
+  const { code, data } = await getRepairResponse(maintenanceSearchParams, page)
+  if (code == 200) {
+    repairTableData.value = data.list
+  }
+}
 </script>
 
 <template>
@@ -288,8 +296,8 @@ onMounted(() => {
     <!-- 分页 -->
     <Pagination
       :total="total"
-      @getCurrentPage="getRepairs"
-      @getPageSizes="getRepairs" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <!-- 对话框 -->
     <FormDialog
       @close="Form.resetFields()"

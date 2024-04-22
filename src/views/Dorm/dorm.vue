@@ -9,7 +9,7 @@ import { getFloorsInfoRequest } from "@/api/Dorm/floors"
 import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
-import { floorsName, dormNumber } from "@/rules/dormRules"
+import { dormNumber } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 const { operate_auth, table_auth } = authFields("dorm")
@@ -90,40 +90,26 @@ function beforeAvatarUpload(file) {
     }
   })
 }
-//标签状态
-function stateTag(text) {
-  switch (text) {
-    case "空闲":
-      return "success"
-    case "满人":
-      return "danger"
-    case "有剩余床位":
-      return "info"
-    default:
-      return "info" // 默认情况下返回 "info"
-  }
-}
 
 /* 接口 */
 //获取信息
 //表格数据
-const dormTableData = ref([])
-const total = ref(0)
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
-async function getDorms(PageAndSize) {
-  if (PageAndSize !== undefined) {
-    Pages = PageAndSize
+const dormTableData = ref([])
+const total = ref(0)
+// 获取
+async function getDorms() {
+  console.log("发起请求+++++++++++++++++++++")
+  const res= await getDormResponse(dormSearchParams,Pages.value)
+  if (res.code == 200) {
+    dormTableData.value = res.data.list
+    // console.log("更新后的数据",data.list)
+    total.value = res.data.total
   }
-  // console.log("发起请求")
-  const { code, data } = await getDormResponse(dormSearchParams, Pages)
-  if(code==200){
-    dormTableData.value = data.list
-    console.log(data.list)
-    total.value = data.total
-  }
+  console.log("kkkkkkk",res);
 }
 // 更新
 async function updateDorms() {
@@ -178,6 +164,7 @@ async function SearchDorms() {
   }
 }
 const floorList = ref([])
+// 获取宿舍楼列表
 const getFloorList = async () => {
   const { code, data } = await getFloorsInfoRequest({
     PageSize: 10,
@@ -194,6 +181,16 @@ onMounted(() => {
   getFloorList()
   getDorms()
 })
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  Pages.value=page
+  console.log("页数和页码发生改变")
+  const { code, data } = await getDormResponse(dormSearchParams, page)
+  if (code == 200) {
+    dormTableData.value = data.list
+    console.log(data.list)
+  }
+}
 </script>
 <template>
   <div>
@@ -311,9 +308,9 @@ onMounted(() => {
     <!-- 分页 -->
     <Pagination
       :total="total"
-      @getCurrentPage="getDorms"
-      @getPageSizes="getDorms" />
-    <!-- 对话框 -->
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
+    <!-- 对话框-->
     <FormDialog
       :width="45"
       v-model="dormVisible"
