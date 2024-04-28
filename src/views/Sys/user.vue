@@ -6,9 +6,13 @@ import {
   CreateUser,
   QueryUser
 } from "@/api/User/user"
+import { GetFloorWithDormList } from "@/api/Dorm/floors"
+import { GetRolesMsg } from "@/api/Role/role"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
+import { formRules } from "@/rules/userRules"
 const Form = ref(null)
+const searchRef = ref(null)
 const userListSearch = reactive({
   username: ""
 })
@@ -33,17 +37,18 @@ const handleDeleteUser = (id) => {
     deleteSysUser(id)
   })
 }
-// const handleResetPassword = () => {
-//   ElMessageBox.confirm("确定重置密码为:123456?", "提示", {
-//     confirmButtonText: "OK",
-//     cancelButtonText: "Cancel",
-//     type: "warning"
-//   })
-// }
 const handleEditUser = (row) => {
-  userEditParams.value = row
+  console.log(row)
+  userEditParams.value = {
+    ID: row.ID,
+    userName: row.userName,
+    roleId: row.roleId,
+    sex: row.sex,
+    remark: row.remark,
+    dormId:row.dormId,
+  }
   drawerVisible.value = true
-  console.log("row55", userEditParams.value)
+  // console.log("row55", userEditParams.value)
 }
 const handlerReset = () => {
   Form.value.resetFields()
@@ -57,40 +62,12 @@ const handlerReset = () => {
 }
 const userEditParams = ref({
   userName: "",
-  authorityId: "",
-  // nickname: "",
+  roleId: "",
   sex: "",
-  // telephone: "",
+  dormId: "",
   remark: ""
 })
-const checkUsername = (rule, value, callback) => {
-  if (value.length < 5) {
-    return callback(new Error("请输入正确的用户名"))
-  } else {
-    callback()
-  }
-}
-// const phone = (rule, value, callback) => {
-//   let reg = /^1[3-9]\d{9}$/
-//   const isTrue = reg.test(value)
-//   if (!isTrue) {
-//     callback(new Error("请输入正确格式的手机号码"))
-//   } else {
-//     callback()
-//   }
-// }
-const formRules = {
-  userName: [
-    { required: true, message: "用户名不能为空", trigger: "blur" },
-    { validator: checkUsername, trigger: "blur" }
-  ],
-  // nickname: [{ required: true, message: "昵称不能为空", trigger: "blur" }],
-  sex: [{ required: true, message: "性别不能为空", trigger: "blur" }]
-  // telephone: [
-  //   { required: true, message: "电话不能为空", trigger: "blur" },
-  //   { validator: phone, trigger: "blur" }
-  // ]
-}
+
 /* 接口 */
 // 添加用户
 const createSysUser = async () => {
@@ -110,14 +87,13 @@ const deleteSysUser = async (id) => {
   status ? getSysUserList() : ""
 }
 // 获取用户列表
-let Pages = reactive({
+let Pages = ref({
   PageSize: 10,
   Page: 1
 })
 const total = ref(0)
 const getSysUserList = async () => {
-  const { code, data } = await getUserList(Pages)
-  console.log("发起求情")
+  const { code, data } = await getUserList(Pages.value)
   if (code === 200) {
     tableData.value = data.list
     total.value = data.total
@@ -135,19 +111,50 @@ const editSysUserInfo = async () => {
 }
 //搜索用户
 const queryUserInfo = async () => {
-  console.log("搜索");
-  const { code, data,msg } = await QueryUser(Pages, {
+  // console.log("搜索");
+  const { code, data, msg } = await QueryUser(Pages.value, {
     userName: userListSearch.username
   })
-  console.log(msg,data);
+  // console.log(msg,data);
   if (code === 200) {
     tableData.value = data.list
     total.value = data.total
+  } else {
+    const status = Notification(code, msg)
+  }
+}
+const roleList = ref([])
+const getRoleMsg = async () => {
+  const { code, data } = await GetRolesMsg()
+  // console.log("角色数据+++++", data)
+  if (code == 200) {
+    roleList.value = data
   }
 }
 onMounted(() => {
+  getRoleMsg()
   getSysUserList()
+  getFloorWithDorm()
 })
+//获取宿舍楼和宿舍信息
+const options = ref([])
+const getFloorWithDorm = async () => {
+  const { code, data } = await GetFloorWithDormList()
+  // console.log("ppp", data)
+  if (code == 200) {
+    options.value = data.list
+  }
+}
+//页码数发生改变
+const HandlePageChange = async (page) => {
+  Pages.value = page
+  // console.log("页数和页码发生改变99999")
+  const { code, data } = await getUserList(Pages.value)
+  console.log("hhhh", data)
+  if (code === 200) {
+    tableData.value = data.list
+  }
+}
 </script>
 <template>
   <div>
@@ -160,6 +167,7 @@ onMounted(() => {
         style="width: 180px"
         prop="username">
         <el-input
+          clearable
           placeholder="请输入用户名"
           v-model="userListSearch.username" />
       </el-form-item>
@@ -179,11 +187,12 @@ onMounted(() => {
         >添加用户</el-button
       >
     </el-row>
+
     <el-table
       size="large"
       :data="tableData"
       stripe
-      style="width: 100%">
+      :max-height="500">
       <el-table-column
         prop="avatar"
         label="头像"
@@ -196,7 +205,7 @@ onMounted(() => {
         /></template>
       </el-table-column>
       <el-table-column
-        prop="authorityId"
+        prop="roleId"
         label="角色ID"
         width="180" />
       <el-table-column
@@ -230,8 +239,8 @@ onMounted(() => {
     </el-table>
     <Pagination
       :total="total"
-      @getCurrentPage="0"
-      @getPageSizes="0" />
+      @getCurrentPage="HandlePageChange"
+      @getPageSizes="HandlePageChange" />
     <el-drawer
       @close="handlerReset"
       v-model="drawerVisible"
@@ -268,29 +277,39 @@ onMounted(() => {
             placeholder="Please input" />
         </el-form-item>
         <el-form-item
-          prop="sex"
+          prop="roleId"
           label="角色id">
           <el-select
-            v-model="userEditParams.authorityId"
+            v-model="userEditParams.roleId"
             style="width: 200px"
-            :disabled="Boolean(userEditParams.ID)"
             placeholder="please select your role">
             <el-option
-              label="学生"
-              :value="3" />
-            <el-option
-              label="宿管"
-              :value="2" />
+              v-for="item in roleList"
+              :key="item.ID"
+              :label="item.roleName"
+              :value="item.ID" />
           </el-select>
         </el-form-item>
-        <!-- <el-form-item
-          prop="nickname"
-          label="昵称">
-          <el-input
-            v-model="userEditParams.nickname"
-            style="width: 200px"
-            placeholder="Please input" />
-        </el-form-item> -->
+        <el-form-item
+          label="宿舍"
+          v-if="userEditParams.roleId === 3"
+          prop="dormId">
+          <el-select
+            v-model="userEditParams.dormId"
+            placeholder="请选择宿舍"
+            style="width: 200px">
+            <el-option-group
+              v-for="group in options"
+              :key="group.floorsName"
+              :label="group.floorsName">
+              <el-option
+                v-for="item in group.dormList"
+                :key="item.id"
+                :label="group.floorsName + `-` + item.dormNumber"
+                :value="item.id" />
+            </el-option-group>
+          </el-select>
+        </el-form-item>
         <el-form-item
           prop="sex"
           label="性别">
@@ -306,14 +325,7 @@ onMounted(() => {
               value="女" />
           </el-select>
         </el-form-item>
-        <!-- <el-form-item
-          prop="telephone"
-          label="电话">
-          <el-input
-            v-model="userEditParams.telephone"
-            style="width: 200px"
-            placeholder="Please input" />
-        </el-form-item> -->
+
         <el-form-item
           prop="remark"
           label="备注">

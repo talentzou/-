@@ -16,6 +16,7 @@ export const updateRepairResponse = (data) => {
 }
 
 export const createRepairResponse = (data) => {
+  console.log("参数为",data);
   return request({
     method: "post",
     url:"/jwt/Repair/createRepair",

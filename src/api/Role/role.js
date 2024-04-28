@@ -1,5 +1,5 @@
 import request from "@/utils/axios"
-// 获取用户信息
+// 获取角色详细信息
 export const GetRoles = () => {
   return request({
     method: "get",
@@ -15,12 +15,18 @@ export const DeleteRoles = (data) => {
     data
   })
 }
-
+// 创建角色
 export const CreateRoles = (data) => {
- 
   return request({
     method: "post",
     url: "/base/sys_jwt/role/createRoles",
     data,
+  })
+}
+// 获取角色信息
+export const GetRolesMsg = () => {
+  return request({
+    method: "get",
+    url: "/base/sys_jwt/role/getRoleMessage"
   })
 }

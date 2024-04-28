@@ -113,7 +113,7 @@ async function updateUserInfo(url) {
         >
         <el-descriptions-item
           label-class-name="my-label"
-          label="姓名">
+          label="昵称">
           {{ userInfo.nickname }}</el-descriptions-item
         >
         <el-descriptions-item
@@ -124,7 +124,7 @@ async function updateUserInfo(url) {
         <el-descriptions-item
           label="宿舍"
           label-class-name="my-label">
-          {{ userInfo.dorm }}</el-descriptions-item
+          {{ userInfo.dorm.floorsName+"-"+userInfo.dorm.dormNumber }}</el-descriptions-item
         >
         <el-descriptions-item
           label="手机号码"
@@ -138,7 +138,7 @@ async function updateUserInfo(url) {
         >
         <el-descriptions-item
           label-class-name="my-label"
-          label="个人描述">
+          label="备注">
           {{ userInfo.remark }}
         </el-descriptions-item>
       </el-descriptions>
@@ -185,14 +185,14 @@ async function updateUserInfo(url) {
               value="女" />
           </el-select>
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           prop="dorm"
           label="宿舍">
           <el-input
             v-model="userInfo.dorm"
             style="width: 200px"
             placeholder="Please input" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item
           prop="telephone"
           label="电话">
@@ -210,14 +210,14 @@ async function updateUserInfo(url) {
             style="width: 200px"
             placeholder="Please input" />
         </el-form-item>
-        <el-form-item
+        <!-- <el-form-item
           prop="remark"
           label="个人描述">
           <el-input
             v-model="userInfo.remark"
             style="width: 200px"
             placeholder="Please input" />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <template #footer>
         <div class="dialog-footer">

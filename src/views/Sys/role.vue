@@ -1,7 +1,7 @@
 <script setup>
 import { GetAllMenus } from "@/api/Menu/menu"
 import { GetBtnTree } from "@/api/Btn/btns"
-import { GetRoles, DeleteRoles, CreateRoles} from "@/api/Role/role"
+import { GetRoles, DeleteRoles, CreateRoles } from "@/api/Role/role"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 const drawerVisible = ref(false)
@@ -13,13 +13,7 @@ const editRoleParams = ref({
 const formRules = {
   roleName: [{ required: true, message: "角色名称不能为空", trigger: "blur" }]
 }
-const RoleTableData = ref([
-  {
-    ID: "2016-05-03",
-    roleName: "Tom",
-    CreatedAt: "No. 189, Grove St, Los Angeles"
-  }
-])
+const RoleTableData = ref([])
 // 删除角色回调
 const handleDeleteRole = (row) => {
   ElMessageBox.confirm("确定要删除吗", "提示", {

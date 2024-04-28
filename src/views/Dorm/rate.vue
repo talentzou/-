@@ -318,7 +318,7 @@ const HandlePageChange = async (page) => {
           <el-select
             v-model="rateEditParams.dormId"
             placeholder="请选择宿舍"
-            style="width: 240px">
+            style="width: 200px">
             <el-option-group
               v-for="group in options"
               :key="group.floorsName"

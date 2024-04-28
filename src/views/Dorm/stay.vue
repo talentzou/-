@@ -13,6 +13,9 @@ import { Notification } from "@/utils/notification"
 import { floorsName, dormNumber } from "@/rules/dormRules"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
+import { userStore } from "@/stores/user"
+const $userStore = userStore()
+const userInfo = computed(() => $userStore.userInfo)
 const { operate_auth, table_auth } = authFields("stay")
 //表格实例
 const refTable = ref(null)
@@ -375,7 +378,7 @@ const HandlePageChange = async (page) => {
           label="意见"
           prop="opinions"
           v-auth="`stay_add_opinions`"
-          v-if="stayEditParams.id">
+          v-if="userInfo.roleId!==3">
           <el-select
             v-model="stayEditParams.opinions"
             placeholder="请选择意见">

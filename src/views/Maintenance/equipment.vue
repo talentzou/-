@@ -13,13 +13,16 @@ import { floorDormRule } from "@/rules/dormRules"
 import { Notification } from "@/utils/notification"
 import { authFields } from "@/utils/authFields"
 import { FormatTime } from "@/utils/time"
+import { userStore } from "@/stores/user"
+const $userStore = userStore()
+const userInfo = computed(() => $userStore.userInfo)
 const { operate_auth, table_auth } = authFields("repair")
 const refTable = ref(null)
 const Form = ref(null)
 const searchRef = ref(null)
 let maintenanceSearchParams = reactive({
   floorDorm: "",
-  repairStatus:""
+  repairStatus: ""
 })
 //导出对话框
 const expDialog = ref(false)
@@ -65,9 +68,12 @@ let Pages = ref({
 // 获取
 async function getRepairs() {
   console.log("发起请求")
-  const { code, data } = await getRepairResponse(maintenanceSearchParams, Pages.value)
+  const { code, data } = await getRepairResponse(
+    maintenanceSearchParams,
+    Pages.value
+  )
   if (code == 200) {
-    console.log("9kkkk+++",data);
+    console.log("9kkkk+++", data)
     repairTableData.value = data.list
     total.value = data.total
   }
@@ -123,7 +129,7 @@ async function SearchRepairs() {
     return
   }
   const valid = await submitForm(searchRef.value)
-  console.log("校验+++++++",valid);
+  console.log("校验+++++++", valid)
   if (valid) {
     getRepairs()
   }
@@ -142,7 +148,7 @@ onMounted(() => {
 })
 //页码数发生改变
 const HandlePageChange = async (page) => {
-  Pages.value=page
+  Pages.value = page
   const { code, data } = await getRepairResponse(maintenanceSearchParams, page)
   if (code == 200) {
     repairTableData.value = data.list
@@ -341,6 +347,7 @@ const HandlePageChange = async (page) => {
           </el-select>
         </el-form-item>
         <el-form-item
+          v-if="userInfo.roleId !== 3"
           label="维修状态"
           prop="repairStatus">
           <el-select
@@ -370,6 +377,7 @@ const HandlePageChange = async (page) => {
             placeholder="请输入手机号码" />
         </el-form-item>
         <el-form-item
+          v-if="userInfo.roleId !== 3"
           label="维修人员"
           prop="repairer">
           <el-input

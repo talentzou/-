@@ -44,7 +44,7 @@ export const routesStore = defineStore("route", () => {
     localRoutes.forEach((item) => {
       router.addRoute(item)
     })
-    console.log("我是路由仓库做操添加路由完成",res)
+    // console.log("我是路由仓库做操添加路由完成",res)
     // console.log(router.getRoutes())
     //菜单
     const resultRoutes = [...constantRoutes, ...localRoutes]

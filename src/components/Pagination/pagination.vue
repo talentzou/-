@@ -11,12 +11,12 @@ const pageAndSize = reactive({
   Page: 1
 })
 function handleSizeChange(event) {
-  console.log("PageSizes", event)
+  // console.log("PageSizes", event)
   pageAndSize.PageSize = event
   $emit("getPageSizes", {PageSize: event, Page: pageAndSize.Page})
 }
 function handleCurrentChange(event) {
-  console.log("我是页数改变触发Page9999", event)
+  // console.log("我是页数改变触发Page9999", event)
   pageAndSize.Page = event
   $emit("getCurrentPage", {PageSize: pageAndSize.PageSize, Page:event})
 }

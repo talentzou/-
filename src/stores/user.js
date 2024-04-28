@@ -24,13 +24,17 @@ export const userStore = defineStore("user", () => {
     })
     try {
       const res = await LoginResponse(FormData)
+      console.log("++++++++++",res);
       if (res.code == 200) {
         userInfo.value = res.data.user
-        // authBtn.value=res.data?.user?.sysBtns
+        // 获取token
         token.value = res.data.token
         const $routesStore = routesStore()
         // 获取菜单路由
-        await $routesStore.getAsyncRoutesMenu(userInfo.value.authorityId)
+        // await $routesStore.getAsyncRoutesMenu(userInfo.value.authorityId)userInfo.value.roleId
+          await $routesStore.getAsyncRoutesMenu()
+          // 获取用户信息
+          getUserInfo()
         router.push({ path: "/", replace: true })
       } else {
         Notification(res.code, res.msg)
@@ -57,6 +61,7 @@ export const userStore = defineStore("user", () => {
     // console.log("获取用户数据9999999999",res);
     userInfo.value = res.data.userInfo
     const res2 = await GetUserSelfBtn()
+    // console.log("获取按钮数据为+++++++++++++");
     console.log("按钮数据为++++++",res2);
     authBtn.value = res2.data.btns
     // console.log("用户数据",authBtn.value);
