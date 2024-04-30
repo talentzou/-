@@ -85,7 +85,10 @@ async function getRates(PageAndSize) {
     Pages = PageAndSize
   }
   // console.log("发起请求")
-  const { code, data, msg } = await getRateResponse(rateSearchParams, Pages.value)
+  const { code, data, msg } = await getRateResponse(
+    rateSearchParams,
+    Pages.value
+  )
 
   if (code == 200) {
     rateTableData.value = data.list
@@ -93,13 +96,12 @@ async function getRates(PageAndSize) {
   } else {
     Notification(code, msg)
   }
- 
 }
 // 更新
 async function updateRates() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    rateEditParams.value.totalScore=totalScore.value
+    rateEditParams.value.totalScore = totalScore.value
     const { code, msg } = await updateRateResponse(rateEditParams.value)
     rateVisible.value = false
     const status = Notification(code, msg)
@@ -121,10 +123,21 @@ async function deleteRates(list) {
 async function createRates() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list = toRaw(rateEditParams.value)
-    console.log("HSBB", list)
-    rateEditParams.value.totalScore = totalScore.value
-    console.log("数据为", typeof rateEditParams.value.totalScore)
+    let list = toRaw(rateEditParams.value)
+    // console.log("HSBB", list)
+    // rateEditParams.value.totalScore = totalScore.value
+    list = {
+      rateDate: list.rateDate,
+      dormId: list.dormId,
+      bedRate: list.bedRate,
+      groundRate: list.groundRate,
+      lavatory: list.lavatory,
+      goods: list.goods,
+      totalScore: totalScore.value,
+      rater: list.rater,
+      evaluation: list.evaluation
+    }
+    // console.log("数据为", typeof rateEditParams.value.totalScore)
     const { code, msg } = await createRateResponse([list])
     rateVisible.value = false
     const status = Notification(code, msg)
@@ -161,8 +174,8 @@ onMounted(() => {
 })
 //页码数发生改变
 const HandlePageChange = async (page) => {
-  Pages.value=page
-  const { code, data, } = await getRateResponse(rateSearchParams, page)
+  Pages.value = page
+  const { code, data } = await getRateResponse(rateSearchParams, page)
   if (code == 200) {
     rateTableData.value = data.list
   }

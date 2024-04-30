@@ -33,14 +33,14 @@ const floorsVisible = ref(false)
 let floorsParams = ref({
   floorsName: "",
   floorsType: "",
-  dormAmount:"",
+  dormAmount: ""
 })
 
 //导出数据
 const fields = {
   floorsName: "宿舍楼名",
   floorsType: "宿舍楼类型",
-  amount: "宿舍数量",
+  amount: "宿舍数量"
 }
 function exportTable({ filename, allSelect }) {
   const data = allSelect
@@ -58,19 +58,18 @@ function tagState(row) {
 //表格数据
 const tableData = ref([])
 const total = ref(0)
+// 获取楼层
 async function getFloors(PageAndSize) {
   if (PageAndSize !== undefined) {
     pageAndSizeParams = PageAndSize
   }
-  const { code, data,msg } = await getFloorsInfoRequest(
-    pageAndSizeParams
-  )
-  console.log(data,msg)
-  if(code==200){
+  const { code, data, msg } = await getFloorsInfoRequest(pageAndSizeParams)
+  console.log(data, msg)
+  if (code == 200) {
+    console.log("+++++++---", data)
     tableData.value = data.list
     total.value = data.total
   }
-
 }
 // 更新
 async function updateFloors() {
@@ -80,17 +79,23 @@ async function updateFloors() {
     floorsVisible.value = false
     const status = Notification(code, msg)
     status ? getFloors() : ""
+  
   }
 }
 // 删除
 async function deleteFloors(list) {
   console.log("LIST", list)
+  if (list.length == 0) {
+    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+  }
+
   const { code, msg } = await deleteFloorsInfoRequest(list)
   const status = Notification(code, msg)
   status ? getFloors() : ""
 }
 // 添加
 async function createFloors() {
+  delete floorsParams.value.id
   const valid = await submitForm(Form.value)
   console.log("949555", floorsParams.value)
   if (valid) {
@@ -180,9 +185,10 @@ const paramsRules = useRules(floorsParams.value)
       style="line-height: 50px"
       inline>
       <el-form-item
-        style="width: 250px"
+        style="width: 200px"
         prop="queryStr">
         <el-input
+          clearable
           placeholder="请输入宿舍楼名称"
           v-model="floorsSearchForm.queryStr" />
       </el-form-item>
@@ -198,6 +204,7 @@ const paramsRules = useRules(floorsParams.value)
     <OperateButton
       :isOperate="isOperate"
       :authBtn="operate_auth"
+      @delete="deleteFloors([])"
       @excel="expDialog = true"
       v-model="floorsVisible" />
     <!-- 表格数据 -->
@@ -231,7 +238,7 @@ const paramsRules = useRules(floorsParams.value)
         label="类型"
         width="250"
         align="center">
-        <template #default="{ row}">
+        <template #default="{ row }">
           <el-tag :type="tagState(row)">{{ row.floorsType }}</el-tag>
         </template>
       </el-table-column>

@@ -146,12 +146,19 @@ async function deleteStays(list) {
 async function createStays() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list = toRaw(stayEditParams.value)
+    let list = toRaw(stayEditParams.value)
     list.stayTime = {
       startTime: list.stayTime[0],
       endTime: list.stayTime[1]
     }
-    console.log("list", list)
+    list = {
+      stayTime: list.stayTime,
+      studentName: list.studentName,
+      dormId: list.dormId,
+      stayCause: list.stayCause,
+      opinions: list.opinions
+    }
+    // console.log("list", list)
     const { code, msg } = await createStayResponse([list])
     stayVisible.value = false
     const status = Notification(code, msg)
@@ -208,7 +215,7 @@ const HandlePageChange = async (page) => {
       :rules="searchRules"
       :model="staySearchParams"
       inline>
-      <el-form-item style="width: 250px">
+      <el-form-item style="width: 200px">
         <el-input
           clearable
           placeholder="请输入留宿学生名"
@@ -378,7 +385,7 @@ const HandlePageChange = async (page) => {
           label="意见"
           prop="opinions"
           v-auth="`stay_add_opinions`"
-          v-if="userInfo.roleId!==3">
+          v-if="userInfo.roleId !== 3">
           <el-select
             v-model="stayEditParams.opinions"
             placeholder="请选择意见">

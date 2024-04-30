@@ -131,7 +131,7 @@ onMounted(() => {
 })
 //页码数发生改变
 const HandlePageChange = async (page) => {
-  console.log("页码数发生改变");
+  console.log("页码数发生改变")
   Pages.value = page
   const { code, data } = await getStudentResponse(searchStudentParams, page)
   if (code == 200) {
@@ -152,6 +152,7 @@ const HandlePageChange = async (page) => {
         prop="studentNumber"
         style="width: 160px">
         <el-input
+          clearable
           v-model="searchStudentParams.studentNumber"
           placeholder="请输入学号" />
       </el-form-item>
@@ -208,7 +209,7 @@ const HandlePageChange = async (page) => {
         label="性别"
         width="120"
         align="center">
-        <template #default="{ row}"> </template>
+        <template #default="{ row }"> </template>
       </el-table-column>
       <el-table-column
         prop="phone"

@@ -114,10 +114,20 @@ async function deleteExpenses(list) {
 }
 // 添加
 async function createExpenses() {
+  delete expenseEditParams.value.id
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list = toRaw(expenseEditParams.value)
+    let list = toRaw(expenseEditParams.value)
     console.log("添加参数数据", list)
+    list = {
+      dormId: list.dormId,
+      paymentTime: list.paymentTime,
+      waterCharge: list.waterCharge,
+      electricityCharge: list.electricityCharge,
+      totalCost: list.totalCost,
+      accountant: list.accountant,
+      phone: list.phone
+    }
     const { code, msg } = await createExpenseResponse([list])
     expenseVisible.value = false
     const status = Notification(code, msg)

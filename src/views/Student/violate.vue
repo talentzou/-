@@ -56,9 +56,11 @@ let Pages = ref({
   PageSize: 10,
   Page: 1
 })
+//获取数据
 async function getViolates() {
 
   const { code, data } = await getViolateResponse(searchViolateParams, Pages.value)
+  // console.log("sssss++++",data);
   if (code == 200) {
     violateTableData.value = data.list
     total.value = data.total

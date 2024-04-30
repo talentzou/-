@@ -103,13 +103,13 @@ const total = ref(0)
 // 获取
 async function getDorms() {
   console.log("发起请求+++++++++++++++++++++")
-  const res= await getDormResponse(dormSearchParams,Pages.value)
+  const res = await getDormResponse(dormSearchParams, Pages.value)
   if (res.code == 200) {
     dormTableData.value = res.data.list
     // console.log("更新后的数据",data.list)
     total.value = res.data.total
   }
-  console.log("kkkkkkk",res);
+  console.log("kkkkkkk", res)
 }
 // 更新
 async function updateDorms() {
@@ -137,7 +137,13 @@ async function createDorms() {
   const valid = await submitForm(Form.value)
   if (valid) {
     console.log(addDormParams.value)
-    const { code, msg } = await createDormResponse([addDormParams.value])
+    let list = {
+      floorId: addDormParams.value.floorId,
+      dormNumber: addDormParams.value.dormNumber,
+      img: addDormParams.value.img,
+      Capacity: addDormParams.value.Capacity
+    }
+    const { code, msg } = await createDormResponse([list])
     dormVisible.value = false
     const status = Notification(code, msg)
     status ? getDorms() : ""
@@ -183,7 +189,7 @@ onMounted(() => {
 })
 //页码数发生改变
 const HandlePageChange = async (page) => {
-  Pages.value=page
+  Pages.value = page
   console.log("页数和页码发生改变")
   const { code, data } = await getDormResponse(dormSearchParams, page)
   if (code == 200) {
