@@ -49,22 +49,6 @@ const formRules = useRules(stayEditParams.value)
 //参数编辑对话框
 let stayVisible = ref(false)
 
-//导出表格
-const fields = {
-  stayDate: "留宿时间",
-  studentName: "学生姓名",
-  floorsName: "宿舍楼",
-  dormNumber: "宿舍",
-  stayCause: "留宿原因",
-  instructor: "辅导员",
-  auditProgress: "审核意见"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
 //标签颜色
 function stateTag(text) {
   switch (text) {
@@ -411,9 +395,9 @@ const HandlePageChange = async (page) => {
         </el-form-item>
       </el-form></FormDialog
     >
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 @/server/MG/stay/stay @/rules/dormRules

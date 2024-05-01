@@ -31,23 +31,10 @@ let violateEditParams = ref({
   resolve: "",
   recordDate: ""
 })
-// 导出
-const fields = {
-  studentNumber: "学生学号",
-  studentName: "学生姓名",
-  dormNumber: "宿舍",
-  violate: "违纪内容",
-  resolve: "处理措施",
-  recordDate: "登记日期"
-}
+
 const formRules = useRules(violateEditParams.value)
 const refTable = ref(null)
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
+
 
 /* 接口 */
 let violateTableData = ref([])
@@ -57,15 +44,14 @@ let Pages = ref({
   Page: 1
 })
 //获取数据
-async function getViolates() {
-
-  const { code, data } = await getViolateResponse(searchViolateParams, Pages.value)
-  // console.log("sssss++++",data);
-  if (code == 200) {
-    violateTableData.value = data.list
-    total.value = data.total
+const getViolates = async () => {
+  const res = await getViolateResponse(searchViolateParams, Pages.value)
+  //{ code, data }
+  console.log("bcbcdbbcbc", res)
+  if (res.code == 200) {
+    violateTableData.value = res.data.list
+    total.value = res.data.total
   }
-  console.log("jjjj", data.list)
 }
 // 更新
 async function updateViolates() {
@@ -81,24 +67,38 @@ async function updateViolates() {
   }
 }
 // 删除
-async function deleteViolates(list) {
-  if (list === undefined) {
-    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
-    // list=toRaw(refTable.value.getSelectionRows())
+async function deleteViolates(row) {
+  let list = []
+  if (row === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => {
+      return { dormId: item.dormId, id: item.id }
+    })
+    // console.log("kkkkk", list)
+  } else {
+    list = [{ dormId: row.dormId, id: row.id }]
   }
-  console.log("LIST", list)
+  // console.log("++++LIST", list)
   const { code, msg } = await deleteViolateResponse(list)
   const status = Notification(code, msg)
+  console.log("----删除后获取------")
   status ? getViolates() : ""
 }
 // 添加
 async function createViolates() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list = toRaw(violateEditParams.value)
+    let list = toRaw(violateEditParams.value)
     // console.log("list", list)
-    list.dormId = violateEditParams.value.sorts[0]
-    list.studInfoId = violateEditParams.value.sorts[1]
+    // list.dormId = violateEditParams.value.sorts[0]
+    // list.studInfoId = violateEditParams.value.sorts[1]
+    list = {
+      studInfoId: violateEditParams.value.sorts[1],
+      dormId: violateEditParams.value.sorts[0],
+      violate: list.violate,
+      resolve: list.resolve,
+      recordDate: list.recordDate
+    }
+    console.log("添加参数为++++", list)
     const { code, msg } = await createViolateResponse([list])
     violateVisible.value = false
     const status = Notification(code, msg)
@@ -141,9 +141,9 @@ const getDormWithStu = async () => {
 const mergeParams = (arr) => {
   violateVisible.value = true
   options.value = NotHaveChild.value
-  violateEditParams.value.sorts=[arr[0]]
+  violateEditParams.value.sorts = [arr[0]]
   // violateEditParams.value.studInfoId=arr[1]
-  console.log(violateEditParams.value);
+  console.log(violateEditParams.value)
 }
 // 处理数据
 // 处理数据
@@ -181,7 +181,7 @@ onMounted(() => {
 })
 //页码数发生改变
 const HandlePageChange = async (page) => {
-  Pages.value=page
+  Pages.value = page
   const { code, data } = await getViolateResponse(searchViolateParams, page)
   if (code == 200) {
     violateTableData.value = data.list
@@ -199,6 +199,7 @@ const HandlePageChange = async (page) => {
         prop="floorDorm"
         style="width: 160px">
         <el-input
+          clearable
           v-model="searchViolateParams.floorDorm"
           placeholder="请输入宿舍名称" />
       </el-form-item>
@@ -284,7 +285,7 @@ const HandlePageChange = async (page) => {
         width="120"
         align="center">
         <template #default="{ row }">
-        {{ FormatTime(row.recordDate) }}
+          {{ FormatTime(row.recordDate) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -295,7 +296,7 @@ const HandlePageChange = async (page) => {
           <TableButton
             :row="row"
             :authBtn="table_auth"
-            @delete="deleteViolates"
+            @delete="deleteViolates(row)"
             @merge="mergeParams"
             v-model="violateEditParams" />
         </template>
@@ -366,8 +367,8 @@ const HandlePageChange = async (page) => {
         </el-form-item>
       </el-form>
     </FormDialog>
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>

@@ -9,8 +9,8 @@ import { resetForm, submitForm } from "@/utils/rules"
 import { noticeRules } from "@/rules/noticeRules"
 import { Notification } from "@/utils/notification"
 import { onMounted } from "vue"
-import { authFields} from "@/utils/authFields"
-const {table_auth}=authFields("repair")
+import { authFields } from "@/utils/authFields"
+const { table_auth } = authFields("repair")
 const Form = ref(null)
 const refTable = ref(null)
 const searchNotice = ref("")
@@ -37,6 +37,7 @@ let Pages = reactive({
   PageSize: 10,
   Page: 1
 })
+// 获取
 async function getNotices(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
@@ -72,9 +73,15 @@ async function deleteNotices(list) {
 // 添加
 async function createNotices() {
   const valid = await submitForm(Form.value)
+
   if (valid) {
-    const list = toRaw(noticeEditParams.value)
-    console.log("list", list)
+    let list = toRaw(noticeEditParams.value)
+    // console.log("list", list)
+    list = {
+      title: list.title,
+      author: list.author,
+      timestamp: list.timestamp
+    }
     const { code, msg } = await createNoticeResponse([list])
     dialogVisible.value = false
     const status = Notification(code, msg)

@@ -1,6 +1,6 @@
 <script setup>
 import { useRules, searchRule } from "@/rules/studentRules"
-import { useExportExcel } from "@/utils/exportExcel"
+
 import { resetForm, submitForm } from "@/utils/rules"
 import {
   getStudentResponse,
@@ -31,20 +31,7 @@ let studentEditParams = ref({
 })
 const searchRules = searchRule
 const formRules = useRules(studentEditParams.value)
-// 导出
-const fields = {
-  studentName: "学生姓名",
-  studentNumber: "学号",
-  sex: "性别",
-  phone: "联系电话",
-  dormId: "宿舍"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
+
 /* 接口 */
 let studentTableData = ref([])
 const total = ref(0)
@@ -75,10 +62,15 @@ async function updateStudents() {
   }
 }
 // 删除
-async function deleteStudents(list) {
-  if (list === undefined) {
-    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
-    // list=toRaw(refTable.value.getSelectionRows())
+async function deleteStudents(row) {
+  let list = []
+  if (row === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => {
+      return { id: item.id }
+    })
+  } else {
+    // console.log(row);
+    list = [{ id: row.id }]
   }
   console.log("LIST", list)
   const { code, msg } = await deleteStudentResponse(list)
@@ -89,8 +81,15 @@ async function deleteStudents(list) {
 async function createStudents() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list = toRaw(studentEditParams.value)
+    let list = toRaw(studentEditParams.value)
     console.log("list", list)
+    list = {
+      studentName: list.studentName,
+      studentNumber: list.studentNumber,
+      sex: list.sex,
+      phone: list.phone,
+      dormId: list.dormId
+    }
     const { code, msg } = await createStudentResponse([list])
     studentVisible.value = false
     const status = Notification(code, msg)
@@ -326,9 +325,9 @@ const HandlePageChange = async (page) => {
         </el-form-item>
       </el-form>
     </FormDialog>
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 

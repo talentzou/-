@@ -71,3 +71,19 @@ if (data.length === 0) {
   const blob = new Blob([buffer], { type: "application/octet-stream" })
   saveAs(blob, `${filename}.xlsx`)
 }
+/* 
+// 导出import { useExportExcel } from "@/utils/exportExcel"
+// const fields = {
+//   studentName: "学生姓名",
+//   studentNumber: "学号",
+//   sex: "性别",
+//   phone: "联系电话",
+//   dormId: "宿舍"
+// }
+// function exportTable({ filename, allSelect }) {
+//   const data = allSelect
+//     ? refTable.value.data
+//     : refTable.value.getSelectionRows()
+//   useExportExcel(data, fields, filename)
+// }
+ */

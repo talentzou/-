@@ -36,18 +36,6 @@ let floorsParams = ref({
   dormAmount: ""
 })
 
-//导出数据
-const fields = {
-  floorsName: "宿舍楼名",
-  floorsType: "宿舍楼类型",
-  amount: "宿舍数量"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
 
 function tagState(row) {
   let type = row.floorsType === "男生宿舍" ? "success" : "danger"
@@ -319,9 +307,9 @@ const paramsRules = useRules(floorsParams.value)
         </el-form-item>
       </el-form>
     </FormDialog>
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 @/server/MG/stay/floors/floors @/rules/dormRules

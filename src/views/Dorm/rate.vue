@@ -6,7 +6,6 @@ import {
   createRateResponse
 } from "@/api/Dorm/rate"
 import { GetFloorWithDormList } from "@/api/Dorm/floors"
-import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
@@ -54,25 +53,7 @@ watchEffect(() => {
     rateEditParams.value.evaluation = "不合格"
   }
 })
-//导出表格
-const fields = {
-  floorsName: "宿舍楼",
-  rateDate: "评分时间",
-  dormNumber: "宿舍",
-  bedRate: "床铺评分",
-  groundRate: "地面评分",
-  lavatory: "厕所卫生评分",
-  goods: "物品摆放评分",
-  totalScore: "总分",
-  rater: "评分人",
-  evaluation: "综合评价"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
+
 /* 接口 */
 let rateTableData = ref([])
 const total = ref(0)
@@ -137,6 +118,7 @@ async function createRates() {
       rater: list.rater,
       evaluation: list.evaluation
     }
+    console.log("参数为", list);
     // console.log("数据为", typeof rateEditParams.value.totalScore)
     const { code, msg } = await createRateResponse([list])
     rateVisible.value = false
@@ -425,9 +407,9 @@ const HandlePageChange = async (page) => {
         </el-form-item>
       </el-form>
     </FormDialog>
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 <style scoped></style>

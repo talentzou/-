@@ -6,7 +6,7 @@ import {
   deleteRepairResponse
 } from "@/api/Repair/repair"
 import { GetFloorWithDormList } from "@/api/Dorm/floors"
-import { useExportExcel } from "@/utils/exportExcel"
+
 import { useRules } from "@/rules/maintenanceRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { floorDormRule } from "@/rules/dormRules"
@@ -39,24 +39,7 @@ let maintenanceEditParams = ref({
 })
 
 const formRules = useRules(maintenanceEditParams.value)
-//导出表格
-const fields = {
-  floorsName: "宿舍楼",
-  dormNumber: "宿舍",
-  problems: "故障问题",
-  submitDate: "提交日期",
-  repairStatus: "维修状态",
-  reportMan: "上报人",
-  phone: "联系电话",
-  repairer: "维修者",
-  remark: "备注"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
+
 
 /* 接口 */
 let repairTableData = ref([])
@@ -105,8 +88,17 @@ async function deleteRepairs(list) {
 async function createRepairs() {
   const valid = await submitForm(Form.value)
   if (valid) {
-    const list = toRaw(maintenanceEditParams.value)
+    let list = toRaw(maintenanceEditParams.value)
     console.log("list", list)
+    list = {
+      dormId: list.dormId,
+      problems: list.problems,
+      submitDate: list.submitDate,
+      repairStatus: list.repairStatus,
+      reportMan: list.reportMan,
+      phone: list.phone,
+      repairer: list.repairer
+    }
     const { code, msg } = await createRepairResponse([list])
     repairVisible.value = false
     const status = Notification(code, msg)
@@ -259,7 +251,7 @@ const HandlePageChange = async (page) => {
       <el-table-column
         prop="submitDate"
         label="报修时间"
-        width="200"
+        width="150"
         align="center"
         ><template #default="{ row }">
           {{ FormatTime(row.submitDate) }}
@@ -268,7 +260,7 @@ const HandlePageChange = async (page) => {
       <el-table-column
         prop="finishDate"
         label="完成时间"
-        width="200"
+        width="150"
         align="center"
         ><template #default="{ row }">
           {{
@@ -409,9 +401,9 @@ const HandlePageChange = async (page) => {
         </el-form-item></el-form
       ></FormDialog
     >
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 

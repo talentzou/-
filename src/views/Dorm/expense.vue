@@ -6,7 +6,6 @@ import {
   createExpenseResponse
 } from "@/api/Expense/expense"
 import { GetFloorWithDormList } from "@/api/Dorm/floors"
-import { useExportExcel } from "@/utils/exportExcel"
 import { resetForm, submitForm } from "@/utils/rules"
 import { useRules } from "@/rules/expenseRules"
 import { floorDormRule } from "@/rules/dormRules"
@@ -37,24 +36,6 @@ let isOperate = ref(true)
 const expDialog = ref(false)
 
 let expenseVisible = ref(false)
-//导出表格
-const fields = {
-  floorsName: "宿舍楼",
-  dormNumber: "宿舍",
-  paymentTime: "订单时间",
-  waterCharge: "水费",
-  electricityCharge: "电费",
-  totalCost: "总费用",
-  accountant: "计算人",
-  phone: "联系电话",
-  remark: "备注"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
 
 const totalCost = computed(() => {
   const electricityCharge =
@@ -74,6 +55,7 @@ let Pages = ref({
   PageSize: 10,
   Page: 1
 })
+// 获取
 async function getExpenses(PageAndSize) {
   if (PageAndSize !== undefined) {
     Pages = PageAndSize
@@ -102,10 +84,15 @@ async function updateExpenses() {
   }
 }
 // 删除
-async function deleteExpenses(list) {
-  if (list === undefined) {
-    list = refTable.value.getSelectionRows().map((item) => toRaw(item))
+async function deleteExpenses(row) {
+  let list = []
+  if (row === undefined) {
+    list = refTable.value.getSelectionRows().map((item) => {
+      return { id: item.id }
+    })
     // list=toRaw(refTable.value.getSelectionRows())
+  } else {
+    list = [{ id: row.id }]
   }
   console.log("LIST", list)
   const { code, msg } = await deleteExpenseResponse(list)
@@ -383,9 +370,9 @@ const HandlePageChange = async (page) => {
         </el-form-item>
       </el-form>
     </FormDialog>
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 

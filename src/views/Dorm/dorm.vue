@@ -6,7 +6,6 @@ import {
   createDormResponse
 } from "@/api/Dorm/dorm"
 import { getFloorsInfoRequest } from "@/api/Dorm/floors"
-import { useExportExcel } from "@/utils/exportExcel"
 import { useRules } from "@/rules/dormRules"
 import { resetForm, submitForm } from "@/utils/rules"
 import { dormNumber } from "@/rules/dormRules"
@@ -42,20 +41,7 @@ const searchRules = {
 const formParamsRules = useRules(addDormParams.value)
 let dormVisible = ref(false)
 let isOperate = ref(true)
-//导出数据
-const fields = {
-  floorsName: "宿舍楼名",
-  dormNumber: "宿舍",
-  img: "宿舍照片",
-  dormCapacity: "宿舍类型",
-  dormStatus: "宿舍状态"
-}
-function exportTable({ filename, allSelect }) {
-  const data = allSelect
-    ? refTable.value.data
-    : refTable.value.getSelectionRows()
-  useExportExcel(data, fields, filename)
-}
+
 
 function handleAvatarSuccess(response, file, fileList) {
   console.log("Upload successful:", response)
@@ -414,9 +400,9 @@ const HandlePageChange = async (page) => {
         </el-form-item>
       </el-form></FormDialog
     >
-    <ExportDialog
+    <!-- <ExportDialog
       v-model="expDialog"
-      @select="exportTable" />
+      @select="exportTable" /> -->
   </div>
 </template>
 <style>
