@@ -30,6 +30,7 @@ onMounted(() => {
   getHome()
   getNotices()
 })
+
 </script>
 <template>
   <div class="home">

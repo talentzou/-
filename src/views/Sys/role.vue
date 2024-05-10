@@ -30,14 +30,18 @@ const listM = ref([])
 const listB = ref([])
 // 处理选中节点
 const RoleId = ref(0)
+let parentIdCount=ref(0)
 const handleMenuAndBtnIdList = (row) => {
   RoleId.value = row.ID
   drawerVisible.value = true
   const list = []
   // console.log(row.Menu)
   row.Menu.forEach((element, index) => {
+
     if (element.parent_id !== 0) {
       list.push(element.id)
+    }else{
+      parentIdCount.value= parentIdCount.value+1
     }
   })
   // console.log("菜单id", list)
@@ -65,7 +69,7 @@ const handleBtnTree = (data) => {
   console.log("菜单按钮", btnList)
   return btnList
 }
-const setAuthority = async () => {}
+// const setAuthority = async () => {}
 /* 接口数据 */
 // 获取角色列表
 const getRoleList = async () => {
@@ -103,12 +107,15 @@ const createRoles = async () => {
     const status = Notification(code, msg)
     status ? getRoleList() : ""
   }
+
 }
 // 删除角色
 const deleteRoles = async (row) => {
   const { code, msg } = await DeleteRoles(toRaw(row))
   const status = Notification(code, msg)
   status ? getRoleList() : ""
+    //++++++++++++++++
+    drawerVisible.value=false
 }
 
 onMounted(() => {
@@ -169,6 +176,7 @@ onMounted(() => {
     </el-table>
     <el-drawer
       v-model="drawerVisible"
+      @close="parentIdCount=0"
       title="设置权限"
       :show-close="false">
       <el-tabs
@@ -180,8 +188,10 @@ onMounted(() => {
               v-if="drawerVisible"
               :data="Menus"
               :roleId="RoleId"
+              :count="parentIdCount"
               tab="menu"
               :list="listM"
+              @close="drawerVisible=false"
               @change="getRoleList" />
           </template>
         </el-tab-pane>
@@ -193,6 +203,7 @@ onMounted(() => {
               :roleId="RoleId"
               tab="btn"
               :list="listB"
+              @close="drawerVisible=false"
               @change="getRoleList" /> </template
         ></el-tab-pane>
       </el-tabs>

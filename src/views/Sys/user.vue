@@ -11,6 +11,7 @@ import { GetRolesMsg } from "@/api/Role/role"
 import { resetForm, submitForm } from "@/utils/rules"
 import { Notification } from "@/utils/notification"
 import { formRules } from "@/rules/userRules"
+import {FormatTime} from "@/utils/time"
 const Form = ref(null)
 const searchRef = ref(null)
 const userListSearch = reactive({
@@ -214,6 +215,9 @@ const HandlePageChange = async (page) => {
       <el-table-column
         prop="CreatedAt"
         label="创建时间">
+      <template #default="{row}">
+         {{ FormatTime(row.CreatedAt) }}
+      </template>
       </el-table-column>
       <el-table-column
         fixed="right"
